@@ -75,7 +75,8 @@ const ChatbotIA = () => {
 
   const [liveAnnounce, setLiveAnnounce] = useState('');
 
-  const API_URL = 'http://localhost:3001/api';
+  const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
+  const API_URL = `${API_BASE_URL}/api`;
 
   // Contexte profil envoyé au backend à chaque requête
   const profileContext = `
