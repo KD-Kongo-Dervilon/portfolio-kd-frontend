@@ -1,0 +1,630 @@
+// src/components/Blog.jsx
+import React, { useState, useMemo, useCallback } from 'react';
+import {
+  Box,
+  Container,
+  Typography,
+  Grid,
+  Paper,
+  Chip,
+  Button,
+  TextField,
+  InputAdornment,
+  IconButton,
+  Avatar,
+  Stack,
+  Tooltip,
+  useMediaQuery,
+} from '@mui/material';
+import { useNavigate, Link } from 'react-router-dom';
+import { alpha, useTheme } from '@mui/material/styles';
+import {
+  ArrowForward,
+  AccessTime,
+  Search,
+  Favorite,
+  FavoriteBorder,
+  Share,
+  TrendingUp,
+  ChatBubbleOutline,
+} from '@mui/icons-material';
+
+// 📝 Données des articles
+const articles = [
+  {
+    slug: 'chatbot-ia-reduction-60-support',
+    title: "Comment j'ai réduit de 60% le temps support avec un chatbot IA",
+    excerpt:
+      "Retour d'expérience sur la mise en place d'un chatbot LLM avec RAG pour automatiser le support client. Méthodologie, pièges à éviter, et résultats mesurables.",
+    date: '2024-12-15',
+    readTime: '8 min',
+    category: 'IA & Automatisation',
+    image: '🤖',
+    likes: 247,
+    comments: 32,
+    trending: true,
+  },
+  {
+    slug: 'roi-projet-rag-3-metriques',
+    title: "ROI d'un projet RAG : 3 métriques à suivre absolument",
+    excerpt:
+      "Quels KPIs suivre pour mesurer le succès d'un projet RAG ? Découvrez les 3 métriques business essentielles qui prouvent la valeur de votre investissement IA.",
+    date: '2024-12-10',
+    readTime: '6 min',
+    category: 'Product Management',
+    image: '📊',
+    likes: 189,
+    comments: 18,
+    trending: true,
+  },
+  {
+    slug: 'poc-mvp-21-jours-methode',
+    title: 'De POC à MVP en 21 jours : ma méthode step-by-step',
+    excerpt:
+      "Comment j'ai livré un système de recommandation IA opérationnel en 3 semaines. Framework complet pour accélérer votre time-to-market sans sacrifier la qualité.",
+    date: '2024-12-05',
+    readTime: '10 min',
+    category: 'Méthodologie',
+    image: '🚀',
+    likes: 312,
+    comments: 45,
+    trending: false,
+  },
+];
+
+const categories = ['Tous', 'IA & Automatisation', 'Product Management', 'Méthodologie'];
+
+// 🧩 Card d'article (liste) – design type blog pro
+const ArticleCard = React.memo(function ArticleCard({
+  article,
+  index,
+  onNavigate,
+  liked,
+  onToggleLike,
+}) {
+  const theme = useTheme();
+
+  const handleClick = useCallback(() => {
+    onNavigate(`/blog/${article.slug}`);
+  }, [article.slug, onNavigate]);
+
+  const handleLike = useCallback(
+    (e) => {
+      e.stopPropagation();
+      onToggleLike(article.slug);
+    },
+    [article.slug, onToggleLike]
+  );
+
+  const handleShare = useCallback(
+    async (e) => {
+      e.stopPropagation();
+      const url =
+        typeof window !== 'undefined'
+          ? `${window.location.origin}/blog/${article.slug}`
+          : `https://kddervilon.com/blog/${article.slug}`;
+
+      try {
+        if (navigator.share) {
+          await navigator.share({
+            title: article.title,
+            text: article.excerpt,
+            url,
+          });
+        } else if (navigator.clipboard && navigator.clipboard.writeText) {
+          await navigator.clipboard.writeText(url);
+          // On ne montre pas de toast ici pour rester simple côté liste
+        }
+      } catch {
+        // user cancel → ignore
+      }
+    },
+    [article]
+  );
+
+  const displayLikes = article.likes + (liked ? 1 : 0);
+
+  return (
+    <Paper
+      component="article"
+      sx={{
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        borderRadius: 3,
+        overflow: 'hidden',
+        border: '1px solid',
+        borderColor: 'divider',
+        cursor: 'pointer',
+        backgroundColor: 'background.paper',
+        transition:
+          'transform 220ms cubic-bezier(0.4, 0, 0.2, 1), box-shadow 220ms cubic-bezier(0.4, 0, 0.2, 1), border-color 220ms ease',
+        boxShadow: (t) => `0 10px 30px ${alpha(t.palette.common.black, 0.04)}`,
+        '&:hover': {
+          transform: 'translateY(-8px)',
+          boxShadow: '0 22px 70px rgba(15, 23, 42, 0.16)',
+          borderColor: theme.palette.primary.main,
+        },
+        '@media (prefers-reduced-motion: reduce)': {
+          transition: 'none',
+          '&:hover': {
+            transform: 'none',
+          },
+        },
+      }}
+      onClick={handleClick}
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          handleClick();
+        }
+      }}
+      aria-label={`Lire l'article: ${article.title}`}
+    >
+      {/* Bandeau emoji / catégorie */}
+      <Box
+        sx={{
+          height: 190,
+          background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.secondary.main} 100%)`,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          position: 'relative',
+          overflow: 'hidden',
+        }}
+      >
+        {article.trending && (
+          <Chip
+            icon={<TrendingUp />}
+            label="Tendance"
+            size="small"
+            sx={{
+              position: 'absolute',
+              top: 16,
+              left: 16,
+              bgcolor: 'error.main',
+              color: 'white',
+              fontWeight: 700,
+              boxShadow: '0 6px 16px rgba(0, 0, 0, 0.32)',
+            }}
+            aria-label="Article tendance"
+          />
+        )}
+        <Box
+          component="span"
+          role="img"
+          aria-label={`Icône ${article.category}`}
+          sx={{
+            fontSize: 90,
+            transform: 'translateY(4px)',
+          }}
+        >
+          {article.image}
+        </Box>
+      </Box>
+
+      {/* Contenu card */}
+      <Box sx={{ p: 3, display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
+        <Chip
+          label={article.category}
+          size="small"
+          sx={{
+            alignSelf: 'flex-start',
+            mb: 2,
+            fontWeight: 700,
+            bgcolor: alpha(theme.palette.primary.main, 0.1),
+            color: 'primary.main',
+          }}
+        />
+
+        <Typography
+          variant="h6"
+          component="h2"
+          fontWeight={800}
+          gutterBottom
+          sx={{
+            mb: 1.5,
+            lineHeight: 1.35,
+            letterSpacing: '-0.02em',
+          }}
+        >
+          {article.title}
+        </Typography>
+
+        <Typography
+          variant="body2"
+          color="text.secondary"
+          sx={{
+            mb: 2.5,
+            lineHeight: 1.7,
+            flexGrow: 1,
+          }}
+        >
+          {article.excerpt}
+        </Typography>
+
+        {/* Meta / auteur / temps */}
+        <Stack
+          direction="row"
+          spacing={2}
+          alignItems="center"
+          sx={{ mb: 2 }}
+        >
+          <Stack direction="row" spacing={1} alignItems="center">
+            <Avatar
+              sx={{
+                width: 26,
+                height: 26,
+                bgcolor: theme.palette.primary.main,
+                fontSize: 13,
+                fontWeight: 700,
+              }}
+            >
+              KD
+            </Avatar>
+            <Typography variant="body2" color="text.secondary">
+              KD Dervilon
+            </Typography>
+          </Stack>
+
+          <Chip
+            icon={<AccessTime />}
+            label={article.readTime}
+            size="small"
+            variant="outlined"
+            sx={{ ml: 'auto' }}
+            aria-label={`Temps de lecture: ${article.readTime}`}
+          />
+        </Stack>
+
+        {/* Likes / commentaires / CTA */}
+        <Stack
+          direction="row"
+          alignItems="center"
+          justifyContent="space-between"
+          sx={{
+            mt: 2,
+            pt: 1.5,
+            borderTop: '1px solid',
+            borderColor: 'divider',
+          }}
+        >
+          <Stack direction="row" spacing={2} alignItems="center">
+            {/* Likes */}
+            <Stack direction="row" spacing={0.5} alignItems="center">
+              <Tooltip
+                title={liked ? 'Retirer le like' : "J'aime cet article"}
+              >
+                <IconButton
+                  size="small"
+                  onClick={handleLike}
+                  aria-label={liked ? 'Retirer le like' : "J'aime cet article"}
+                  aria-pressed={liked}
+                  sx={{
+                    color: liked ? 'error.main' : 'text.secondary',
+                    '&:hover': {
+                      bgcolor: alpha(theme.palette.error.main, 0.08),
+                      color: 'error.main',
+                    },
+                  }}
+                >
+                  {liked ? (
+                    <Favorite fontSize="small" />
+                  ) : (
+                    <FavoriteBorder fontSize="small" />
+                  )}
+                </IconButton>
+              </Tooltip>
+              <Typography
+                variant="caption"
+                color="text.secondary"
+                sx={{ minWidth: 22, textAlign: 'left' }}
+              >
+                {displayLikes}
+              </Typography>
+            </Stack>
+
+            {/* Commentaires */}
+            <Stack direction="row" spacing={0.5} alignItems="center">
+              <ChatBubbleOutline
+                fontSize="small"
+                sx={{ color: 'text.secondary' }}
+                aria-hidden="true"
+              />
+              <Typography
+                variant="caption"
+                color="text.secondary"
+              >
+                {article.comments}
+              </Typography>
+            </Stack>
+          </Stack>
+
+          <Stack direction="row" spacing={1} alignItems="center">
+            {/* Partage */}
+            <Tooltip title="Partager l'article">
+              <IconButton
+                size="small"
+                onClick={handleShare}
+                aria-label="Partager l'article"
+                sx={{
+                  color: 'text.secondary',
+                  '&:hover': {
+                    bgcolor: alpha(theme.palette.primary.main, 0.08),
+                    color: 'primary.main',
+                  },
+                }}
+              >
+                <Share fontSize="small" />
+              </IconButton>
+            </Tooltip>
+
+            {/* CTA Lire – version SEO-friendly avec Link */}
+            <Button
+              component={Link}
+              to={`/blog/${article.slug}`}
+              variant="contained"
+              endIcon={<ArrowForward />}
+              sx={{
+                fontWeight: 700,
+                borderRadius: 999,
+                textTransform: 'none',
+                px: 2.5,
+                minHeight: 36,
+              }}
+              aria-label={`Lire l'article : ${article.title}`}
+            >
+              Lire
+            </Button>
+          </Stack>
+        </Stack>
+      </Box>
+    </Paper>
+  );
+});
+
+const Blog = () => {
+  const navigate = useNavigate();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('Tous');
+  const [likedArticles, setLikedArticles] = useState(new Set());
+
+  const filteredArticles = useMemo(() => {
+    return articles.filter((article) => {
+      const matchesCategory =
+        selectedCategory === 'Tous' ||
+        article.category === selectedCategory;
+      const query = searchQuery.trim().toLowerCase();
+      const matchesSearch =
+        !query ||
+        article.title.toLowerCase().includes(query) ||
+        article.excerpt.toLowerCase().includes(query) ||
+        article.category.toLowerCase().includes(query);
+      return matchesCategory && matchesSearch;
+    });
+  }, [selectedCategory, searchQuery]);
+
+  const handleCategoryChange = useCallback((cat) => {
+    setSelectedCategory(cat);
+  }, []);
+
+  const handleToggleLike = useCallback((slug) => {
+    setLikedArticles((prev) => {
+      const next = new Set(prev);
+      if (next.has(slug)) next.delete(slug);
+      else next.add(slug);
+      return next;
+    });
+  }, []);
+
+  const handleNavigate = useCallback(
+    (path) => {
+      navigate(path);
+    },
+    [navigate]
+  );
+
+  const resultCount = filteredArticles.length;
+
+  return (
+    <Box
+      component="main"
+      sx={{
+        py: 10,
+        px: 2,
+        bgcolor: 'background.default',
+      }}
+    >
+      <Container maxWidth="lg">
+        {/* En-tête type blog */}
+        <Box
+          component="header"
+          sx={{ textAlign: 'center', mb: 6 }}
+        >
+          <Typography
+            component="h1"
+            variant={isMobile ? 'h4' : 'h3'}
+            fontWeight={800}
+            sx={{ mb: 1, letterSpacing: '-0.04em' }}
+          >
+            📝 Blog &amp; Insights
+          </Typography>
+          <Typography
+            variant="subtitle1"
+            color="text.secondary"
+            sx={{ maxWidth: 640, mx: 'auto', mb: 3 }}
+          >
+            Retours d&apos;expérience, études de cas et méthodologies
+            concrètes autour de l&apos;IA, du Product Management et de
+            l&apos;innovation.
+          </Typography>
+
+          {/* Barre de recherche */}
+          <Box
+            sx={{
+              maxWidth: 520,
+              mx: 'auto',
+            }}
+          >
+            <TextField
+              fullWidth
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Rechercher un article (chatbot, RAG, ROI, MVP...)"
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <Search aria-hidden="true" />
+                  </InputAdornment>
+                ),
+              }}
+              inputProps={{
+                'aria-label': "Rechercher dans les articles du blog",
+              }}
+              sx={{
+                bgcolor: 'background.paper',
+                borderRadius: 999,
+                boxShadow: '0 18px 45px rgba(15, 23, 42, 0.08)',
+                '& .MuiOutlinedInput-root': {
+                  borderRadius: 999,
+                  '& fieldset': { borderColor: 'transparent' },
+                  '&:hover fieldset': { borderColor: 'primary.main' },
+                  '&.Mui-focused fieldset': {
+                    borderColor: 'primary.main',
+                    borderWidth: 2,
+                  },
+                  '&.Mui-focused': {
+                    outline: 'none',
+                    boxShadow: 'none',
+                  },
+                },
+                // désactive les focus rings natifs (Safari, iOS, etc.)
+                '& input': {
+                  outline: 'none !important',
+                  boxShadow: 'none !important',
+                  WebkitBoxShadow: 'none !important',
+                },
+                '& input[type="search"]': {
+                  WebkitAppearance: 'none',
+                },
+                '& .MuiOutlinedInput-input': {
+                  '&:focus': {
+                    outline: 'none !important',
+                  },
+                },
+              }}
+            />
+          </Box>
+
+          {/* Filtres catégories */}
+          <Stack
+            direction="row"
+            spacing={1}
+            justifyContent="center"
+            flexWrap="wrap"
+            sx={{ mt: 3 }}
+            component="nav"
+            aria-label="Filtres par catégorie"
+          >
+            {categories.map((cat) => {
+              const active = selectedCategory === cat;
+              return (
+                <Chip
+                  key={cat}
+                  label={cat}
+                  clickable
+                  onClick={() => handleCategoryChange(cat)}
+                  sx={{
+                    fontWeight: 700,
+                    borderRadius: 999,
+                    px: 1,
+                    bgcolor: active
+                      ? 'primary.main'
+                      : 'background.paper',
+                    color: active ? 'primary.contrastText' : 'text.primary',
+                    border: active
+                      ? 'none'
+                      : '1px solid rgba(148,163,184,0.6)',
+                    '&:hover': {
+                      bgcolor: active
+                        ? 'primary.dark'
+                        : alpha(theme.palette.primary.main, 0.08),
+                    },
+                    '&:focus-visible': {
+                      outline: `3px solid ${alpha(
+                        theme.palette.primary.main,
+                        0.5
+                      )}`,
+                      outlineOffset: 2,
+                    },
+                  }}
+                  aria-pressed={active}
+                  aria-label={`Filtrer par ${cat}`}
+                />
+              );
+            })}
+          </Stack>
+
+          {/* Résultats (pour lecteurs d'écran) */}
+          <Box
+            component="p"
+            sx={{
+              position: 'absolute',
+              left: '-10000px',
+              width: 1,
+              height: 1,
+              overflow: 'hidden',
+            }}
+            role="status"
+            aria-live="polite"
+          >
+            {resultCount} article
+            {resultCount > 1 ? 's' : ''} trouvé
+            {resultCount > 1 ? 's' : ''}.
+          </Box>
+        </Box>
+
+        {/* Grille des articles */}
+        <Grid
+          container
+          spacing={4}
+          component="section"
+          aria-label="Liste des articles du blog"
+        >
+          {filteredArticles.length > 0 ? (
+            filteredArticles.map((article, index) => (
+              <Grid item xs={12} md={4} key={article.slug}>
+                <ArticleCard
+                  article={article}
+                  index={index}
+                  onNavigate={handleNavigate}
+                  liked={likedArticles.has(article.slug)}
+                  onToggleLike={handleToggleLike}
+                />
+              </Grid>
+            ))
+          ) : (
+            <Grid item xs={12}>
+              <Box textAlign="center" py={8}>
+                <Typography
+                  component="p"
+                  variant="body1"
+                  color="text.secondary"
+                >
+                  Aucun article ne correspond à votre recherche pour le
+                  moment.
+                </Typography>
+              </Box>
+            </Grid>
+          )}
+        </Grid>
+      </Container>
+    </Box>
+  );
+};
+
+export default Blog;
