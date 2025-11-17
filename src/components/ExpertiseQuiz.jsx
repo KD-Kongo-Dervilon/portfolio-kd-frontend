@@ -20,6 +20,7 @@ import {
   useMediaQuery,
   useTheme,
   IconButton,
+  CircularProgress,
 } from '@mui/material';
 import { alpha } from '@mui/material/styles';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
@@ -458,6 +459,7 @@ const ExpertiseQuiz = () => {
 
   const [aiUsageCount, setAiUsageCount] = useState(0);
   const [aiLimitReached, setAiLimitReached] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   const rootRef = useRef(null);
 
@@ -512,6 +514,19 @@ const ExpertiseQuiz = () => {
       }
     } catch (e) {
       console.warn('AI usage storage error (init)', e);
+    }
+  }, []);
+
+  useEffect(() => {
+    try {
+      const token =
+        typeof window !== 'undefined'
+          ? window.sessionStorage.getItem('adminToken')
+          : null;
+      setIsAdmin(!!token);
+    } catch (e) {
+      console.warn('Admin detection error', e);
+      setIsAdmin(false);
     }
   }, []);
 
@@ -582,22 +597,49 @@ const ExpertiseQuiz = () => {
       lastModeRef.current = newMode;
       setMode(newMode);
 
-      let newSession;
-      if (useAI && !aiLimitReached) {
+      let newSession = null;
+
+      // 1) On tente d'abord l'IA si activée et si quota dispo
+      //    (sauf pour l'admin qui est illimité)
+      const canUseAI = useAI && (!aiLimitReached || isAdmin);
+      if (canUseAI) {
         const start = Date.now();
-        newSession = await buildSession(newMode, true);
+        const aiSession = await buildSession(newMode, true);
         const elapsed = Date.now() - start;
         const MIN_AI_BUILD_MS = 3000;
+
         if (elapsed < MIN_AI_BUILD_MS) {
           await new Promise((res) => setTimeout(res, MIN_AI_BUILD_MS - elapsed));
         }
-        incrementAIUsage();
-      } else {
-        // soit l'IA est désactivée, soit la limite quotidienne est atteinte -> fallback sur la banque locale
-        newSession = await buildSession(newMode, false);
+
+        // On ne consomme le quota IA que si on a vraiment obtenu des questions IA,
+        // et uniquement pour un utilisateur non admin.
+        if (
+          aiSession &&
+          aiSession.source === 'ia' &&
+          Array.isArray(aiSession.items) &&
+          aiSession.items.length >= 3
+        ) {
+          newSession = aiSession;
+          if (!isAdmin) {
+            incrementAIUsage();
+          }
+        } else {
+          console.warn(
+            '[Quiz] IA non disponible ou questions invalides, fallback local sans consommer de quota.'
+          );
+        }
       }
+
+      // 2) Si IA non utilisée ou pas de questions valides, on bascule sur la banque locale
+      if (!newSession) {
+        const localSession = await buildSession(newMode, false);
+        newSession = localSession;
+      }
+
       setSession(newSession);
 
+      // Reset des états du quiz
       setQuizStarted(true);
       setShowResult(false);
       setCurrentQuestion(0);
@@ -883,13 +925,13 @@ const ExpertiseQuiz = () => {
                 <Button
                   variant={useAI ? 'contained' : 'outlined'}
                   onClick={() => {
-                    if (aiLimitReached || isBuilding) return;
+                    if ((aiLimitReached && !isAdmin) || isBuilding) return;
                     setUseAI((v) => !v);
                   }}
-                  disabled={isBuilding || aiLimitReached}
+                  disabled={isBuilding || (aiLimitReached && !isAdmin)}
                   sx={{ fontWeight: 700 }}
                 >
-                  {aiLimitReached
+                  {aiLimitReached && !isAdmin
                     ? 'Limite IA atteinte'
                     : useAI
                     ? 'IA activée'
@@ -897,7 +939,7 @@ const ExpertiseQuiz = () => {
                 </Button>
               </Stack>
 
-              {aiLimitReached && (
+              {aiLimitReached && !isAdmin && (
                 <Typography
                   variant="caption"
                   color="text.secondary"
@@ -922,8 +964,9 @@ const ExpertiseQuiz = () => {
                 color="text.secondary"
                 sx={{ display: 'block', mb: 3 }}
               >
-                Utilisation de l&apos;IA aujourd&apos;hui : {Math.min(aiUsageCount, AI_DAILY_LIMIT)}/
-                {AI_DAILY_LIMIT}
+                {isAdmin
+                  ? "Utilisation de l'IA aujourd'hui : illimitée (mode admin)"
+                  : `Utilisation de l'IA aujourd'hui : ${Math.min(aiUsageCount, AI_DAILY_LIMIT)}/${AI_DAILY_LIMIT}`}
               </Typography>
 
               {/* Prochaine variante + bouton */}
@@ -978,17 +1021,41 @@ const ExpertiseQuiz = () => {
               </Stack>
 
               {isBuilding && (
-                <Typography
-                  variant="caption"
-                  color="text.secondary"
-                  sx={{ display: 'block', mt: 1 }}
-                >
-                  {useAI
-                    ? countdown !== null
-                      ? `Je génère des questions personnalisées avec l’IA... (${countdown}s restantes estimées)`
-                      : 'Je génère des questions personnalisées avec l’IA, cela peut prendre quelques secondes...'
-                    : 'Je prépare le quiz...'}
-                </Typography>
+                useAI ? (
+                  <Box
+                    sx={{
+                      mt: 3,
+                      px: 2,
+                      py: 2,
+                      borderRadius: 3,
+                      bgcolor: alpha('#667eea', 0.08),
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: 2,
+                    }}
+                  >
+                    <CircularProgress size={26} />
+                    <Box sx={{ textAlign: 'left' }}>
+                      <Typography variant="body2" fontWeight={700} color="#111111">
+                        L&apos;IA prépare un quiz personnalisé pour vous...
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        {countdown !== null && countdown > 0
+                          ? `Environ ${countdown}s restantes…`
+                          : 'Cela prend généralement 3 à 5 secondes. Les questions arrivent dès que l’IA a terminé.'}
+                      </Typography>
+                    </Box>
+                  </Box>
+                ) : (
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    sx={{ display: 'block', mt: 1 }}
+                  >
+                    Je prépare le quiz...
+                  </Typography>
+                )
               )}
 
               <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 3 }}>
@@ -1266,17 +1333,41 @@ const ExpertiseQuiz = () => {
               </Stack>
 
               {isBuilding && (
-                <Typography
-                  variant="caption"
-                  color="text.secondary"
-                  sx={{ display: 'block', mt: 1 }}
-                >
-                  {useAI
-                    ? countdown !== null
-                      ? `Je génère un nouveau set de questions IA... (${countdown}s restantes estimées)`
-                      : 'Je génère un nouveau set de questions IA...'
-                    : 'Je prépare un nouveau quiz...'}
-                </Typography>
+                useAI ? (
+                  <Box
+                    sx={{
+                      mt: 3,
+                      px: 2,
+                      py: 2,
+                      borderRadius: 3,
+                      bgcolor: alpha('#667eea', 0.08),
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: 2,
+                    }}
+                  >
+                    <CircularProgress size={26} />
+                    <Box sx={{ textAlign: 'left' }}>
+                      <Typography variant="body2" fontWeight={700} color="#111111">
+                        L&apos;IA génère un nouveau quiz rien que pour vous...
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        {countdown !== null && countdown > 0
+                          ? `Encore ${countdown}s…`
+                          : 'Cela prend généralement quelques secondes, le quiz se recharge dès que l’IA a terminé.'}
+                      </Typography>
+                    </Box>
+                  </Box>
+                ) : (
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    sx={{ display: 'block', mt: 1 }}
+                  >
+                    Je prépare un nouveau quiz...
+                  </Typography>
+                )
               )}
 
               <Paper sx={{ mt: 4, p: 3, bgcolor: alpha('#667eea', 0.08), borderRadius: 3 }}>

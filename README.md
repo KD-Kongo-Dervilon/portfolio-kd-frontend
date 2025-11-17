@@ -1,87 +1,215 @@
-# Portfolio KD Dervilon – Chef de Projet IA & Product Owner
+# 🚀 Portfolio KD Dervilon – Frontend React (IA • Product • Automation)
 
-Portfolio professionnel de **Dervilon Mbissi (KD Dervilon)**, Chef de Projet IA & Product Owner (CSPO), spécialisé en :
+Bienvenue dans le **frontend React** du portfolio professionnel de  
+**KD Dervilon (Dervilon Mbissi)** – Chef de Projet IA & Product Owner (CSPO).
 
-- 🤖 IA générative & LLM (OpenAI, Claude…)
-- 🔗 Automatisation de workflows avec **n8n**
-- 🧩 Conception de produits pédagogiques & serious games
-- 🧠 Agents IA, RAG, Q/R intelligentes
+Ce projet n’est pas un simple portfolio :  
+➡️ C’est un **produit IA complet**, conçu pour démontrer ton expertise en Product, IA générative, UX moderne et automatisation n8n.
 
-Ce dépôt contient **le frontend React** du portfolio.  
-Il consomme un **backend Node.js** séparé (API IA, Q/R, admin, etc.).
-
----
-
-## ✨ Fonctionnalités principales (frontend)
-
-- 🤖 **Chatbot IA personnalisé**
-  - Questions/réponses sur mon profil, mes projets, mes compétences
-  - Connecté à une API IA (backend)
-
-- 🧷 **Automatisation IA & n8n**
-  - Page dédiée à mes services d’automatisation
-  - Explication des scénarios n8n (CRM, onboarding, contenus, etc.)
-  - Formulaire / section Q/R pour échanger sur les besoins
-
-- 📰 **Blog**
-  - Liste d’articles (page `Blog`)
-  - Page article détaillée (`BlogArticle`) pour présenter :
-    - retours d’expérience,
-    - cas d’usage IA,
-    - pédagogie & innovation.
-
-- 📈 **Analytics & tracking**
-  - Suivi basique du comportement utilisateur (pages visitées, clics…)
-  - Logiciel maison dans `src/utils/analytics.js`
-  - Prévu pour alimenter un **Dashboard Admin**
-
-- 🛡️ **Dashboard Admin (frontend)**
-  - Page `/admin` dédiée
-  - Login admin (mail + mot de passe, via backend)
-  - Vue d’ensemble des stats (tracking, Q/R, interactions)
-
-- 🍪 **Bannière RGPD & cookies**
-  - Composant `CookieConsent` pour gérer le consentement
-  - Intégration avec le système d’analytics
-
-- 🧑‍💻 **UX moderne & PWA**
-  - Design basé sur **Material UI (MUI)**
-  - Thème personnalisé dans `src/theme.js`
-  - Manifest & Service Worker pour support PWA
-  - SEO côté frontend via `src/components/SEO.jsx`
+Frontend déployé sur **Vercel** :  
+👉 https://portfolio-kd-frontend.vercel.app  
+Backend connecté (Render) :  
+👉 https://portfolio-kd-backend.onrender.com
 
 ---
 
-## 🧱 Stack technique
+# ✨ Fonctionnalités principales
+
+## 🤖 Chatbot IA contextuel  
+Assistant virtuel connecté au backend :
+- Connaît ton parcours, CV, KPIs et projets
+- Réponses naturelles & contextualisées
+- Basé sur OpenAI GPT‑4o‑mini
+
+---
+
+## 🎮 Quiz IA interactif (multi‑modes)  
+Module gamifié orienté UX :
+- Modèles : **MCQ**, **Drag & Drop**, **Reorder**, **Swipe**
+- Génération dynamique via IA (QCM JSON strict)
+- Validation + fallback automatique
+- Loader animé + UX premium
+- Quota IA **3/jour**, illimité pour admin
+- Résultats partageables LinkedIn
+- **Lazy‑load dédié** → performance optimisée sur Vercel
+
+---
+
+## 🧷 Services IA & Automatisation (n8n)  
+Section orientée Product & business :
+- Scénarios : CRM, onboarding, contenus IA, agents autonomes
+- Explication pédagogique accessible
+- Zone Q/R via API backend
+
+---
+
+## 📝 Blog IA & Product  
+- Page Blog + pages Article
+- Contenus orientés IA, ROI, Product Management & pédagogie
+
+---
+
+## 📈 Analytics maison  
+Tracking interne :
+- Clics, interactions, scroll, pages visitées
+- Sessions utilisateur
+- Compatible RGPD (CookieConsent)
+
+---
+
+## 🛡️ Espace Admin  
+- Page `/admin` (protégée par JWT)
+- Accès :
+  - Stats IA (Quiz + Chatbot)
+  - Q/R communautaires
+  - Analytics agrégés
+
+---
+
+## 🍪 Consentement RGPD  
+- Bannière CookieConsent
+- Analytics activé seulement après accord
+- Compatible déploiement Vercel/Browser
+
+---
+
+## 📱 UX moderne + PWA  
+- UI **Material UI** style “iOS 2026”
+- Animations fluides
+- `manifest.json` + `service-worker.js`
+- Optimisé pour le SEO
+
+---
+
+# 🧱 Stack technique
 
 - **React 18**
-- **React Router** (navigation SPA)
-- **Material UI (MUI)** pour le design system
-- **React Helmet Async** pour les metas SEO
-- **Service Worker + Manifest** pour la PWA
-- Gestion d’analytics maison (localStorage / sessionStorage)
+- **React Router**
+- **Material UI v5**
+- **React Helmet Async**
+- **Lazy loading** (Quiz IA, pages lourdes)
+- **PWA** (Service Worker + Manifest)
+- **Analytics custom**
+- Déployé via **Vercel**
 
 ---
 
-## ✅ Prérequis
+# 🗂️ Architecture du frontend
 
-- **Node.js** ≥ 18
-- **npm** (ou yarn)
-- Un backend Node.js (API) qui tourne sur :
-  - `http://localhost:3001` en développement (par défaut)
-  - une URL publique en production (ex : `https://api.kd-dervilon.com`)
+```
+frontend/
+│
+├── public/                      # Fichiers statiques & manifest
+│
+└── src/
+    ├── api/                     # Appels API (vers backend Render)
+    │
+    ├── components/              # Composants UI réutilisables
+    │   ├── ChatbotIA.jsx
+    │   ├── ExpertiseQuiz.jsx         # Lazy-loaded
+    │   ├── CookieConsent.jsx
+    │   ├── SmartCTA.jsx
+    │   ├── SEO.jsx
+    │   └── ...
+    │
+    ├── config/                  # Constantes globales / URLs API
+    │
+    ├── data/                    # Données statiques
+    │
+    ├── hooks/                   # Custom hooks (API, UX, analytics)
+    │
+    ├── pages/                   # Pages principales
+    │   ├── AdminDashboard.jsx
+    │   ├── Blog.jsx
+    │   ├── BlogArticle.jsx
+    │   ├── Portfolio.jsx
+    │   ├── About.jsx
+    │   └── Contact.jsx
+    │
+    ├── services/                # Analytics, session
+    │   ├── analytics.js
+    │   └── session.js
+    │
+    ├── utils/                   # Helpers génériques
+    │
+    ├── App.jsx                  # Root React
+    ├── theme.js                 # Thème MUI
+    ├── index.js                 # Entrée principale
+    └── index.css                # Styles globaux
+```
 
 ---
 
-## 🚀 Installation & lancement (frontend)
+# 🌐 Déploiement sur Vercel
+
+Ton frontend est déployé via **Vercel** pour bénéficier de :
+
+- Build ultra‑rapide  
+- CDN global  
+- HTTPS automatique  
+- CI/CD GitHub automatique  
+- Optimisations React et bundling intelligents
+
+### ⚙️ Build command  
+```
+npm run build
+```
+
+### 📦 Output directory  
+```
+build/
+```
+
+### 🔗 API backend déclarée dans `src/config` :
+```
+https://portfolio-kd-backend.onrender.com
+```
+
+---
+
+# 🔧 Prérequis
+
+- **Node.js ≥ 18**
+- **npm**
+- Backend API disponible sur Render :
+  - https://portfolio-kd-backend.onrender.com
+
+---
+
+# 🚀 Installation & lancement local
 
 ```bash
-# Cloner le projet
 git clone https://github.com/KD-Kongo-Dervilon/portfolio-kd-frontend.git
 cd portfolio-kd-frontend
 
-# Installer les dépendances
 npm install
-
-# Lancer en développement
 npm start
+```
+
+Frontend local :  
+➡️ http://localhost:3000
+
+---
+
+# 🌍 Production
+
+Build optimisé :
+
+```bash
+npm run build
+```
+
+Déploiement recommandé : **Vercel**
+
+---
+
+# 🎯 Objectif du projet
+
+Ce portfolio illustre :
+- Expertise IA & LLM (Chatbot, Quiz IA)
+- Vision Product (UX, flows, KPI, ROI)
+- Architecture frontend/back moderne
+- Automatisation n8n
+- Maîtrise de React avancé & design MUI
+
+➡️ **Un produit IA complet, idéal pour recruteurs, entreprises et investisseurs.**
