@@ -82,9 +82,28 @@ const Privacy = () => {
     <Box
       component="main"
       role="main"
-      sx={{ py: { xs: 6, md: 8 }, px: 2, bgcolor: '#f9fafb' }}
+      sx={{
+        py: { xs: 6, md: 8 },
+        px: 2,
+        bgcolor: '#f9fafb',
+        mt: { xs: 'env(safe-area-inset-top)', md: 0 },
+      }}
     >
       <Container maxWidth="md">
+        <Box sx={{ mb: 2 }}>
+          <Link
+            href="/"
+            underline="none"
+            sx={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              fontSize: '0.9rem',
+              fontWeight: 600,
+            }}
+          >
+            ← Retour au site
+          </Link>
+        </Box>
         {/* Header */}
         <Box sx={{ mb: 4 }}>
           <Typography
