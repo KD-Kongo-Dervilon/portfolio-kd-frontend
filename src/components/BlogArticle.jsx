@@ -732,7 +732,9 @@ const markdownComponents = {
         borderRadius: 3,
         border: '1px solid',
         borderColor: 'divider',
-        overflow: 'hidden',
+        overflowX: 'auto',
+        overflowY: 'hidden',
+        maxWidth: '100%',
         boxShadow: (t) => `0 10px 30px ${alpha(t.palette.primary.main, 0.04)}`,
         transition:
           'box-shadow 400ms cubic-bezier(0.4, 0, 0.2, 1), border-color 300ms ease',
@@ -746,6 +748,7 @@ const markdownComponents = {
         size="small"
         aria-label="Tableau de données"
         sx={{
+          minWidth: { xs: 520, sm: 650 },
           '& th': {
             fontWeight: 700,
             whiteSpace: 'nowrap',
