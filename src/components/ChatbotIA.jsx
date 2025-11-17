@@ -37,6 +37,17 @@ import { alpha } from '@mui/material/styles';
 const audioCache = new Map();
 const MAX_CACHE_SIZE = 20;
 
+const CHATBOT_DAILY_LIMIT = 10;
+const CHATBOT_USAGE_KEY = 'chatbot_ia_usage_v1';
+
+const getTodayKey = () => {
+  try {
+    return new Date().toISOString().slice(0, 10);
+  } catch {
+    return '';
+  }
+};
+
 const ChatbotIA = () => {
   const visuallyHidden = {
     border: 0,
@@ -68,6 +79,8 @@ const ChatbotIA = () => {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [voiceEnabled, setVoiceEnabled] = useState(true);
   const [error, setError] = useState(null);
+  const [chatbotUsageCount, setChatbotUsageCount] = useState(0);
+  const [chatbotLimitReached, setChatbotLimitReached] = useState(false);
   const [recognition, setRecognition] = useState(null);
 
   const messagesEndRef = useRef(null);
@@ -284,6 +297,45 @@ const ChatbotIA = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Limite quotidienne d'utilisation du chatbot
+  useEffect(() => {
+    try {
+      const raw = window.localStorage.getItem(CHATBOT_USAGE_KEY);
+      if (!raw) return;
+      const parsed = JSON.parse(raw);
+      const today = getTodayKey();
+      if (parsed && parsed.date === today && typeof parsed.count === 'number') {
+        setChatbotUsageCount(parsed.count);
+        if (parsed.count >= CHATBOT_DAILY_LIMIT) {
+          setChatbotLimitReached(true);
+        }
+      } else {
+        window.localStorage.removeItem(CHATBOT_USAGE_KEY);
+      }
+    } catch (e) {
+      console.warn('Chatbot usage storage error (init)', e);
+    }
+  }, []);
+
+  const incrementChatbotUsage = () => {
+    setChatbotUsageCount((prev) => {
+      const next = prev + 1;
+      const today = getTodayKey();
+      try {
+        window.localStorage.setItem(
+          CHATBOT_USAGE_KEY,
+          JSON.stringify({ date: today, count: next })
+        );
+      } catch (e) {
+        console.warn('Chatbot usage storage error (update)', e);
+      }
+      if (next >= CHATBOT_DAILY_LIMIT) {
+        setChatbotLimitReached(true);
+      }
+      return next;
+    });
+  };
+
   // ✅ scrollToBottom mémoïsé pour satisfaire react-hooks/exhaustive-deps
   const scrollToBottom = useCallback(() => {
     if (messagesEndRef.current) {
@@ -324,6 +376,11 @@ const ChatbotIA = () => {
   };
 
   const handleSendVoice = async (transcript) => {
+    if (chatbotLimitReached) {
+      setError("Limite quotidienne d'utilisation de l'IA atteinte.");
+      return;
+    }
+
     if (!transcript.trim()) return;
 
     const userMessage = {
@@ -397,6 +454,7 @@ const ChatbotIA = () => {
             }
           )}.`
         );
+        incrementChatbotUsage();
         setTimeout(() => {
           console.log(
             '🔊 Lancement ElevenLabs TTS...'
@@ -434,6 +492,11 @@ const ChatbotIA = () => {
   };
 
   const handleSend = async () => {
+    if (chatbotLimitReached) {
+      setError("Limite quotidienne d'utilisation de l'IA atteinte.");
+      return;
+    }
+
     if (!input.trim()) return;
 
     const userMessage = {
@@ -508,6 +571,7 @@ const ChatbotIA = () => {
             }
           )}.`
         );
+        incrementChatbotUsage();
       } else {
         throw new Error(
           data.error || 'Erreur API'
@@ -1453,6 +1517,26 @@ const ChatbotIA = () => {
                 '1px solid #e0e0e0'
             }}
           >
+            {chatbotLimitReached && (
+              <Typography
+                variant="caption"
+                color="error"
+                sx={{ mb: 0.5, display: 'block' }}
+              >
+                Limite quotidienne d&apos;utilisation atteinte ({CHATBOT_DAILY_LIMIT}{' '}
+                messages).
+              </Typography>
+            )}
+
+            <Typography
+              variant="caption"
+              color="text.secondary"
+              sx={{ mb: 1, display: 'block' }}
+            >
+              Messages IA aujourd&apos;hui :{' '}
+              {Math.min(chatbotUsageCount, CHATBOT_DAILY_LIMIT)}/{CHATBOT_DAILY_LIMIT}
+            </Typography>
+
             <Box
               sx={{
                 display: 'flex',
@@ -1544,7 +1628,7 @@ const ChatbotIA = () => {
                     handleSend();
                   }
                 }}
-                disabled={isListening}
+                disabled={isListening || chatbotLimitReached}
                 sx={{
                   '& .MuiOutlinedInput-root':
                     {
@@ -1569,7 +1653,8 @@ const ChatbotIA = () => {
                 disabled={
                   !input.trim() ||
                   isListening ||
-                  isTyping
+                  isTyping ||
+                  chatbotLimitReached
                 }
                 sx={{
                   bgcolor:
