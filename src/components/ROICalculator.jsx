@@ -193,7 +193,7 @@ Rapport généré le ${new Date().toLocaleDateString('fr-FR')}
         }}
       />
 
-      <Fade in={visible && !reduceMotion} timeout={reduceMotion ? 0 : 800}>
+      <Fade in={visible} timeout={reduceMotion ? 0 : 800}>
         <Box sx={{ position: 'relative', zIndex: 1 }}>
           <Container maxWidth="lg">
             {/* Header */}
@@ -258,7 +258,7 @@ Rapport généré le ${new Date().toLocaleDateString('fr-FR')}
                 }}
               >
                 <Grow
-                  in={visible && !reduceMotion}
+                  in={visible}
                   timeout={reduceMotion ? 0 : 900}
                 >
                   <Paper
@@ -610,7 +610,7 @@ Rapport généré le ${new Date().toLocaleDateString('fr-FR')}
                 }}
               >
                 <Grow
-                  in={visible && !reduceMotion}
+                  in={visible}
                   timeout={reduceMotion ? 0 : 1050}
                 >
                   <Paper
