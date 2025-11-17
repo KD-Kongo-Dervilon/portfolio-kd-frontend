@@ -1148,6 +1148,7 @@ const BlogArticle = () => {
           bgcolor: 'background.default',
           minHeight: '100vh',
           py: { xs: 6, md: 8 },
+          mt: { xs: 'calc(env(safe-area-inset-top) + 72px)', md: 0 },
         }}
       >
         <Container maxWidth="md">
