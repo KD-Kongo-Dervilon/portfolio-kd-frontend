@@ -597,7 +597,7 @@ const ChatbotIA = () => {
                   .contrastText,
               width: 64,
               height: 64,
-              zIndex: 1000,
+              zIndex: (theme) => theme.zIndex.modal + 25,
               boxShadow:
                 '0 10px 28px rgba(17, 24, 39, 0.45)',
               transition:
@@ -654,16 +654,17 @@ const ChatbotIA = () => {
               sm: 420
             },
             height: {
-              xs: 'calc(100vh - 32px)',
+              // on mobile: leave space for the top app bar so the chatbot header stays visible
+              xs: 'calc(100vh - 104px)', // 32px margin + ~72px app bar
               sm: 650
             },
             display: 'flex',
             flexDirection: 'column',
             borderRadius: 3,
             overflow: 'hidden',
-            zIndex: 1000,
-            boxShadow:
-              '0 12px 48px rgba(0,0,0,0.25)'
+            // ensure the chatbot is always above the app bar and other content
+            zIndex: (theme) => theme.zIndex.modal + 20,
+            boxShadow: '0 12px 48px rgba(0,0,0,0.25)'
           }}
         >
           {/* Header */}
