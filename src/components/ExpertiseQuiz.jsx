@@ -917,6 +917,15 @@ const ExpertiseQuiz = () => {
                 />
               )}
 
+              <Typography
+                variant="caption"
+                color="text.secondary"
+                sx={{ display: 'block', mb: 3 }}
+              >
+                Utilisation de l&apos;IA aujourd&apos;hui : {Math.min(aiUsageCount, AI_DAILY_LIMIT)}/
+                {AI_DAILY_LIMIT}
+              </Typography>
+
               {/* Prochaine variante + bouton */}
               <Stack
                 direction={isMobile ? 'column' : 'row'}
