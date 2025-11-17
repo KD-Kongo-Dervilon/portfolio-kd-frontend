@@ -179,6 +179,17 @@ const API_BASE =
   process.env.REACT_APP_API_BASE ||
   'http://localhost:3001';
 
+const AI_DAILY_LIMIT = 3;
+const AI_USAGE_STORAGE_KEY = 'expertise_quiz_ai_usage_v1';
+
+const getTodayKey = () => {
+  try {
+    return new Date().toISOString().slice(0, 10);
+  } catch {
+    return '';
+  }
+};
+
 // --- Génération IA de nouvelles questions ---
 async function fetchAIQuestions({ count = 5 } = {}) {
   try {
@@ -445,6 +456,9 @@ const ExpertiseQuiz = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const reduceMotion = useMediaQuery('(prefers-reduced-motion: reduce)');
 
+  const [aiUsageCount, setAiUsageCount] = useState(0);
+  const [aiLimitReached, setAiLimitReached] = useState(false);
+
   const rootRef = useRef(null);
 
   // État global
@@ -481,6 +495,44 @@ const ExpertiseQuiz = () => {
   // Swipe feedback
   const [swipeFeedbackVisible, setSwipeFeedbackVisible] = useState(false);
   const [swipeCorrect, setSwipeCorrect] = useState(null);
+
+  useEffect(() => {
+    try {
+      const raw = window.localStorage.getItem(AI_USAGE_STORAGE_KEY);
+      if (!raw) return;
+      const parsed = JSON.parse(raw);
+      const todayKey = getTodayKey();
+      if (parsed && parsed.date === todayKey && typeof parsed.count === 'number') {
+        setAiUsageCount(parsed.count);
+        if (parsed.count >= AI_DAILY_LIMIT) {
+          setAiLimitReached(true);
+        }
+      } else {
+        window.localStorage.removeItem(AI_USAGE_STORAGE_KEY);
+      }
+    } catch (e) {
+      console.warn('AI usage storage error (init)', e);
+    }
+  }, []);
+
+  const incrementAIUsage = () => {
+    setAiUsageCount((prev) => {
+      const next = prev + 1;
+      const todayKey = getTodayKey();
+      try {
+        window.localStorage.setItem(
+          AI_USAGE_STORAGE_KEY,
+          JSON.stringify({ date: todayKey, count: next })
+        );
+      } catch (e) {
+        console.warn('AI usage storage error (update)', e);
+      }
+      if (next >= AI_DAILY_LIMIT) {
+        setAiLimitReached(true);
+      }
+      return next;
+    });
+  };
 
   // Items count / progress
   const itemsCount = Array.isArray(session.items) ? session.items.length : 0;
@@ -531,7 +583,7 @@ const ExpertiseQuiz = () => {
       setMode(newMode);
 
       let newSession;
-      if (useAI) {
+      if (useAI && !aiLimitReached) {
         const start = Date.now();
         newSession = await buildSession(newMode, true);
         const elapsed = Date.now() - start;
@@ -539,7 +591,9 @@ const ExpertiseQuiz = () => {
         if (elapsed < MIN_AI_BUILD_MS) {
           await new Promise((res) => setTimeout(res, MIN_AI_BUILD_MS - elapsed));
         }
+        incrementAIUsage();
       } else {
+        // soit l'IA est désactivée, soit la limite quotidienne est atteinte -> fallback sur la banque locale
         newSession = await buildSession(newMode, false);
       }
       setSession(newSession);
@@ -828,13 +882,31 @@ const ExpertiseQuiz = () => {
                 </Typography>
                 <Button
                   variant={useAI ? 'contained' : 'outlined'}
-                  onClick={() => setUseAI((v) => !v)}
-                  disabled={isBuilding}
+                  onClick={() => {
+                    if (aiLimitReached || isBuilding) return;
+                    setUseAI((v) => !v);
+                  }}
+                  disabled={isBuilding || aiLimitReached}
                   sx={{ fontWeight: 700 }}
                 >
-                  {useAI ? 'IA activée' : 'IA désactivée'}
+                  {aiLimitReached
+                    ? 'Limite IA atteinte'
+                    : useAI
+                    ? 'IA activée'
+                    : 'IA désactivée'}
                 </Button>
               </Stack>
+
+              {aiLimitReached && (
+                <Typography
+                  variant="caption"
+                  color="text.secondary"
+                  sx={{ display: 'block', mb: 1 }}
+                >
+                  Limite quotidienne d&apos;utilisation de l&apos;IA atteinte pour ce navigateur.
+                  Le quiz utilisera ma banque de questions interne.
+                </Typography>
+              )}
 
               {useAI && (
                 <Chip
