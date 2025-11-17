@@ -86,7 +86,7 @@ const Privacy = () => {
         py: { xs: 6, md: 8 },
         px: 2,
         bgcolor: '#f9fafb',
-        mt: { xs: 'env(safe-area-inset-top)', md: 0 },
+        mt: { xs: 'calc(env(safe-area-inset-top) + 72px)', md: 0 },
       }}
     >
       <Container maxWidth="md">
@@ -101,7 +101,7 @@ const Privacy = () => {
               fontWeight: 600,
             }}
           >
-            ← Retour au site
+            ← Retour au portfolio
           </Link>
         </Box>
         {/* Header */}
