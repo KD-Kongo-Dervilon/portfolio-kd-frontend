@@ -83,6 +83,7 @@ const ArticleCard = React.memo(function ArticleCard({
   onToggleLike,
 }) {
   const theme = useTheme();
+  const isDarkMode = theme.palette.mode === 'dark';
 
   const handleClick = useCallback(() => {
     onNavigate(`/blog/${article.slug}`);
@@ -113,7 +114,6 @@ const ArticleCard = React.memo(function ArticleCard({
           });
         } else if (navigator.clipboard && navigator.clipboard.writeText) {
           await navigator.clipboard.writeText(url);
-          // On ne montre pas de toast ici pour rester simple côté liste
         }
       } catch {
         // user cancel → ignore
@@ -273,7 +273,26 @@ const ArticleCard = React.memo(function ArticleCard({
             label={article.readTime}
             size="small"
             variant="outlined"
-            sx={{ ml: 'auto' }}
+            sx={{
+              ml: 'auto',
+              borderRadius: 999,
+              fontWeight: 600,
+              px: 0.75,
+              borderColor: isDarkMode
+                ? alpha(theme.palette.common.white, 0.28)
+                : alpha(theme.palette.text.primary, 0.25),
+              color: isDarkMode
+                ? alpha(theme.palette.common.white, 0.92)
+                : theme.palette.text.primary,
+              backgroundColor: isDarkMode
+                ? alpha(theme.palette.common.white, 0.06)
+                : alpha(theme.palette.common.black, 0.02),
+              '& .MuiChip-icon': {
+                color: isDarkMode
+                  ? alpha(theme.palette.common.white, 0.92)
+                  : theme.palette.text.primary,
+              },
+            }}
             aria-label={`Temps de lecture: ${article.readTime}`}
           />
         </Stack>
@@ -389,6 +408,33 @@ const Blog = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
+  const isDarkMode = theme.palette.mode === 'dark';
+  const primary = theme.palette.primary;
+  const secondary = theme.palette.secondary || theme.palette.primary;
+
+  const BLOG_COLORS = {
+    pageBg: isDarkMode
+      ? theme.palette.background.default || '#020617'
+      : `linear-gradient(180deg, ${alpha(primary.light || primary.main, 0.08)} 0%, ${alpha(
+          secondary.light || secondary.main,
+          0.06
+        )} 22%, ${theme.palette.background.default || '#f9fafb'} 100%)`,
+    heroBg: `linear-gradient(135deg, ${primary.main} 0%, ${secondary.main} 40%, ${
+      secondary.dark || primary.dark || primary.main
+    } 100%)`,
+    heroChipBg: alpha(theme.palette.common.black, 0.72),
+    heroSubtitle: 'rgba(249,250,251,0.9)',
+    heroSearchBg: theme.palette.background.paper,
+    heroSearchShadow: `0 18px 45px ${alpha(
+      theme.palette.common.black,
+      0.35
+    )}, 0 0 0 1px ${alpha(theme.palette.divider, 0.4)}`,
+    categoryChipInactiveBg: isDarkMode
+      ? alpha(theme.palette.background.paper, 0.9)
+      : theme.palette.background.paper,
+    categoryChipBorder: alpha(theme.palette.divider, 0.6),
+  };
+
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('Tous');
   const [likedArticles, setLikedArticles] = useState(new Set());
@@ -433,94 +479,189 @@ const Blog = () => {
   return (
     <Box
       component="main"
+      aria-labelledby="blog-title"
       sx={{
-        py: 10,
-        px: 2,
-        bgcolor: 'background.default',
+        py: { xs: 8, md: 10 },
+        px: { xs: 2, md: 0 },
+        bgcolor: BLOG_COLORS.pageBg,
       }}
     >
       <Container maxWidth="lg">
-        {/* En-tête type blog */}
-        <Box
-          component="header"
-          sx={{ textAlign: 'center', mb: 6 }}
-        >
-          <Typography
-            component="h1"
-            variant={isMobile ? 'h4' : 'h3'}
-            fontWeight={800}
-            sx={{ mb: 1, letterSpacing: '-0.04em' }}
-          >
-            📝 Blog &amp; Insights
-          </Typography>
-          <Typography
-            variant="subtitle1"
-            color="text.secondary"
-            sx={{ maxWidth: 640, mx: 'auto', mb: 3 }}
-          >
-            Retours d&apos;expérience, études de cas et méthodologies
-            concrètes autour de l&apos;IA, du Product Management et de
-            l&apos;innovation.
-          </Typography>
-
-          {/* Barre de recherche */}
+        {/* En-tête type blog avec carte hero */}
+        <Box sx={{ mb: 6 }}>
           <Box
+            component="header"
             sx={{
-              maxWidth: 520,
-              mx: 'auto',
+              position: 'relative',
+              borderRadius: 4,
+              overflow: 'hidden',
+              background: BLOG_COLORS.heroBg,
+              color: '#ffffff',
+              px: { xs: 3, md: 5 },
+              py: { xs: 3.5, md: 5 },
+              boxShadow:
+                '0 28px 80px rgba(15, 23, 42, 0.48), 0 0 0 1px rgba(15, 23, 42, 0.12)',
             }}
           >
-            <TextField
-              fullWidth
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Rechercher un article (chatbot, RAG, ROI, MVP...)"
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <Search aria-hidden="true" />
-                  </InputAdornment>
-                ),
-              }}
-              inputProps={{
-                'aria-label': "Rechercher dans les articles du blog",
-              }}
+            {/* Halo décoratif */}
+            <Box
               sx={{
-                bgcolor: 'background.paper',
-                borderRadius: 999,
-                boxShadow: '0 18px 45px rgba(15, 23, 42, 0.08)',
-                '& .MuiOutlinedInput-root': {
-                  borderRadius: 999,
-                  '& fieldset': { borderColor: 'transparent' },
-                  '&:hover fieldset': { borderColor: 'primary.main' },
-                  '&.Mui-focused fieldset': {
-                    borderColor: 'primary.main',
-                    borderWidth: 2,
-                  },
-                  '&.Mui-focused': {
-                    outline: 'none',
-                    boxShadow: 'none',
-                  },
+                position: 'absolute',
+                inset: 0,
+                pointerEvents: 'none',
+                '&::before, &::after': {
+                  content: '""',
+                  position: 'absolute',
+                  borderRadius: '999px',
+                  filter: 'blur(48px)',
+                  opacity: 0.5,
                 },
-                // désactive les focus rings natifs (Safari, iOS, etc.)
-                '& input': {
-                  outline: 'none !important',
-                  boxShadow: 'none !important',
-                  WebkitBoxShadow: 'none !important',
+                '&::before': {
+                  width: 260,
+                  height: 260,
+                  top: -60,
+                  right: -40,
+                  background:
+                    'radial-gradient(circle, rgba(244,244,245,0.85) 0%, transparent 60%)',
                 },
-                '& input[type="search"]': {
-                  WebkitAppearance: 'none',
-                },
-                '& .MuiOutlinedInput-input': {
-                  '&:focus': {
-                    outline: 'none !important',
-                  },
+                '&::after': {
+                  width: 220,
+                  height: 220,
+                  bottom: -40,
+                  left: -40,
+                  background:
+                    'radial-gradient(circle, rgba(129,230,217,0.65) 0%, transparent 60%)',
                 },
               }}
             />
+
+            <Box sx={{ position: 'relative', zIndex: 1 }}>
+              <Chip
+                label="Blog & insights IA · Product"
+                size="small"
+                sx={{
+                  mb: 2,
+                  px: 1.5,
+                  height: 26,
+                  borderRadius: 999,
+                  bgcolor: BLOG_COLORS.heroChipBg,
+                  color: 'rgba(249,250,251,0.95)',
+                  fontSize: '0.75rem',
+                  fontWeight: 700,
+                  letterSpacing: 0.4,
+                  textTransform: 'uppercase',
+                }}
+              />
+
+              <Typography
+                id="blog-title"
+                component="h1"
+                variant={isMobile ? 'h4' : 'h3'}
+                fontWeight={800}
+                sx={{
+                  mb: 1.5,
+                  letterSpacing: '-0.04em',
+                  lineHeight: 1.1,
+                }}
+              >
+                Retours d&apos;expérience, cas concrets
+                <Box component="span" sx={{ display: 'block' }}>
+                  et frameworks pour vos projets IA
+                </Box>
+              </Typography>
+
+              <Typography
+                variant="subtitle1"
+                component="p"
+                sx={{
+                  maxWidth: 620,
+                  mb: 3.5,
+                  color: BLOG_COLORS.heroSubtitle,
+                  lineHeight: 1.7,
+                }}
+              >
+                Études de cas, métriques de ROI et méthodes opérationnelles pour
+                passer de l&apos;idée au MVP, puis à la mise en production
+                (chatbots, RAG, automatisations n8n...).
+              </Typography>
+
+              {/* Barre de recherche intégrée au hero */}
+              <Box
+                sx={{
+                  maxWidth: 520,
+                  bgcolor: BLOG_COLORS.heroSearchBg,
+                  borderRadius: 999,
+                  boxShadow: BLOG_COLORS.heroSearchShadow,
+                  p: 0.5,
+                }}
+              >
+                <TextField
+                  fullWidth
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Rechercher un article (chatbot, RAG, ROI, MVP...)"
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <Search
+                          aria-hidden="true"
+                          sx={{ color: 'text.secondary' }}
+                        />
+                      </InputAdornment>
+                    ),
+                  }}
+                  inputProps={{
+                    'aria-label': "Rechercher dans les articles du blog",
+                  }}
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      borderRadius: 999,
+                      backgroundColor: BLOG_COLORS.heroSearchBg,
+                      '& fieldset': { borderColor: 'transparent' },
+                      '&:hover fieldset': { borderColor: 'primary.main' },
+                      '&.Mui-focused fieldset': {
+                        borderColor: 'primary.main',
+                        borderWidth: 2,
+                      },
+                      '&.Mui-focused': {
+                        outline: 'none',
+                        boxShadow: 'none',
+                      },
+                    },
+                    '& input': {
+                      outline: 'none !important',
+                      boxShadow: 'none !important',
+                      WebkitBoxShadow: 'none !important',
+                    },
+                    '& input[type="search"]': {
+                      WebkitAppearance: 'none',
+                    },
+                    '& .MuiOutlinedInput-input': {
+                      '&:focus': {
+                        outline: 'none !important',
+                      },
+                    },
+                  }}
+                />
+              </Box>
+
+              <Typography
+                variant="caption"
+                sx={{
+                  mt: 1.5,
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 1,
+                  color: 'rgba(241,245,249,0.9)',
+                }}
+              >
+                {resultCount} article{resultCount > 1 ? 's' : ''} disponible
+                {resultCount > 1 ? 's' : ''} pour inspirer ton prochain projet.
+              </Typography>
+            </Box>
           </Box>
 
-          {/* Filtres catégories */}
+          {/* Filtres catégories sous la hero card */}
           <Stack
             direction="row"
             spacing={1}
@@ -544,11 +685,12 @@ const Blog = () => {
                     px: 1,
                     bgcolor: active
                       ? 'primary.main'
-                      : 'background.paper',
+                      : BLOG_COLORS.categoryChipInactiveBg,
                     color: active ? 'primary.contrastText' : 'text.primary',
-                    border: active
-                      ? 'none'
-                      : '1px solid rgba(148,163,184,0.6)',
+                    border: active ? 'none' : `1px solid ${BLOG_COLORS.categoryChipBorder}`,
+                    boxShadow: active
+                      ? `0 10px 30px ${alpha(theme.palette.primary.main, 0.4)}`
+                      : `0 8px 20px ${alpha(theme.palette.common.black, 0.16)}`,
                     '&:hover': {
                       bgcolor: active
                         ? 'primary.dark'
@@ -569,9 +711,10 @@ const Blog = () => {
             })}
           </Stack>
 
-          {/* Résultats (pour lecteurs d'écran) */}
+          {/* Résultats (accessibilité) */}
           <Box
-            component="p"
+            component="span"
+            tabIndex="-1"
             sx={{
               position: 'absolute',
               left: '-10000px',

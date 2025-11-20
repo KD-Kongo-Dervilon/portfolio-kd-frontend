@@ -8,7 +8,7 @@ import {
   Avatar,
 } from '@mui/material';
 import { Email, LinkedIn, GitHub } from '@mui/icons-material';
-import { useTheme } from '@mui/material/styles';
+import { useTheme, alpha } from '@mui/material/styles';
 import { keyframes } from '@mui/system';
 
 const Contact = () => {
@@ -38,8 +38,9 @@ const Contact = () => {
       sx={{
         py: 10,
         px: 2,
-        // Fond accessible : dégradé léger indigo -> gris clair
-        background: (t) => `linear-gradient(180deg, ${t.palette.primary.light}0F 0%, #f9fafb 100%)`,
+        // Fond qui s'adapte au thème : halo léger + background par défaut
+        background: (t) =>
+          `linear-gradient(180deg, ${alpha(t.palette.primary.main, 0.06)} 0%, ${t.palette.background.default} 45%, ${t.palette.background.default} 100%)`,
       }}
     >
       <Container maxWidth="md">

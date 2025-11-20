@@ -245,17 +245,32 @@ const ProjectCard = ({ project, showMetrics, onClick }) => {
               key={skill}
               label={skill}
               size="small"
-              variant="outlined"
-              sx={{
+              sx={(theme) => ({
                 height: 24,
                 fontSize: '0.75rem',
                 fontWeight: 600,
-                borderColor: 'divider',
+                borderRadius: 999,
+                border: '1px solid',
+                borderColor:
+                  theme.palette.mode === 'dark'
+                    ? alpha(theme.palette.primary.main, 0.6)
+                    : alpha(theme.palette.primary.main, 0.35),
+                bgcolor:
+                  theme.palette.mode === 'dark'
+                    ? alpha(theme.palette.primary.main, 0.2)
+                    : alpha(theme.palette.primary.main, 0.06),
+                color:
+                  theme.palette.mode === 'dark'
+                    ? theme.palette.primary.contrastText
+                    : theme.palette.primary.main,
                 '&:hover': {
-                  borderColor: 'primary.main',
-                  bgcolor: alpha('#667eea', 0.08)
-                }
-              }}
+                  borderColor: theme.palette.primary.main,
+                  bgcolor:
+                    theme.palette.mode === 'dark'
+                      ? alpha(theme.palette.primary.main, 0.3)
+                      : alpha(theme.palette.primary.main, 0.12),
+                },
+              })}
             />
           ))}
           {project.skills.length > 4 && (

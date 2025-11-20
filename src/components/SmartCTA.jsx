@@ -136,28 +136,26 @@ const SmartCTA = () => {
               aria-controls={open ? menuId : undefined}
               aria-expanded={open ? 'true' : undefined}
               color="primary"
-              sx={{
+              sx={(theme) => ({
                 position: 'fixed',
                 bottom: { xs: 100, sm: 24 },
                 left: 24,
-                color: '#ffffff',
-                background:
-                  'linear-gradient(135deg, #4338CA 0%, #6D28D9 100%)',
-                boxShadow: '0 10px 24px rgba(17, 24, 39, 0.35)',
+                color: theme.palette.primary.contrastText,
+                background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`,
+                boxShadow: `0 10px 24px ${alpha(theme.palette.common.black, 0.35)}`,
                 zIndex: 1000,
                 transition: 'transform 200ms ease, box-shadow 200ms ease',
                 outline: highContrast ? '2px solid ButtonText' : 'none',
                 '&:hover': {
-                  background:
-                    'linear-gradient(135deg, #3a32b6 0%, #5a23c6 100%)',
-                  boxShadow: `0 14px 32px ${alpha('#111827', 0.45)}`
+                  background: `linear-gradient(135deg, ${theme.palette.primary.light} 0%, ${theme.palette.primary.main} 100%)`,
+                  boxShadow: `0 14px 32px ${alpha(theme.palette.common.black, 0.45)}`
                 },
                 '&:active': { transform: 'scale(0.98)' },
                 '&:focus-visible': {
-                  outline: '3px solid #ffffff',
-                  boxShadow: '0 0 0 4px #1e1b4b'
+                  outline: `3px solid ${theme.palette.common.white}`,
+                  boxShadow: `0 0 0 4px ${theme.palette.primary.dark}`
                 }
-              }}
+              })}
               onClick={handleClick}
             >
               {open ? (
@@ -182,30 +180,27 @@ const SmartCTA = () => {
                 aria-controls={open ? menuId : undefined}
                 aria-expanded={open ? 'true' : undefined}
                 color="primary"
-                sx={{
+                sx={(theme) => ({
                   position: 'fixed',
                   bottom: { xs: 100, sm: 24 },
                   left: 24,
-                  color: '#ffffff',
-                  background:
-                    'linear-gradient(135deg, #4338CA 0%, #6D28D9 100%)',
-                  boxShadow: '0 10px 24px rgba(17, 24, 39, 0.35)',
+                  color: theme.palette.primary.contrastText,
+                  background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`,
+                  boxShadow: `0 10px 24px ${alpha(theme.palette.common.black, 0.35)}`,
                   zIndex: 1000,
-                  transition:
-                    'transform 200ms ease, box-shadow 200ms ease',
+                  transition: 'transform 200ms ease, box-shadow 200ms ease',
                   outline: highContrast ? '2px solid ButtonText' : 'none',
                   '&:hover': {
-                    background:
-                      'linear-gradient(135deg, #3a32b6 0%, #5a23c6 100%)',
-                    boxShadow: `0 14px 32px ${alpha('#111827', 0.45)}`,
+                    background: `linear-gradient(135deg, ${theme.palette.primary.light} 0%, ${theme.palette.primary.main} 100%)`,
+                    boxShadow: `0 14px 32px ${alpha(theme.palette.common.black, 0.45)}`,
                     transform: 'translateY(-2px) scale(1.03)'
                   },
                   '&:active': { transform: 'scale(0.98)' },
                   '&:focus-visible': {
-                    outline: '3px solid #ffffff',
-                    boxShadow: '0 0 0 4px #1e1b4b'
+                    outline: `3px solid ${theme.palette.common.white}`,
+                    boxShadow: `0 0 0 4px ${theme.palette.primary.dark}`
                   }
-                }}
+                })}
                 onClick={handleClick}
               >
                 {open ? (
@@ -231,13 +226,13 @@ const SmartCTA = () => {
         keepMounted
         slotProps={{
           paper: {
-            sx: {
+            sx: (theme) => ({
               borderRadius: 2,
               border: highContrast
                 ? '1px solid ButtonText'
-                : '1px solid rgba(17,24,39,0.12)',
-              boxShadow: '0 10px 24px rgba(17,24,39,0.12)'
-            }
+                : `1px solid ${theme.palette.divider}`,
+              boxShadow: `0 10px 24px ${alpha(theme.palette.common.black, 0.16)}`
+            })
           }
         }}
       >
@@ -251,15 +246,15 @@ const SmartCTA = () => {
               setOpen(false);
             }}
             aria-label={action.label}
-            sx={{
+            sx={(theme) => ({
               gap: 1,
               transition:
                 'transform 120ms ease, background-color 120ms ease',
               '&:hover': {
                 transform: reduceMotion ? 'none' : 'translateX(2px)',
-                backgroundColor: 'rgba(102,126,234,0.12)'
+                backgroundColor: alpha(theme.palette.primary.main, 0.12)
               }
-            }}
+            })}
           >
             <ListItemIcon
               sx={{ color: 'primary.main', minWidth: 36 }}

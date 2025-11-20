@@ -1,6 +1,5 @@
 // src/components/Hero.jsx
 // Note performance : ce Hero n'utilise aucune image bitmap (<img>),
-// uniquement un Avatar MUI + icônes => pas d'optimisation WebP nécessaire ici.
 import React from 'react';
 import { Box, Typography, Button, IconButton, Avatar, Chip, Container, Grow, Stack } from '@mui/material';
 import {
@@ -40,6 +39,24 @@ const Hero = () => {
           background: 'radial-gradient(circle, rgba(102,126,234,0.03) 0%, transparent 70%)',
           animation: 'rotate 20s linear infinite',
         },
+        '&::after': {
+          content: '""',
+          position: 'absolute',
+          inset: 0,
+          pointerEvents: 'none',
+          backgroundImage: `
+            radial-gradient(circle at 10px 10px, rgba(255,255,255,0.9) 0, rgba(255,255,255,0.9) 2px, transparent 3px),
+            radial-gradient(circle at 50px 30px, rgba(255,255,255,0.8) 0, rgba(255,255,255,0.8) 2px, transparent 3px),
+            radial-gradient(circle at 90px 20px, rgba(255,255,255,0.85) 0, rgba(255,255,255,0.85) 2px, transparent 3px),
+            radial-gradient(circle at 130px 40px, rgba(255,255,255,0.8) 0, rgba(255,255,255,0.8) 2px, transparent 3px)
+          `,
+          backgroundSize: '120px 120px',
+          opacity: (t) => (t.palette.season === 'noel' ? 0.45 : 0),
+          animation: (t) =>
+            t.palette.season === 'noel' ? 'snowFall 22s linear infinite' : 'none',
+          transition: 'opacity 0.8s ease',
+          mixBlendMode: 'screen',
+        },
         '@keyframes rotate': {
           '0%': { transform: 'rotate(0deg)' },
           '100%': { transform: 'rotate(360deg)' }
@@ -66,6 +83,27 @@ const Hero = () => {
             filter: 'brightness(1.05)'
           },
         },
+        '@keyframes snowFall': {
+          '0%': { backgroundPosition: '0 -200px' },
+          '100%': { backgroundPosition: '0 600px' },
+        },
+        '@keyframes fireworkBurst': {
+          '0%': {
+            transform: 'scale(0.3)',
+            opacity: 0,
+            boxShadow: '0 0 0 rgba(251,191,36,0)',
+          },
+          '40%': {
+            transform: 'scale(1)',
+            opacity: 1,
+            boxShadow: '0 0 24px rgba(251,191,36,0.75)',
+          },
+          '100%': {
+            transform: 'scale(1.4)',
+            opacity: 0,
+            boxShadow: '0 0 40px rgba(251,191,36,0)',
+          },
+        },
         '@media (prefers-reduced-motion: reduce)': {
           '*': {
             animation: 'none !important',
@@ -74,6 +112,74 @@ const Hero = () => {
         },
       }}
     >
+      {/* Fireworks overlay for New Year theme */}
+      <Box
+        aria-hidden
+        sx={{
+          position: 'absolute',
+          inset: 0,
+          pointerEvents: 'none',
+          zIndex: 0,
+        }}
+      >
+        <Box
+          sx={{
+            position: 'absolute',
+            top: { xs: '12%', md: '10%' },
+            left: { xs: '14%', md: '18%' },
+            width: { xs: 90, md: 120 },
+            height: { xs: 90, md: 120 },
+            borderRadius: '50%',
+            background:
+              'radial-gradient(circle, rgba(251,191,36,1) 0%, rgba(251,191,36,0.8) 20%, rgba(251,191,36,0) 60%)',
+            opacity: (t) => (t.palette.season === 'nouvel-an' ? 1 : 0),
+            animation: (t) =>
+              t.palette.season === 'nouvel-an'
+                ? 'fireworkBurst 2.4s ease-out infinite'
+                : 'none',
+            animationDelay: '0s',
+            mixBlendMode: 'screen',
+          }}
+        />
+        <Box
+          sx={{
+            position: 'absolute',
+            top: { xs: '18%', md: '16%' },
+            right: { xs: '12%', md: '18%' },
+            width: { xs: 80, md: 110 },
+            height: { xs: 80, md: 110 },
+            borderRadius: '50%',
+            background:
+              'radial-gradient(circle, rgba(96,165,250,1) 0%, rgba(96,165,250,0.85) 20%, rgba(96,165,250,0) 60%)',
+            opacity: (t) => (t.palette.season === 'nouvel-an' ? 1 : 0),
+            animation: (t) =>
+              t.palette.season === 'nouvel-an'
+                ? 'fireworkBurst 2.4s ease-out infinite'
+                : 'none',
+            animationDelay: '0.6s',
+            mixBlendMode: 'screen',
+          }}
+        />
+        <Box
+          sx={{
+            position: 'absolute',
+            top: { xs: '8%', md: '12%' },
+            left: { xs: '55%', md: '48%' },
+            width: { xs: 70, md: 100 },
+            height: { xs: 70, md: 100 },
+            borderRadius: '50%',
+            background:
+              'radial-gradient(circle, rgba(244,114,182,1) 0%, rgba(244,114,182,0.85) 20%, rgba(244,114,182,0) 60%)',
+            opacity: (t) => (t.palette.season === 'nouvel-an' ? 1 : 0),
+            animation: (t) =>
+              t.palette.season === 'nouvel-an'
+                ? 'fireworkBurst 2.4s ease-out infinite'
+                : 'none',
+            animationDelay: '1.2s',
+            mixBlendMode: 'screen',
+          }}
+        />
+      </Box>
       <Container maxWidth="lg" sx={{ position: 'relative', zIndex: 1 }}>
         <Grow in timeout={900}>
           <Box sx={{ textAlign: 'center' }}>
@@ -171,16 +277,22 @@ const Hero = () => {
                   icon={chip.icon}
                   label={chip.label}
                   sx={{
-                    bgcolor: 'common.white',
-                    color: 'text.primary',
+                    bgcolor: (t) =>
+                      t.palette.mode === 'dark'
+                        ? alpha(t.palette.background.paper, 0.4)
+                        : t.palette.common.white,
+                    color: (t) => t.palette.text.primary,
                     fontWeight: 700,
-                    border: (t) => `2px solid ${t.palette.divider}`,
+                    border: (t) =>
+                      t.palette.mode === 'dark'
+                        ? `2px solid ${alpha(t.palette.text.primary, 0.3)}`
+                        : `2px solid ${t.palette.divider}`,
                     animation: `fadeInUp .8s ease-out ${chip.delay}s both`,
                     transition: 'all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)',
                     '&:hover': {
                       transform: 'translateY(-4px) scale(1.05)',
                       boxShadow: '0 8px 20px rgba(102, 126, 234, 0.25)',
-                      borderColor: 'primary.main',
+                      borderColor: (t) => t.palette.primary.main,
                     }
                   }}
                 />
@@ -334,10 +446,16 @@ const Hero = () => {
                     rel={social.href.startsWith('http') ? 'noopener noreferrer' : undefined}
                     aria-label={`Ouvrir mon ${social.label}`}
                     sx={{
-                      bgcolor: 'white',
-                      color: 'text.primary',
+                      bgcolor: (t) =>
+                        t.palette.mode === 'dark'
+                          ? alpha(t.palette.background.paper, 0.6)
+                          : t.palette.common.white,
+                      color: (t) => t.palette.text.primary,
                       boxShadow: '0 4px 14px rgba(0,0,0,0.12)',
-                      border: (t) => `1px solid ${t.palette.divider}`,
+                      border: (t) =>
+                        t.palette.mode === 'dark'
+                          ? `1px solid ${alpha(t.palette.text.primary, 0.3)}`
+                          : `1px solid ${t.palette.divider}`,
                       transition: 'box-shadow 0.35s ease, border-color 0.35s ease',
                       animation: `fadeInUp .9s ease-out ${social.delay}s both`,
                       '&:hover': {

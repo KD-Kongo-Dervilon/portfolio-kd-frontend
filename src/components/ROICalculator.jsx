@@ -94,67 +94,317 @@ const ROICalculator = () => {
       : '—';
 
   const downloadReport = async () => {
-    const report = `
-ROI CALCULATEUR IA - RAPPORT DÉTAILLÉ
-======================================
-
-PARAMÈTRES
-----------
-• Équipe support : ${teamSize} ${teamSize > 1 ? 'personnes' : 'personne'}
-• Tickets/mois : ${monthlyTickets}
-• Temps résolution : ${avgResolutionTime} min
-• Automatisation : ${automationRate}%
-• Pays : ${currentCountry.name}
-• Taux horaire : ${costPerHour}${currency}/h
-
-RÉSULTATS
----------
-✓ Heures économisées/mois : ${hoursSavedPerMonth.toFixed(0)}h
-✓ Économies mensuelles : ${monthlySavings.toLocaleString('fr-FR')}${currency}
-✓ Économies annuelles : ${yearlySavings.toLocaleString('fr-FR')}${currency}
-✓ ROI 1 an : ${roi >= 0 ? '+' : ''}${roi}%
-✓ Rentabilité estimée : ${
-      paybackMonths === '—'
-        ? 'non atteinte (paramètres à ajuster)'
-        : `${paybackMonths} mois`
-    }
-
-Rapport généré le ${new Date().toLocaleDateString('fr-FR')}
-    `.trim();
+    const dateStr = new Date().toLocaleDateString('fr-FR');
+    const fmtAmount = (v) => `${v.toLocaleString('fr-FR')} ${currency}`;
+    const fmtHours = (v) => `${v.toFixed(0)} h`;
+    const accentColor = '#4f46e5';
+    const darkText = '#111827';
+    const mutedText = '#6b7280';
 
     try {
       const { jsPDF } = await import('jspdf');
       const doc = new jsPDF({ unit: 'pt', format: 'a4' });
-      let y = 48;
+
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const pageHeight = doc.internal.pageSize.getHeight();
+      const marginX = 56;
+      let y = 64;
+
+      // HEADER
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(18);
+      doc.setTextColor(darkText);
+      doc.text('Rapport ROI – Chatbot IA Support Client', marginX, y);
+
+      y += 10;
+      doc.setDrawColor(79, 70, 229); // accent indigo
+      doc.setLineWidth(1.2);
+      doc.line(marginX, y, pageWidth - marginX, y);
+
+      // Sous-titre
+      y += 18;
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(11);
+      doc.setTextColor(mutedText);
+      doc.text(
+        'Estimation financière basée sur les paramètres saisis dans le calculateur de ROI.',
+        marginX,
+        y
+      );
+
+      // Date de génération
+      y += 16;
+      doc.setFontSize(10);
+      doc.text(`Rapport généré le ${dateStr}`, marginX, y);
+
+      // SECTION 1 – Paramètres
+      y += 32;
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(13);
+      doc.setTextColor(accentColor);
+      doc.text('1. Paramètres analysés', marginX, y);
+
+      y += 18;
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(11);
+      doc.setTextColor(darkText);
+
+      const paramsLines = [
+        `Équipe support : ${teamSize} ${teamSize > 1 ? 'personnes' : 'personne'}`,
+        `Tickets/mois : ${monthlyTickets}`,
+        `Temps moyen de résolution : ${avgResolutionTime} min`,
+        `Taux d'automatisation estimé : ${automationRate} %`,
+        `Pays : ${currentCountry.name}`,
+        `Taux horaire moyen : ${fmtAmount(costPerHour)}/h`
+      ];
+
+      paramsLines.forEach((line) => {
+        doc.text(`• ${line}`, marginX, y);
+        y += 16;
+      });
+
+      // Encadré hypothèses
+      y += 6;
+      const boxTop = y;
+      const boxHeight = 54;
+      doc.setDrawColor(209, 213, 219); // gris clair
+      doc.setFillColor(249, 250, 251); // fond très clair
+      doc.roundedRect(
+        marginX,
+        boxTop,
+        pageWidth - marginX * 2,
+        boxHeight,
+        6,
+        6,
+        'FD'
+      );
+
+      y += 18;
+      doc.setFontSize(10);
+      doc.setTextColor(mutedText);
+      doc.text(
+        "Hypothèse : coût d'implémentation initial d'environ 15 000 € (intégration, design, paramétrage).",
+        marginX + 12,
+        y
+      );
+      y += 16;
+      doc.text(
+        "Les valeurs restent indicatives et doivent être ajustées à votre contexte et à vos coûts internes.",
+        marginX + 12,
+        y
+      );
+
+      // SECTION 2 – Résultats chiffrés
+      y += 34;
+      if (y > pageHeight - 120) {
+        doc.addPage();
+        y = 64;
+      }
 
       doc.setFont('helvetica', 'bold');
-      doc.setFontSize(16);
-      doc.text('ROI CALCULATEUR IA', 48, y);
+      doc.setFontSize(13);
+      doc.setTextColor(accentColor);
+      doc.text('2. Résultats chiffrés', marginX, y);
 
-      y += 28;
+      // Cartes de métriques principales
+      const cardWidth = (pageWidth - marginX * 2 - 16) / 2;
+      const cardHeight = 80;
+      const firstRowTop = y + 20;
+
+      // Carte 1 – Heures économisées
+      doc.setDrawColor(209, 213, 219);
+      doc.setFillColor(249, 250, 251);
+      doc.roundedRect(marginX, firstRowTop, cardWidth, cardHeight, 6, 6, 'FD');
+
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(10);
+      doc.setTextColor(mutedText);
+      doc.text('Temps libéré / mois', marginX + 12, firstRowTop + 18);
+
+      doc.setFontSize(18);
+      doc.setTextColor(darkText);
+      doc.text(fmtHours(hoursSavedPerMonth), marginX + 12, firstRowTop + 44);
+
       doc.setFont('helvetica', 'normal');
-      doc.setFontSize(12);
+      doc.setFontSize(9);
+      doc.setTextColor(mutedText);
+      doc.text(
+        'Heures pouvant être réallouées à des tâches à plus forte valeur.',
+        marginX + 12,
+        firstRowTop + 62
+      );
 
-      const paragraphs = report.split('\n');
-      paragraphs.forEach(p => {
-        const lines = doc.splitTextToSize(
-          p,
-          doc.internal.pageSize.getWidth() - 96
+      // Carte 2 – ROI 12 mois
+      const card2X = marginX + cardWidth + 16;
+      doc.setDrawColor(22, 163, 74); // vert
+      doc.setFillColor(240, 253, 250);
+      doc.roundedRect(card2X, firstRowTop, cardWidth, cardHeight, 6, 6, 'FD');
+
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(10);
+      doc.setTextColor('#047857');
+      doc.text('ROI estimé sur 12 mois', card2X + 12, firstRowTop + 18);
+
+      doc.setFontSize(18);
+      doc.text(
+        roi >= 0 ? `+${roi} %` : `${roi} %`,
+        card2X + 12,
+        firstRowTop + 44
+      );
+
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(9);
+      doc.setTextColor(mutedText);
+      doc.text(
+        "Basé sur les économies projetées et un coût d'implémentation de 15 000 €.",
+        card2X + 12,
+        firstRowTop + 62
+      );
+
+      // Ligne suivante – économies
+      const secondRowTop = firstRowTop + cardHeight + 26;
+
+      // Carte 3 – Économies mensuelles
+      doc.setDrawColor(209, 213, 219);
+      doc.setFillColor(249, 250, 251);
+      doc.roundedRect(marginX, secondRowTop, cardWidth, cardHeight, 6, 6, 'FD');
+
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(10);
+      doc.setTextColor(mutedText);
+      doc.text('Économies mensuelles projetées', marginX + 12, secondRowTop + 18);
+
+      doc.setFontSize(16);
+      doc.setTextColor(darkText);
+      doc.text(fmtAmount(monthlySavings), marginX + 12, secondRowTop + 44);
+
+      // Carte 4 – Économies annuelles
+      doc.setDrawColor(220, 252, 231);
+      doc.setFillColor(240, 253, 244);
+      doc.roundedRect(card2X, secondRowTop, cardWidth, cardHeight, 6, 6, 'FD');
+
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(10);
+      doc.setTextColor('#166534');
+      doc.text('Économies annuelles projetées', card2X + 12, secondRowTop + 18);
+
+      doc.setFontSize(16);
+      doc.text(fmtAmount(yearlySavings), card2X + 12, secondRowTop + 44);
+
+      // SECTION 3 – Temps de retour sur investissement
+      let section3Top = secondRowTop + cardHeight + 34;
+      if (section3Top > pageHeight - 120) {
+        doc.addPage();
+        section3Top = 64;
+      }
+      y = section3Top;
+
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(13);
+      doc.setTextColor(accentColor);
+      doc.text('3. Temps de retour sur investissement', marginX, y);
+
+      y += 22;
+      doc.setDrawColor(15, 23, 42);
+      doc.setFillColor(15, 23, 42);
+      const roiBoxHeight = 70;
+      doc.roundedRect(
+        marginX,
+        y,
+        pageWidth - marginX * 2,
+        roiBoxHeight,
+        6,
+        6,
+        'FD'
+      );
+
+      doc.setTextColor('#e5e7eb');
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(10);
+      doc.text(
+        'Temps estimé pour couvrir le coût du projet',
+        marginX + 16,
+        y + 20
+      );
+
+      doc.setFontSize(20);
+      doc.setTextColor('#ffffff');
+      const paybackLabel =
+        paybackMonths === '—' ? 'À affiner' : `${paybackMonths} mois`;
+      doc.text(paybackLabel, marginX + 16, y + 46);
+
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(9);
+      doc.setTextColor('#d1d5db');
+      const paybackExplanation =
+        paybackMonths === '—'
+          ? "Augmentez le volume de tickets ou le taux d'automatisation pour rendre le projet rentable."
+          : "Estimation basée sur vos paramètres actuels et les hypothèses de coût renseignées dans le calculateur.";
+      doc.text(paybackExplanation, marginX + 16, y + 62);
+
+      // SECTION 4 – Prochaines étapes
+      let section4Top = y + roiBoxHeight + 40;
+      if (section4Top > pageHeight - 96) {
+        doc.addPage();
+        section4Top = 64;
+      }
+      y = section4Top;
+
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(13);
+      doc.setTextColor(accentColor);
+      doc.text('4. Prochaines étapes possibles', marginX, y);
+
+      y += 20;
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(10);
+      doc.setTextColor(darkText);
+
+      const steps = [
+        "Valider les hypothèses (taux horaire, volume de tickets, temps moyen de traitement).",
+        "Identifier un périmètre pilote pour lancer un POC (équipe / segment de clients restreint).",
+        "Définir des KPIs de succès clairs : réduction du temps de traitement, satisfaction, coûts évités.",
+        "Planifier l'industrialisation progressive si les résultats du POC sont confirmés."
+      ];
+
+      steps.forEach((s) => {
+        const wrapped = doc.splitTextToSize(
+          `• ${s}`,
+          pageWidth - marginX * 2
         );
-        lines.forEach(line => {
-          if (y > doc.internal.pageSize.getHeight() - 48) {
-            doc.addPage();
-            y = 48;
-          }
-          doc.text(line, 48, y);
-          y += 18;
-        });
-        y += 6;
+        if (y > pageHeight - 64) {
+          doc.addPage();
+          y = 64;
+        }
+        doc.text(wrapped, marginX, y);
+        y += wrapped.length * 14 + 2;
       });
 
       doc.save(`rapport-roi-ia-${Date.now()}.pdf`);
     } catch (err) {
-      const blob = new Blob([report], {
+      // Fallback très simple en .txt si jamais jsPDF n'est pas disponible
+      const fallback = `
+Rapport ROI – Chatbot IA Support Client
+
+Équipe support : ${teamSize} ${teamSize > 1 ? 'personnes' : 'personne'}
+Tickets/mois : ${monthlyTickets}
+Temps moyen de résolution : ${avgResolutionTime} min
+Taux d'automatisation estimé : ${automationRate} %
+Pays : ${currentCountry.name}
+Taux horaire moyen : ${fmtAmount(costPerHour)}/h
+
+Heures économisées/mois : ${fmtHours(hoursSavedPerMonth)}
+Économies mensuelles estimées : ${fmtAmount(monthlySavings)}
+Économies annuelles estimées : ${fmtAmount(yearlySavings)}
+ROI estimé sur 12 mois : ${roi >= 0 ? `+${roi} %` : `${roi} %`}
+Temps de retour sur investissement : ${
+        paybackMonths === '—' ? 'À affiner' : `${paybackMonths} mois`
+      }
+
+Généré le ${dateStr}
+      `.trim();
+
+      const blob = new Blob([fallback], {
         type: 'text/plain;charset=utf-8'
       });
       const url = URL.createObjectURL(blob);
@@ -172,14 +422,15 @@ Rapport généré le ${new Date().toLocaleDateString('fr-FR')}
     <Box
       component="section"
       aria-label="Calculateur de retour sur investissement d'un chatbot IA pour le support client"
-      sx={{
+      sx={t => ({
         py: { xs: 6, md: 10 },
         px: { xs: 2, sm: 3 },
         minHeight: '100vh',
         position: 'relative',
         overflow: 'hidden',
-        bgcolor: '#f5f7fb'
-      }}
+        bgcolor: t.palette.background.default,
+        color: t.palette.text.primary
+      })}
     >
       {/* Halo de fond cohérent avec le portfolio */}
       <Box
@@ -209,20 +460,20 @@ Rapport généré le ${new Date().toLocaleDateString('fr-FR')}
                 component="h1"
                 variant={isSmall ? 'h5' : 'h4'}
                 fontWeight={800}
-                sx={{
+                sx={t => ({
                   mb: 1.5,
                   letterSpacing: '-0.02em',
-                  color: '#111827'
-                }}
+                  color: t.palette.text.primary
+                })}
               >
                 💰 Calculateur de ROI IA pour votre support client
               </Typography>
               <Typography
                 variant="body1"
-                sx={{
-                  color: '#4b5563',
+                sx={t => ({
+                  color: t.palette.text.secondary,
                   lineHeight: 1.7
-                }}
+                })}
               >
                 Modifiez les paramètres de votre équipe pour estimer
                 en temps réel l’impact d’un chatbot IA sur vos coûts
@@ -318,49 +569,108 @@ Rapport généré le ${new Date().toLocaleDateString('fr-FR')}
                           value={selectedCountry}
                           label="Pays & taux horaire"
                           onChange={e => setSelectedCountry(e.target.value)}
-                          sx={{ minHeight: 48, fontWeight: 500 }}
+                          sx={t => ({
+                            minHeight: 48,
+                            fontWeight: 500,
+                            color: '#111827', // texte toujours sombre sur carte blanche
+                            '& .MuiOutlinedInput-notchedOutline': {
+                              borderColor: 'rgba(15,23,42,0.18)' // bordure visible sur fond blanc
+                            },
+                            '&:hover .MuiOutlinedInput-notchedOutline': {
+                              borderColor: 'rgba(15,23,42,0.45)'
+                            },
+                            '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                              borderColor: t.palette.primary.main,
+                              boxShadow: `0 0 0 1px ${alpha(t.palette.primary.main, 0.35)}`
+                            },
+                            '& .MuiSelect-icon': {
+                              color: '#4b5563' // flèche sombre, visible sur blanc
+                            },
+                            // supprime la double outline générée par CssBaseline
+                            '& .MuiSelect-select:focus-visible': {
+                              outline: 'none',
+                              boxShadow: 'none'
+                            }
+                          })}
+                          MenuProps={{
+                            PaperProps: {
+                              sx: (t) => ({
+                                bgcolor:
+                                  t.palette.mode === 'dark'
+                                    ? alpha(t.palette.background.paper, 0.98)
+                                    : t.palette.background.paper,
+                                color: t.palette.text.primary,
+                                borderRadius: 2,
+                                mt: 0.5,
+                                boxShadow: '0 18px 45px rgba(15,23,42,0.35)',
+                                '& .MuiMenuItem-root': {
+                                  fontWeight: 500,
+                                  '&:hover': {
+                                    bgcolor:
+                                      t.palette.mode === 'dark'
+                                        ? alpha(t.palette.primary.main, 0.22)
+                                        : alpha(t.palette.primary.main, 0.06)
+                                  }
+                                }
+                              })
+                            }
+                          }}
                         >
                           {countries.map(country => (
-                            <MenuItem key={country.code} value={country.code}>
-                              <Box
-                                sx={{
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  gap: 1
-                                }}
-                              >
-                                <Typography
-                                  fontWeight={600}
-                                  sx={{ color: '#111827' }}
-                                >
-                                  {country.name}
-                                </Typography>
-                                <Typography
-                                  variant="body2"
-                                  sx={{ color: '#6b7280' }}
-                                >
-                                  {country.hourlyRate}
-                                  {country.currency}
-                                  /h
-                                </Typography>
-                              </Box>
+                            <MenuItem
+                              key={country.code}
+                              value={country.code}
+                              sx={t => ({
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                alignItems: 'center',
+                                fontWeight: 500,
+                                color: t.palette.text.primary
+                              })}
+                            >
+                              <span>{country.name}</span>
+                              <span>
+                                {country.hourlyRate}
+                                {country.currency}
+                                /h
+                              </span>
                             </MenuItem>
                           ))}
                         </Select>
                       </FormControl>
 
                       <FormControlLabel
-                        sx={{ mt: 1.5, color: '#111827' }}
+                        sx={{
+                          mt: 1.5,
+                          color: '#111827'
+                        }}
                         control={
                           <Switch
                             checked={useCustomRate}
-                            onChange={e =>
-                              setUseCustomRate(e.target.checked)
-                            }
-                            inputProps={{
-                              'aria-label':
-                                'Utiliser un taux horaire personnalisé'
-                            }}
+                            onChange={e => setUseCustomRate(e.target.checked)}
+                            inputProps={{ 'aria-label': 'Utiliser un taux horaire personnalisé' }}
+                            sx={t => ({
+                              '& .MuiSwitch-thumb': {
+                                backgroundColor: t.palette.primary.main
+                              },
+                              '& .MuiSwitch-track': {
+                                backgroundColor:
+                                  t.palette.mode === 'dark'
+                                    ? t.palette.primary.dark
+                                    : alpha(t.palette.primary.main, 0.4),
+                                opacity: 1
+                              },
+                              '&.Mui-checked .MuiSwitch-thumb': {
+                                backgroundColor: t.palette.primary.main
+                              },
+                              '&.Mui-checked .MuiSwitch-track': {
+                                backgroundColor:
+                                  t.palette.mode === 'dark'
+                                    ? t.palette.primary.light
+                                    : t.palette.primary.main,
+                                opacity: 1
+                              }
+                            })}
                           />
                         }
                         label="Taux horaire personnalisé"
@@ -400,21 +710,102 @@ Rapport généré le ${new Date().toLocaleDateString('fr-FR')}
                             }}
                             InputProps={{
                               endAdornment: (
-                                <InputAdornment position="end">
+                                <InputAdornment
+                                  position="end"
+                                  sx={t => ({ color: t.palette.text.secondary, fontWeight: 600 })}
+                                >
                                   /h
                                 </InputAdornment>
                               )
                             }}
+                            InputLabelProps={{
+                              sx: {
+                                color: '#111827',
+                                fontWeight: 600
+                              }
+                            }}
+                            sx={t => ({
+                              '& .MuiOutlinedInput-input': {
+                                color: '#111827' // texte du 40/h toujours lisible
+                              },
+                              '& .MuiOutlinedInput-root': {
+                                '& .MuiOutlinedInput-notchedOutline': {
+                                  borderColor: 'rgba(15,23,42,0.18)'
+                                },
+                                '&:hover .MuiOutlinedInput-notchedOutline': {
+                                  borderColor: 'rgba(15,23,42,0.45)'
+                                },
+                                '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                  borderColor: t.palette.primary.main,
+                                  boxShadow: `0 0 0 1px ${alpha(t.palette.primary.main, 0.35)}`
+                                }
+                              },
+                              // supprime la double outline sur l'input lui‑même
+                              '& .MuiOutlinedInput-input:focus-visible': {
+                                outline: 'none',
+                                boxShadow: 'none'
+                              }
+                            })}
                             fullWidth
                           />
                           <FormControl sx={{ minWidth: 110 }}>
-                            <InputLabel>Devise</InputLabel>
+                            <InputLabel
+                              sx={{
+                                color: '#111827',
+                                fontWeight: 600
+                              }}
+                            >
+                              Devise
+                            </InputLabel>
                             <Select
                               value={customCurrency}
                               label="Devise"
                               onChange={e =>
                                 setCustomCurrency(e.target.value)
                               }
+                              sx={t => ({
+                                color: '#111827',
+                                '& .MuiOutlinedInput-notchedOutline': {
+                                  borderColor: 'rgba(15,23,42,0.18)'
+                                },
+                                '&:hover .MuiOutlinedInput-notchedOutline': {
+                                  borderColor: 'rgba(15,23,42,0.45)'
+                                },
+                                '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                  borderColor: t.palette.primary.main,
+                                  boxShadow: `0 0 0 1px ${alpha(t.palette.primary.main, 0.35)}`
+                                },
+                                '& .MuiSelect-icon': {
+                                  color: '#4b5563'
+                                },
+                                '& .MuiSelect-select:focus-visible': {
+                                  outline: 'none',
+                                  boxShadow: 'none'
+                                }
+                              })}
+                              MenuProps={{
+                                PaperProps: {
+                                  sx: (t) => ({
+                                    bgcolor:
+                                      t.palette.mode === 'dark'
+                                        ? alpha(t.palette.background.paper, 0.98)
+                                        : t.palette.background.paper,
+                                    color: t.palette.text.primary,
+                                    borderRadius: 2,
+                                    mt: 0.5,
+                                    boxShadow: '0 18px 45px rgba(15,23,42,0.35)',
+                                    '& .MuiMenuItem-root': {
+                                      fontWeight: 500,
+                                      '&:hover': {
+                                        bgcolor:
+                                          t.palette.mode === 'dark'
+                                            ? alpha(t.palette.primary.main, 0.22)
+                                            : alpha(t.palette.primary.main, 0.06)
+                                      }
+                                    }
+                                  })
+                                }
+                              }}
                             >
                               {['€', '$', 'CAD', '£', 'CHF'].map(cur => (
                                 <MenuItem key={cur} value={cur}>
@@ -460,6 +851,13 @@ Rapport généré le ${new Date().toLocaleDateString('fr-FR')}
                           { value: 25, label: '25' },
                           { value: 50, label: '50' }
                         ]}
+                        sx={{
+                          '& .MuiSlider-markLabel': {
+                            color: '#4b5563',
+                            fontWeight: 600,
+                            fontSize: 12
+                          }
+                        }}
                       />
                     </Box>
 
@@ -489,6 +887,13 @@ Rapport généré le ${new Date().toLocaleDateString('fr-FR')}
                           { value: 2500, label: '2.5K' },
                           { value: 5000, label: '5K' }
                         ]}
+                        sx={{
+                          '& .MuiSlider-markLabel': {
+                            color: '#4b5563',
+                            fontWeight: 600,
+                            fontSize: 12
+                          }
+                        }}
                       />
                     </Box>
 
@@ -520,6 +925,13 @@ Rapport généré le ${new Date().toLocaleDateString('fr-FR')}
                           { value: 30, label: '30' },
                           { value: 60, label: '60' }
                         ]}
+                        sx={{
+                          '& .MuiSlider-markLabel': {
+                            color: '#4b5563',
+                            fontWeight: 600,
+                            fontSize: 12
+                          }
+                        }}
                       />
                     </Box>
 
@@ -563,6 +975,13 @@ Rapport généré le ${new Date().toLocaleDateString('fr-FR')}
                           { value: 50, label: '50%' },
                           { value: 90, label: '90%' }
                         ]}
+                        sx={{
+                          '& .MuiSlider-markLabel': {
+                            color: '#4b5563',
+                            fontWeight: 600,
+                            fontSize: 12
+                          }
+                        }}
                       />
                     </Box>
 

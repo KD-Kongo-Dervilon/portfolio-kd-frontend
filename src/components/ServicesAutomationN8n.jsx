@@ -20,7 +20,7 @@ import {
   AccordionSummary,
   AccordionDetails,
 } from '@mui/material';
-import { alpha } from '@mui/material/styles';
+import { alpha, useTheme } from '@mui/material/styles';
 import {
   Bolt as BoltIcon,
   Timeline as TimelineIcon,
@@ -39,6 +39,39 @@ const API_BASE_URL =
   process.env.NODE_ENV === 'development'
     ? (process.env.REACT_APP_API_BASE_URL || 'http://localhost:3001')
     : (process.env.REACT_APP_API_BASE_URL || '');
+
+// Palette dynamique basée sur le thème MUI
+const buildAutomationColors = (theme) => {
+  const isDark = theme.palette.mode === 'dark';
+
+  const pageBg = theme.palette.background.default;
+  const sectionBg = theme.palette.background.default;
+
+  const sectionSoftBg = isDark
+    ? `radial-gradient(circle at top left, ${alpha(theme.palette.primary.main, 0.3)} 0%, ${pageBg} 40%, ${pageBg} 100%)`
+    : `radial-gradient(circle at top left, ${alpha(theme.palette.primary.main, 0.08)} 0%, ${pageBg} 40%, ${pageBg} 100%)`;
+
+  const cardBg = theme.palette.background.paper;
+  const cardBorder = alpha(theme.palette.divider, isDark ? 0.7 : 0.9);
+  const textMain = theme.palette.text.primary;
+  const textMuted = theme.palette.text.secondary;
+  const heading =
+    isDark ? theme.palette.common.white : theme.palette.text.primary;
+
+  return {
+    pageBg,
+    sectionBg,
+    sectionSoftBg,
+    cardBg,
+    cardBorder,
+    textMain,
+    textMuted,
+    heading,
+    accentPurple: theme.palette.primary.main,
+    accentPurpleDark: theme.palette.primary.dark,
+    accentGreen: theme.palette.success.main,
+  };
+};
 
 // FAQs statiques en accordéons (même contenu que dans le backend)
 const STATIC_FAQS = [
@@ -74,12 +107,33 @@ const STATIC_FAQS = [
   },
 ];
 
-// Style helper pour éviter le « double outline » sur les TextField
-const textFieldNoDoubleOutlineSx = {
+// Style helper pour éviter le « double outline » sur les TextField, dépendant des couleurs dynamiques
+const getTextFieldNoDoubleOutlineSx = (colors) => ({
+  '& .MuiOutlinedInput-root': {
+    backgroundColor: colors.cardBg,
+    '& fieldset': {
+      borderColor: colors.cardBorder,
+    },
+    '&:hover fieldset': {
+      borderColor: colors.accentPurple,
+    },
+    '&.Mui-focused fieldset': {
+      borderColor: colors.accentPurple,
+    },
+  },
   '& .MuiOutlinedInput-root.Mui-focused': {
     outline: 'none',
   },
-};
+  '& .MuiInputBase-input': {
+    color: colors.textMain,
+  },
+  '& .MuiInputLabel-root': {
+    color: colors.textMuted,
+  },
+  '& .MuiInputLabel-root.Mui-focused': {
+    color: colors.accentPurple,
+  },
+});
 
 // Composant SVG Illustration d'automatisation
 const AutomationIllustration = ({ type = 'workflow' }) => {
@@ -357,6 +411,8 @@ const AutomationIllustration = ({ type = 'workflow' }) => {
 };
 
 const ServicesAutomationN8n = () => {
+  const theme = useTheme();
+  const AUTOMATION_COLORS = buildAutomationColors(theme);
   const [hoveredCard, setHoveredCard] = useState(null);
 
   const pageTitle = 'Automatisation IA & n8n | KD Dervilon - Chef de Projet IA';
@@ -765,19 +821,23 @@ const ServicesAutomationN8n = () => {
         canonicalUrl="https://kddervilon.com/services/automatisation-ia-n8n"
       />
 
+
       <Box
         component="main"
+        id="automation-main-content"
+        tabIndex={-1}
+        role="main"
         sx={{
           minHeight: '100vh',
-          bgcolor: '#ffffff',
-          color: '#000000',
+          bgcolor: AUTOMATION_COLORS.pageBg,
+          color: AUTOMATION_COLORS.textMain,
         }}
       >
         {/* Hero Section avec illustration */}
         <Box
           sx={{
-            background: 'linear-gradient(135deg, #f8f9ff 0%, #ffffff 100%)',
-            borderBottom: '2px solid #e5e7eb',
+            background: AUTOMATION_COLORS.sectionSoftBg,
+            borderBottom: `1px solid ${AUTOMATION_COLORS.cardBorder}`,
             pt: { xs: 10, md: 12 },
             pb: { xs: 6, md: 8 },
           }}
@@ -806,7 +866,7 @@ const ServicesAutomationN8n = () => {
                     fontWeight: 800,
                     lineHeight: 1.15,
                     letterSpacing: '-0.02em',
-                    color: '#000000',
+                    color: AUTOMATION_COLORS.heading,
                     mb: 3,
                   }}
                 >
@@ -830,7 +890,7 @@ const ServicesAutomationN8n = () => {
                   sx={{
                     fontSize: '1.125rem',
                     lineHeight: 1.7,
-                    color: '#1f2937',
+                    color: AUTOMATION_COLORS.textMain,
                     mb: 4,
                     maxWidth: 560,
                   }}
@@ -847,10 +907,10 @@ const ServicesAutomationN8n = () => {
                       icon={<span style={{ fontSize: '1.2rem' }}>{tech.icon}</span>}
                       label={tech.label}
                       sx={{
-                        bgcolor: alpha(tech.color, 0.1),
+                        bgcolor: alpha(tech.color, 0.12),
                         color: tech.color,
                         fontWeight: 700,
-                        border: `2px solid ${tech.color}`,
+                        border: `1px solid ${alpha(tech.color, 0.6)}`,
                         fontSize: '0.875rem',
                         height: 36,
                       }}
@@ -920,8 +980,9 @@ const ServicesAutomationN8n = () => {
                 onMouseLeave={() => setHoveredCard(null)}
                 sx={{
                   height: '100%',
-                  border: '2px solid',
-                  borderColor: hoveredCard === 'benefits' ? '#4F47E5' : '#e5e7eb',
+                  backgroundColor: AUTOMATION_COLORS.cardBg,
+                  border: '1px solid',
+                  borderColor: hoveredCard === 'benefits' ? '#4F47E5' : AUTOMATION_COLORS.cardBorder,
                   borderRadius: 3,
                   transition: 'all 0.3s ease',
                   transform: hoveredCard === 'benefits' ? 'translateY(-8px)' : 'none',
@@ -934,7 +995,7 @@ const ServicesAutomationN8n = () => {
                 <CardContent sx={{ p: 3 }}>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 3 }}>
                     <BoltIcon sx={{ fontSize: 32, color: '#4F47E5' }} />
-                    <Typography variant="h6" fontWeight={800} color="#000000">
+                    <Typography variant="h6" component="h2" fontWeight={800} color={AUTOMATION_COLORS.heading}>
                       Bénéfices concrets
                     </Typography>
                   </Box>
@@ -951,7 +1012,7 @@ const ServicesAutomationN8n = () => {
                             primaryTypographyProps={{
                               fontSize: '0.9375rem',
                               lineHeight: 1.5,
-                              color: '#1f2937',
+                              color: AUTOMATION_COLORS.textMain,
                               fontWeight: 500,
                             }}
                           />
@@ -971,8 +1032,9 @@ const ServicesAutomationN8n = () => {
                 onMouseLeave={() => setHoveredCard(null)}
                 sx={{
                   height: '100%',
-                  border: '2px solid',
-                  borderColor: hoveredCard === 'usecases' ? '#6D28D9' : '#e5e7eb',
+                  backgroundColor: AUTOMATION_COLORS.cardBg,
+                  border: '1px solid',
+                  borderColor: hoveredCard === 'usecases' ? '#6D28D9' : AUTOMATION_COLORS.cardBorder,
                   borderRadius: 3,
                   transition: 'all 0.3s ease',
                   transform: hoveredCard === 'usecases' ? 'translateY(-8px)' : 'none',
@@ -985,7 +1047,7 @@ const ServicesAutomationN8n = () => {
                 <CardContent sx={{ p: 3 }}>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 3 }}>
                     <TimelineIcon sx={{ fontSize: 32, color: '#6D28D9' }} />
-                    <Typography variant="h6" fontWeight={800} color="#000000">
+                    <Typography variant="h6" component="h2" fontWeight={800} color={AUTOMATION_COLORS.heading}>
                       Ce que j&apos;automatise
                     </Typography>
                   </Box>
@@ -1005,7 +1067,7 @@ const ServicesAutomationN8n = () => {
                           primaryTypographyProps={{
                             fontSize: '0.9375rem',
                             lineHeight: 1.5,
-                            color: '#1f2937',
+                            color: AUTOMATION_COLORS.textMain,
                             fontWeight: 500,
                           }}
                         />
@@ -1024,8 +1086,9 @@ const ServicesAutomationN8n = () => {
                 onMouseLeave={() => setHoveredCard(null)}
                 sx={{
                   height: '100%',
-                  border: '2px solid',
-                  borderColor: hoveredCard === 'stack' ? '#10b981' : '#e5e7eb',
+                  backgroundColor: AUTOMATION_COLORS.cardBg,
+                  border: '1px solid',
+                  borderColor: hoveredCard === 'stack' ? '#10b981' : AUTOMATION_COLORS.cardBorder,
                   borderRadius: 3,
                   transition: 'all 0.3s ease',
                   transform: hoveredCard === 'stack' ? 'translateY(-8px)' : 'none',
@@ -1038,13 +1101,13 @@ const ServicesAutomationN8n = () => {
                 <CardContent sx={{ p: 3 }}>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 3 }}>
                     <AutoAwesomeIcon sx={{ fontSize: 32, color: '#10b981' }} />
-                    <Typography variant="h6" fontWeight={800} color="#000000">
+                    <Typography variant="h6" component="h2" fontWeight={800} color={AUTOMATION_COLORS.heading}>
                       Stack & approche
                     </Typography>
                   </Box>
                   <Typography
                     variant="body2"
-                    sx={{ mb: 2, color: '#1f2937', lineHeight: 1.6 }}
+                    sx={{ mb: 2, color: AUTOMATION_COLORS.textMain, lineHeight: 1.6 }}
                   >
                     Stack combinant <strong>n8n, APIs REST, LLM (GPT, Claude)</strong> et
                     vos outils existants (CRM, Notion, back-office).
@@ -1062,7 +1125,7 @@ const ServicesAutomationN8n = () => {
                           primaryTypographyProps={{
                             fontSize: '0.9375rem',
                             lineHeight: 1.5,
-                            color: '#1f2937',
+                            color: AUTOMATION_COLORS.textMain,
                             fontWeight: 500,
                           }}
                         />
@@ -1078,9 +1141,9 @@ const ServicesAutomationN8n = () => {
         {/* Section Processus avec illustration */}
         <Box
           sx={{
-            bgcolor: '#f9fafb',
-            borderTop: '2px solid #e5e7eb',
-            borderBottom: '2px solid #e5e7eb',
+            bgcolor: AUTOMATION_COLORS.sectionBg,
+            borderTop: `1px solid ${AUTOMATION_COLORS.cardBorder}`,
+            borderBottom: `1px solid ${AUTOMATION_COLORS.cardBorder}`,
             py: { xs: 6, md: 10 },
           }}
         >
@@ -1092,7 +1155,7 @@ const ServicesAutomationN8n = () => {
                 fontSize: { xs: '1.75rem', md: '2.25rem' },
                 fontWeight: 800,
                 mb: 2,
-                color: '#000000',
+                color: AUTOMATION_COLORS.heading,
                 textAlign: 'center',
               }}
             >
@@ -1105,7 +1168,7 @@ const ServicesAutomationN8n = () => {
                 mx: 'auto',
                 mb: 5,
                 textAlign: 'center',
-                color: '#1f2937',
+                color: AUTOMATION_COLORS.textMuted,
                 fontSize: '1.0625rem',
                 lineHeight: 1.7,
               }}
@@ -1126,7 +1189,8 @@ const ServicesAutomationN8n = () => {
                     elevation={0}
                     sx={{
                       height: '100%',
-                      border: '2px solid #e5e7eb',
+                      border: `1px solid ${AUTOMATION_COLORS.cardBorder}`,
+                      backgroundColor: AUTOMATION_COLORS.cardBg,
                       borderRadius: 3,
                       position: 'relative',
                       overflow: 'visible',
@@ -1161,8 +1225,9 @@ const ServicesAutomationN8n = () => {
                     <CardContent sx={{ pt: 5, px: 3, pb: 3 }}>
                       <Typography
                         variant="overline"
+                        component="span"
                         sx={{
-                          color: step.color,
+                          color: AUTOMATION_COLORS.textMuted,
                           fontWeight: 800,
                           fontSize: '0.75rem',
                           letterSpacing: 1,
@@ -1172,15 +1237,16 @@ const ServicesAutomationN8n = () => {
                       </Typography>
                       <Typography
                         variant="subtitle1"
+                        component="h3"
                         fontWeight={800}
                         gutterBottom
-                        sx={{ color: '#000000', mt: 0.5, mb: 1.5 }}
+                        sx={{ color: AUTOMATION_COLORS.heading, mt: 0.5, mb: 1.5 }}
                       >
                         {step.title}
                       </Typography>
                       <Typography
                         variant="body2"
-                        sx={{ color: '#4b5563', lineHeight: 1.6 }}
+                        sx={{ color: AUTOMATION_COLORS.textMuted, lineHeight: 1.6 }}
                       >
                         {step.description}
                       </Typography>
@@ -1199,7 +1265,7 @@ const ServicesAutomationN8n = () => {
               background: 'linear-gradient(135deg, #4F47E5 0%, #6D28D9 100%)',
               borderRadius: 4,
               p: { xs: 4, md: 6 },
-              color: '#ffffff',
+              color: AUTOMATION_COLORS.heading,
               position: 'relative',
               overflow: 'hidden',
               boxShadow: '0 20px 40px rgba(79,70,229,0.3)',
@@ -1236,7 +1302,7 @@ const ServicesAutomationN8n = () => {
                   mb: 4,
                   fontSize: '1.0625rem',
                   lineHeight: 1.7,
-                  color: 'rgba(255,255,255,0.95)',
+                  color: 'rgba(249,250,251,0.92)',
                 }}
               >
                 Tu as un process en tête (onboarding, relances, reporting, support) et tu
@@ -1314,8 +1380,8 @@ const ServicesAutomationN8n = () => {
         {/* Section Métriques / Chiffres clés */}
         <Box
           sx={{
-            bgcolor: '#000000',
-            color: '#ffffff',
+            bgcolor: AUTOMATION_COLORS.sectionBg,
+            color: AUTOMATION_COLORS.heading,
             py: { xs: 6, md: 8 },
           }}
         >
@@ -1328,7 +1394,7 @@ const ServicesAutomationN8n = () => {
                 fontWeight: 800,
                 mb: 5,
                 textAlign: 'center',
-                color: '#ffffff',
+                color: AUTOMATION_COLORS.heading,
               }}
             >
               Impact mesurable de l&apos;automatisation IA
@@ -1367,7 +1433,8 @@ const ServicesAutomationN8n = () => {
                       textAlign: 'center',
                       p: 3,
                       borderRadius: 3,
-                      border: '2px solid rgba(255,255,255,0.1)',
+                      border: `1px solid ${AUTOMATION_COLORS.cardBorder}`,
+                      backgroundColor: AUTOMATION_COLORS.cardBg,
                       transition: 'all 0.3s ease',
                       '&:hover': {
                         borderColor: metric.color,
@@ -1379,6 +1446,7 @@ const ServicesAutomationN8n = () => {
                     <Box sx={{ fontSize: '3rem', mb: 1 }}>{metric.icon}</Box>
                     <Typography
                       variant="h3"
+                      component="p"
                       sx={{
                         fontSize: { xs: '2rem', md: '2.5rem' },
                         fontWeight: 800,
@@ -1392,7 +1460,7 @@ const ServicesAutomationN8n = () => {
                     <Typography
                       variant="body2"
                       sx={{
-                        color: 'rgba(255,255,255,0.8)',
+                        color: AUTOMATION_COLORS.textMain,
                         fontSize: '0.9375rem',
                         lineHeight: 1.4,
                         fontWeight: 500,
@@ -1410,8 +1478,8 @@ const ServicesAutomationN8n = () => {
         {/* Section Questions / espace Q&R */}
         <Box
           sx={{
-            bgcolor: '#f9fafb',
-            borderTop: '2px solid #e5e7eb',
+            bgcolor: AUTOMATION_COLORS.sectionBg,
+            borderTop: `1px solid ${AUTOMATION_COLORS.cardBorder}`,
             py: { xs: 6, md: 10 },
           }}
         >
@@ -1424,7 +1492,7 @@ const ServicesAutomationN8n = () => {
                 fontWeight: 800,
                 mb: 2,
                 textAlign: 'center',
-                color: '#000000',
+                color: AUTOMATION_COLORS.heading,
               }}
             >
               Questions fréquentes & espace Q/R
@@ -1437,7 +1505,7 @@ const ServicesAutomationN8n = () => {
                 mx: 'auto',
                 mb: 4,
                 textAlign: 'center',
-                color: '#4b5563',
+                color: AUTOMATION_COLORS.textMuted,
                 fontSize: '1.0625rem',
               }}
             >
@@ -1450,10 +1518,10 @@ const ServicesAutomationN8n = () => {
             <Card
               elevation={0}
               sx={{
-                border: '2px solid #e5e7eb',
+                border: `1px solid ${AUTOMATION_COLORS.cardBorder}`,
                 borderRadius: 3,
                 mb: 4,
-                backgroundColor: '#ffffff',
+                backgroundColor: AUTOMATION_COLORS.cardBg,
               }}
             >
               <CardContent sx={{ p: 0 }}>
@@ -1465,14 +1533,15 @@ const ServicesAutomationN8n = () => {
                     elevation={0}
                     sx={{
                       '&:before': { display: 'none' },
+                      backgroundColor: AUTOMATION_COLORS.cardBg,
                       borderBottom:
                         index === STATIC_FAQS.length - 1
                           ? 'none'
-                          : '1px solid #e5e7eb',
+                          : `1px solid ${AUTOMATION_COLORS.cardBorder}`,
                     }}
                   >
                     <AccordionSummary
-                      expandIcon={<ExpandMoreIcon />}
+                      expandIcon={<ExpandMoreIcon sx={{ color: AUTOMATION_COLORS.textMuted }} />}
                       sx={{
                         px: 3,
                         py: 1.5,
@@ -1480,15 +1549,22 @@ const ServicesAutomationN8n = () => {
                     >
                       <Typography
                         variant="subtitle1"
-                        sx={{ fontWeight: 700, color: '#111827' }}
+                        component="p"
+                        sx={{ fontWeight: 700, color: AUTOMATION_COLORS.heading }}
                       >
                         {faq.question}
                       </Typography>
                     </AccordionSummary>
-                    <AccordionDetails sx={{ px: 3, pb: 2 }}>
+                    <AccordionDetails
+                      sx={{
+                        px: 3,
+                        pb: 2,
+                        backgroundColor: AUTOMATION_COLORS.cardBg,
+                      }}
+                    >
                       <Typography
                         variant="body2"
-                        sx={{ color: '#4b5563', lineHeight: 1.6 }}
+                        sx={{ color: AUTOMATION_COLORS.textMuted, lineHeight: 1.6 }}
                       >
                         {faq.answer}
                       </Typography>
@@ -1507,7 +1583,7 @@ const ServicesAutomationN8n = () => {
                 fontSize: { xs: '1.25rem', md: '1.5rem' },
                 fontWeight: 800,
                 mb: 2,
-                color: '#000000',
+                color: AUTOMATION_COLORS.heading,
               }}
             >
               Poser une question à la communauté
@@ -1534,10 +1610,10 @@ const ServicesAutomationN8n = () => {
             <Card
               elevation={0}
               sx={{
-                border: '2px solid #e5e7eb',
+                border: `1px solid ${AUTOMATION_COLORS.cardBorder}`,
                 borderRadius: 3,
                 mb: 4,
-                backgroundColor: '#ffffff',
+                backgroundColor: AUTOMATION_COLORS.cardBg,
               }}
             >
               <CardContent sx={{ p: 3 }}>
@@ -1548,7 +1624,7 @@ const ServicesAutomationN8n = () => {
                     onChange={(e) => setAuthorName(e.target.value)}
                     fullWidth
                     size="small"
-                    sx={textFieldNoDoubleOutlineSx}
+                    sx={getTextFieldNoDoubleOutlineSx(AUTOMATION_COLORS)}
                   />
                   <TextField
                     label="Ta question sur l'automatisation IA & n8n"
@@ -1557,7 +1633,7 @@ const ServicesAutomationN8n = () => {
                     fullWidth
                     multiline
                     minRows={3}
-                    sx={textFieldNoDoubleOutlineSx}
+                    sx={getTextFieldNoDoubleOutlineSx(AUTOMATION_COLORS)}
                   />
                   <Box sx={{ textAlign: 'right' }}>
                     <Button
@@ -1581,14 +1657,14 @@ const ServicesAutomationN8n = () => {
               {loadingPosts ? (
                 <Typography
                   variant="body2"
-                  sx={{ color: '#6b7280', textAlign: 'center', mt: 2 }}
+                  sx={{ color: AUTOMATION_COLORS.textMuted, textAlign: 'center', mt: 2 }}
                 >
                   Chargement des questions...
                 </Typography>
               ) : questions.length === 0 ? (
                 <Typography
                   variant="body2"
-                  sx={{ color: '#6b7280', textAlign: 'center', mt: 2 }}
+                  sx={{ color: AUTOMATION_COLORS.textMuted, textAlign: 'center', mt: 2 }}
                 >
                   Aucune question n&apos;a encore été posée. Sois le premier à lancer la
                   discussion 🔥
@@ -1604,9 +1680,9 @@ const ServicesAutomationN8n = () => {
                       key={q.id}
                       elevation={0}
                       sx={{
-                        border: '2px solid #e5e7eb',
+                        border: `1px solid ${AUTOMATION_COLORS.cardBorder}`,
                         borderRadius: 3,
-                        backgroundColor: '#ffffff',
+                        backgroundColor: AUTOMATION_COLORS.cardBg,
                       }}
                     >
                       <CardContent sx={{ p: 3 }}>
@@ -1620,11 +1696,12 @@ const ServicesAutomationN8n = () => {
                         >
                           <Typography
                             variant="subtitle2"
-                            sx={{ fontWeight: 700, color: '#111827' }}
+                            component="p"
+                            sx={{ fontWeight: 700, color: AUTOMATION_COLORS.heading }}
                           >
                             {displayAuthor}
                           </Typography>
-                          <Typography variant="caption" sx={{ color: '#6b7280' }}>
+                          <Typography variant="caption" sx={{ color: AUTOMATION_COLORS.textMuted }}>
                             Posté le {formatDate(q.createdAt)}
                             {q.updatedAt &&
                               q.updatedAt !== q.createdAt &&
@@ -1640,7 +1717,7 @@ const ServicesAutomationN8n = () => {
                               fullWidth
                               multiline
                               minRows={3}
-                              sx={textFieldNoDoubleOutlineSx}
+                              sx={getTextFieldNoDoubleOutlineSx(AUTOMATION_COLORS)}
                             />
                             <Box
                               sx={{
@@ -1674,7 +1751,7 @@ const ServicesAutomationN8n = () => {
                               sx={{
                                 mt: 1.5,
                                 mb: 1.5,
-                                color: '#111827',
+                                color: AUTOMATION_COLORS.textMain,
                                 whiteSpace: 'pre-wrap',
                               }}
                             >
@@ -1728,7 +1805,7 @@ const ServicesAutomationN8n = () => {
                             sx={{
                               mt: 2,
                               pl: 2,
-                              borderLeft: '2px solid #e5e7eb',
+                              borderLeft: `2px solid ${AUTOMATION_COLORS.cardBorder}`,
                               display: 'flex',
                               flexDirection: 'column',
                               gap: 1.5,
@@ -1740,13 +1817,13 @@ const ServicesAutomationN8n = () => {
                                 <Box key={r.id}>
                                   <Typography
                                     variant="body2"
-                                    sx={{ fontWeight: 600, color: '#111827' }}
+                                    sx={{ fontWeight: 600, color: AUTOMATION_COLORS.heading }}
                                   >
                                     {replyAuthor}
                                   </Typography>
                                   <Typography
                                     variant="caption"
-                                    sx={{ color: '#6b7280' }}
+                                    sx={{ color: AUTOMATION_COLORS.textMuted }}
                                   >
                                     Réponse le {formatDate(r.createdAt)}
                                   </Typography>
@@ -1754,7 +1831,7 @@ const ServicesAutomationN8n = () => {
                                     variant="body2"
                                     sx={{
                                       mt: 0.5,
-                                      color: '#111827',
+                                      color: AUTOMATION_COLORS.textMain,
                                       whiteSpace: 'pre-wrap',
                                     }}
                                   >
@@ -1776,7 +1853,7 @@ const ServicesAutomationN8n = () => {
                             minRows={2}
                             value={replyDrafts[q.id] || ''}
                             onChange={(e) => handleReplyChange(q.id, e.target.value)}
-                            sx={textFieldNoDoubleOutlineSx}
+                            sx={getTextFieldNoDoubleOutlineSx(AUTOMATION_COLORS)}
                           />
                           <Box sx={{ textAlign: 'right', mt: 1 }}>
                             <Button

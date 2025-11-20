@@ -13,7 +13,10 @@ import {
   List,
   ListItemButton,
   ListItemText,
-  Divider
+  Divider,
+  Chip,
+  Menu,
+  MenuItem
 } from '@mui/material';
 import { alpha } from '@mui/material/styles';
 import { Close as CloseIcon } from '@mui/icons-material';
@@ -26,6 +29,49 @@ const Navigation = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const navigate = useNavigate();
   const location = useLocation();
+
+  const [themeKey, setThemeKey] = useState('default');
+  const [themeMenuAnchor, setThemeMenuAnchor] = useState(null);
+
+  const handleOpenThemeMenu = (event) => {
+    setThemeMenuAnchor(event.currentTarget);
+  };
+
+  const handleCloseThemeMenu = () => {
+    setThemeMenuAnchor(null);
+  };
+
+  const handleSelectTheme = (key) => {
+    setThemeMenuAnchor(null);
+
+    // Met à jour localement le chip
+    setThemeKey(key);
+
+    // Notifie l'app (et donc le ThemeProvider) via l'événement global
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(
+        new CustomEvent('kd-theme-change', {
+          detail: { theme: key }
+        })
+      );
+    }
+  };
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const handleThemeChange = (event) => {
+      const next = event.detail?.theme;
+      if (typeof next === 'string') {
+        setThemeKey(next);
+      }
+    };
+
+    window.addEventListener('kd-theme-change', handleThemeChange);
+    return () => {
+      window.removeEventListener('kd-theme-change', handleThemeChange);
+    };
+  }, []);
 
   const navigationItems = useMemo(
     () => [
@@ -162,25 +208,25 @@ const Navigation = () => {
     return activeItem === item.hash;
   };
 
+  const themeChip = useMemo(() => {
+    switch (themeKey) {
+      case 'noel':
+        return { label: 'Noël 🎄', color: 'error' };
+      case 'nouvel-an':
+        return { label: 'Nouvel An 🎆', color: 'warning' };
+      case 'halloween':
+        return { label: 'Halloween 🎃', color: 'warning' };
+      case 'rentree':
+        return { label: 'Rentrée scolaire 🧑‍🏫', color: 'success' };
+      case 'paques':
+        return { label: 'Pâques 🐣', color: 'info' };
+      default:
+        return { label: 'Thème par défaut', color: 'default' };
+    }
+  }, [themeKey]);
+
   return (
     <>
-      {/* Lien d'évitement pour passer directement au contenu principal */}
-      <a
-        href="#accueil"
-        style={{
-          position: 'absolute',
-          left: -9999,
-          top: 'auto',
-          width: 1,
-          height: 1,
-          overflow: 'hidden',
-          outline: '3px solid #0b57d0',
-          outlineOffset: 2
-        }}
-      >
-        Aller au contenu
-      </a>
-
       <AppBar
         position="fixed"
         sx={{
@@ -211,7 +257,7 @@ const Navigation = () => {
             }
             sx={{
               flexGrow: 1,
-              color: '#111111',
+              color: (t) => t.palette.text.primary,
               fontWeight: 900,
               letterSpacing: 0.5,
               position: 'relative',
@@ -237,6 +283,67 @@ const Navigation = () => {
           >
             KD Dervilon
           </Typography>
+
+          <Chip
+            label={themeChip.label}
+            size="small"
+            color={themeChip.color === 'default' ? 'default' : themeChip.color}
+            variant={themeChip.color === 'default' ? 'outlined' : 'filled'}
+            onClick={handleOpenThemeMenu}
+            sx={{
+              ml: 2,
+              mr: isMobile ? 1 : 2,
+              fontWeight: 600,
+              display: { xs: 'none', sm: 'inline-flex' },
+              cursor: 'pointer',
+              bgcolor: themeChip.color === 'default' ? 'transparent' : undefined
+            }}
+            aria-label={`Thème actuel : ${themeChip.label}. Cliquer pour changer de thème.`}
+          />
+          <Menu
+            anchorEl={themeMenuAnchor}
+            open={Boolean(themeMenuAnchor)}
+            onClose={handleCloseThemeMenu}
+            anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+            transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+          >
+            <MenuItem
+              selected={themeKey === 'default'}
+              onClick={() => handleSelectTheme('default')}
+            >
+              Thème par défaut
+            </MenuItem>
+            <MenuItem
+              selected={themeKey === 'noel'}
+              onClick={() => handleSelectTheme('noel')}
+            >
+              Noël 🎄
+            </MenuItem>
+            <MenuItem
+              selected={themeKey === 'nouvel-an'}
+              onClick={() => handleSelectTheme('nouvel-an')}
+            >
+              Nouvel An 🎆
+            </MenuItem>
+            <MenuItem
+              selected={themeKey === 'halloween'}
+              onClick={() => handleSelectTheme('halloween')}
+            >
+              Halloween 🎃
+            </MenuItem>
+            <MenuItem
+              selected={themeKey === 'rentree'}
+              onClick={() => handleSelectTheme('rentree')}
+            >
+              Rentrée scolaire 🧑‍🏫
+            </MenuItem>
+            <MenuItem
+              selected={themeKey === 'paques'}
+              onClick={() => handleSelectTheme('paques')}
+            >
+              Pâques 🐣
+            </MenuItem>
+          </Menu>
 
           {/* Navigation desktop */}
           {!isMobile && (

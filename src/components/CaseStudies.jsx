@@ -327,8 +327,12 @@ const CaseStudyCard = memo(function CaseStudyCard({ caseStudy, index, onOpen, re
             borderRadius: 4,
             padding: 0,
             overflow: 'hidden',
-            border: `1px solid ${alpha(theme.palette.divider, 0.9)}`,
-            bgcolor: '#ffffff',
+            border: theme.palette.mode === 'dark'
+              ? `1px solid ${alpha(theme.palette.common.white, 0.18)}`
+              : `1px solid ${alpha(theme.palette.divider, 0.9)}`,
+            bgcolor: theme.palette.mode === 'dark'
+              ? alpha(theme.palette.background.paper, 0.96)
+              : '#ffffff',
             boxShadow: '0 10px 40px rgba(15,23,42,0.10)',
             transition:
               'box-shadow 0.35s ease, border-color 0.35s ease, background-color 0.35s ease, opacity 0.35s ease',
@@ -468,7 +472,7 @@ const CaseStudyCard = memo(function CaseStudyCard({ caseStudy, index, onOpen, re
               component="h3"
               sx={{
                 fontWeight: 700,
-                color: '#111827',
+                color: theme.palette.text.primary,
                 lineHeight: 1.3
               }}
             >
@@ -504,14 +508,14 @@ const CaseStudyCard = memo(function CaseStudyCard({ caseStudy, index, onOpen, re
                         <Icon
                           sx={{
                             fontSize: 18,
-                            color: `${result.color}.main`
+                            color: theme.palette[result.color].main
                           }}
                         />
                         <Typography
                           variant="body2"
                           sx={{
                             fontWeight: 800,
-                            color: `${result.color}.main`,
+                            color: theme.palette[result.color].main,
                             fontSize: '1.3rem'
                           }}
                         >
@@ -641,7 +645,7 @@ const CaseStudies = () => {
         px: { xs: 2, md: 3 },
         position: 'relative',
         overflow: 'hidden',
-        bgcolor: '#f5f7fb'
+        bgcolor: theme.palette.mode === 'dark' ? theme.palette.background.default : '#f5f7fb'
       }}
     >
       <Box
@@ -725,7 +729,9 @@ const CaseStudies = () => {
               },
               alignItems: 'stretch',
               background:
-                'linear-gradient(135deg, rgba(102,126,234,0.08), rgba(124,58,237,0.06))',
+                theme.palette.mode === 'dark'
+                  ? alpha(theme.palette.background.paper, 0.25)
+                  : 'linear-gradient(135deg, rgba(102,126,234,0.08), rgba(124,58,237,0.06))',
               border: `1px solid ${alpha(theme.palette.primary.main, 0.18)}`
             }}
           >
@@ -755,7 +761,7 @@ const CaseStudies = () => {
                 <Typography
                   variant="subtitle2"
                   component="p"
-                  sx={{ fontWeight: 700, color: '#111827' }}
+                  sx={{ fontWeight: 700, color: theme.palette.text.primary }}
                 >
                   Impact cumulé
                 </Typography>
@@ -786,23 +792,23 @@ const CaseStudies = () => {
                 }
               }}
             >
-              <Typography
-                variant="subtitle2"
-                component="p"
-                sx={{ fontWeight: 700, color: '#111827' }}
-              >
-                ROI moyen
-              </Typography>
-              <Typography
-                variant="h5"
-                component="p"
-                sx={{
-                  fontWeight: 800,
-                  color: '#16a34a'
-                }}
-              >
-                {avgRoi}
-              </Typography>
+                <Typography
+                  variant="subtitle2"
+                  component="p"
+                  sx={{ fontWeight: 700, color: theme.palette.text.primary }}
+                >
+                  ROI moyen
+                </Typography>
+                <Typography
+                  variant="h5"
+                  component="p"
+                  sx={{
+                    fontWeight: 800,
+                    color: theme.palette.success.main
+                  }}
+                >
+                  {avgRoi}
+                </Typography>
               <Typography variant="caption" color="text.secondary">
                 Basé sur les projets présentés
               </Typography>
@@ -825,13 +831,13 @@ const CaseStudies = () => {
                 }
               }}
             >
-              <Typography
-                variant="subtitle2"
-                component="p"
-                sx={{ fontWeight: 700, color: '#111827' }}
-              >
-                Time-to-value
-              </Typography>
+                <Typography
+                  variant="subtitle2"
+                  component="p"
+                  sx={{ fontWeight: 700, color: theme.palette.text.primary }}
+                >
+                  Time-to-value
+                </Typography>
               <Typography
                 variant="h5"
                 component="p"
@@ -981,7 +987,9 @@ const CaseStudies = () => {
                 id="dialog-description"
                 sx={{
                   p: { xs: 2.4, md: 3.2 },
-                  bgcolor: '#ffffff'
+                  bgcolor: theme.palette.mode === 'dark'
+                    ? alpha(theme.palette.background.paper, 0.97)
+                    : '#ffffff'
                 }}
               >
                 <Stack
@@ -997,14 +1005,16 @@ const CaseStudies = () => {
                       mt: 2,
                       borderRadius: 3,
                       borderLeft: `4px solid ${theme.palette.error.main}`,
-                      bgcolor: alpha(theme.palette.error.main, 0.02)
+                      bgcolor: theme.palette.mode === 'dark'
+                        ? alpha(theme.palette.error.main, 0.15)
+                        : alpha(theme.palette.error.main, 0.02)
                     }}
                   >
                     <Typography
                       variant="subtitle1"
                       fontWeight={700}
                       gutterBottom
-                      color="#111827"
+                      color={theme.palette.text.primary}
                     >
                       🎯 Challenge
                     </Typography>
@@ -1023,14 +1033,16 @@ const CaseStudies = () => {
                       p: 2.2,
                       borderRadius: 3,
                       borderLeft: `4px solid ${theme.palette.success.main}`,
-                      bgcolor: alpha(theme.palette.success.main, 0.02)
+                      bgcolor: theme.palette.mode === 'dark'
+                        ? alpha(theme.palette.success.main, 0.15)
+                        : alpha(theme.palette.success.main, 0.02)
                     }}
                   >
                     <Typography
                       variant="subtitle1"
                       fontWeight={700}
                       gutterBottom
-                      color="#111827"
+                      color={theme.palette.text.primary}
                     >
                       💡 Solution déployée
                     </Typography>
@@ -1051,7 +1063,7 @@ const CaseStudies = () => {
                   component="h3"
                   fontWeight={700}
                   gutterBottom
-                  color="#111827"
+                  color={theme.palette.text.primary}
                 >
                   📊 Résultats clés
                 </Typography>
@@ -1104,7 +1116,7 @@ const CaseStudies = () => {
                           <Typography
                             variant="body2"
                             fontWeight={600}
-                            sx={{ color: '#111827', mb: 0.3 }}
+                            sx={{ color: theme.palette.text.primary, mb: 0.3 }}
                           >
                             {result.metric}
                           </Typography>
@@ -1127,7 +1139,7 @@ const CaseStudies = () => {
                   component="h3"
                   fontWeight={700}
                   gutterBottom
-                  color="#111827"
+                  color={theme.palette.text.primary}
                 >
                   🗺️ Playbook & timeline
                 </Typography>
@@ -1152,7 +1164,7 @@ const CaseStudies = () => {
                       >
                         <Typography
                           fontWeight={700}
-                          sx={{ color: '#111827' }}
+                          sx={{ color: theme.palette.text.primary }}
                         >
                           {step.label}
                         </Typography>
@@ -1188,7 +1200,7 @@ const CaseStudies = () => {
                   component="h3"
                   fontWeight={700}
                   gutterBottom
-                  color="#111827"
+                  color={theme.palette.text.primary}
                 >
                   🛠️ Stack technique
                 </Typography>

@@ -58,6 +58,7 @@ const theme = createTheme({
       disabledBackground: alpha('#000', 0.12),
       focus: alpha(primaryMain, 0.25),
     },
+    season: 'default',
   },
 
   typography: {
@@ -216,5 +217,159 @@ const theme = createTheme({
     },
   },
 });
+
+// 🎨 Variantes de thème pilotées par le chatbot (Noël, Nouvel An, Halloween, Rentrée, Pâques, Défaut)
+// Les thèmes sombres utilisent un texte très clair pour garder un bon contraste.
+
+const themeNoel = createTheme(theme, {
+  palette: {
+    mode: 'dark',
+    primary: {
+      ...theme.palette.primary,
+      main: '#b91c1c', // rouge profond
+      dark: '#7f1d1d',
+    },
+    secondary: {
+      ...theme.palette.secondary,
+      main: '#16a34a', // vert sapin
+      dark: '#166534',
+    },
+    background: {
+      ...theme.palette.background,
+      default: '#020617', // fond très sombre
+      paper: '#020617',
+    },
+    text: {
+      primary: '#f9fafb',
+      secondary: '#e5e7eb',
+      disabled: alpha('#e5e7eb', 0.5),
+    },
+    season: 'noel',
+  },
+});
+
+const themeNouvelAn = createTheme(theme, {
+  palette: {
+    mode: 'dark',
+    primary: {
+      ...theme.palette.primary,
+      main: '#facc15', // or lumineux
+      dark: '#eab308',
+    },
+    secondary: {
+      ...theme.palette.secondary,
+      main: '#0ea5e9', // bleu néon
+      dark: '#0369a1',
+    },
+    background: {
+      ...theme.palette.background,
+      default: '#020617',
+      paper: '#020617',
+    },
+    text: {
+      primary: '#f9fafb',
+      secondary: '#e5e7eb',
+      disabled: alpha('#e5e7eb', 0.5),
+    },
+    season: 'nouvel-an',
+  },
+});
+
+const themeHalloween = createTheme(theme, {
+  palette: {
+    mode: 'dark',
+    primary: {
+      ...theme.palette.primary,
+      main: '#f97316', // orange citrouille
+      dark: '#c2410c',
+    },
+    secondary: {
+      ...theme.palette.secondary,
+      main: '#4b5563', // gris ardoise
+      dark: '#111827',
+    },
+    background: {
+      ...theme.palette.background,
+      default: '#020617',
+      paper: '#030712',
+    },
+    text: {
+      primary: '#f9fafb',
+      secondary: '#e5e7eb',
+      disabled: alpha('#e5e7eb', 0.5),
+    },
+    season: 'halloween',
+  },
+});
+
+const themeRentree = createTheme(theme, {
+  palette: {
+    // reste un thème clair
+    primary: {
+      ...theme.palette.primary,
+      main: '#2563eb', // bleu cahier
+      dark: '#1d4ed8',
+    },
+    secondary: {
+      ...theme.palette.secondary,
+      main: '#22c55e', // vert stabilo
+      dark: '#15803d',
+    },
+    background: {
+      ...theme.palette.background,
+      default: '#eff6ff',
+      paper: '#ffffff',
+    },
+    text: {
+      ...theme.palette.text,
+    },
+    season: 'rentree',
+  },
+});
+
+const themePaques = createTheme(theme, {
+  palette: {
+    // Thème pastel mais avec texte foncé pour la lisibilité
+    primary: {
+      ...theme.palette.primary,
+      main: '#db2777', // rose
+      dark: '#be185d',
+    },
+    secondary: {
+      ...theme.palette.secondary,
+      main: '#a3e635', // vert pastel
+      dark: '#65a30d',
+    },
+    background: {
+      ...theme.palette.background,
+      default: '#fdf4ff', // lavande très claire
+      paper: '#ffffff',
+    },
+    text: {
+      primary: textPrimary,
+      secondary: textSecondary,
+      disabled: '#6b7280',
+    },
+    season: 'paques',
+  },
+});
+
+export const getThemeByKey = (key) => {
+  switch (key) {
+    case 'noel':
+      return themeNoel;
+    case 'nouvel-an':
+      return themeNouvelAn;
+    case 'halloween':
+      return themeHalloween;
+    case 'rentree':
+      return themeRentree;
+    case 'paques':
+      return themePaques;
+    case 'default':
+    default:
+      return theme;
+  }
+};
 
 export default theme;

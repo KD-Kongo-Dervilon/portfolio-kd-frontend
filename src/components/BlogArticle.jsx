@@ -637,6 +637,33 @@ Et si tu veux être accompagné sur ce type de sprint (cadrage, pilotage produit
   },
 };
 
+// 🎨 Style pour les champs de texte des commentaires (pseudo, texte, édition)
+const commentTextFieldSx = {
+  '& .MuiOutlinedInput-root': {
+    bgcolor: (t) => alpha(t.palette.background.paper, 0.9),
+    '& fieldset': {
+      borderColor: (t) => alpha(t.palette.text.primary, 0.2),
+    },
+    '&:hover fieldset': {
+      borderColor: (t) => alpha(t.palette.primary.main, 0.7),
+    },
+    '&.Mui-focused fieldset': {
+      borderColor: (t) => t.palette.primary.main,
+      borderWidth: 2,
+    },
+  },
+  '& .MuiInputLabel-root': {
+    color: (t) => alpha(t.palette.text.primary, 0.6),
+  },
+  '& .MuiInputLabel-root.Mui-focused': {
+    color: (t) => t.palette.primary.main,
+  },
+  '& .MuiInputBase-input::placeholder': {
+    color: (t) => alpha(t.palette.text.primary, 0.45),
+    opacity: 1,
+  },
+};
+
 // 🎨 Mapping Markdown -> composants MUI
 const markdownComponents = {
   h1: ({ node, ...props }) => (
@@ -1412,6 +1439,7 @@ const BlogArticle = () => {
                         fullWidth
                         value={commentForm.pseudo}
                         onChange={handleCommentFieldChange('pseudo')}
+                        sx={commentTextFieldSx}
                         inputProps={{
                           'aria-label': 'Votre pseudo pour le commentaire',
                         }}
@@ -1424,6 +1452,7 @@ const BlogArticle = () => {
                         minRows={3}
                         value={commentForm.text}
                         onChange={handleCommentFieldChange('text')}
+                        sx={commentTextFieldSx}
                         inputProps={{
                           'aria-label': 'Contenu de votre commentaire',
                         }}
@@ -1608,7 +1637,7 @@ const BlogArticle = () => {
                                     ? 'Contenu du commentaire à modifier'
                                     : 'Contenu de votre commentaire à modifier',
                                 }}
-                                sx={{ mb: 1 }}
+                                sx={{ ...commentTextFieldSx, mb: 1 }}
                               />
                               <Stack direction="row" spacing={1}>
                                 <Button

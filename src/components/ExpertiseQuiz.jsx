@@ -429,13 +429,14 @@ function DropZone({ id, isActive, flash, children }) {
         textAlign: 'center',
         borderRadius: 3,
         border: '2px dashed',
-        borderColor: active ? 'primary.main' : 'divider',
-        color: active ? 'primary.main' : 'text.secondary',
+        borderColor: active ? 'primary.main' : '#9ca3af',
+        color: active ? 'primary.main' : '#4b5563',
         minHeight: 96,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        transition: 'border-color .2s ease',
+        backgroundColor: 'rgba(102,126,234,0.03)',
+        transition: 'border-color .25s ease, background-color .25s ease',
         position: 'relative',
       }}
     >
@@ -846,7 +847,17 @@ const ExpertiseQuiz = () => {
               <Typography variant="h4" fontWeight={700} gutterBottom color="#111111">
                 🎮 Testez mon expertise
               </Typography>
-              <Typography variant="h6" color="text.secondary" paragraph sx={{ mb: 4 }}>
+              <Typography
+                variant="h6"
+                paragraph
+                sx={(t) => ({
+                  mb: 4,
+                  color:
+                    t.palette.mode === 'dark'
+                      ? 'rgba(17,17,17,0.82)'
+                      : t.palette.text.secondary,
+                })}
+              >
                 Quiz interactif sur l&apos;IA, les LLM et le Product Management
               </Typography>
 
@@ -919,7 +930,7 @@ const ExpertiseQuiz = () => {
                 alignItems="center"
                 sx={{ mb: 2 }}
               >
-                <Typography variant="body2" fontWeight={600}>
+                <Typography variant="body2" fontWeight={600} color="#111111">
                   Utiliser l&apos;IA :
                 </Typography>
                 <Button
@@ -961,8 +972,14 @@ const ExpertiseQuiz = () => {
 
               <Typography
                 variant="caption"
-                color="text.secondary"
-                sx={{ display: 'block', mb: 3 }}
+                sx={(t) => ({
+                  display: 'block',
+                  mb: 3,
+                  color:
+                    t.palette.mode === 'dark'
+                      ? 'rgba(17,17,17,0.72)'
+                      : t.palette.text.secondary,
+                })}
               >
                 {isAdmin
                   ? "Utilisation de l'IA aujourd'hui : illimitée (mode admin)"
@@ -1058,7 +1075,17 @@ const ExpertiseQuiz = () => {
                 )
               )}
 
-              <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 3 }}>
+              <Typography
+                variant="caption"
+                sx={(t) => ({
+                  display: 'block',
+                  mt: 3,
+                  color:
+                    t.palette.mode === 'dark'
+                      ? 'rgba(17,17,17,0.72)'
+                      : t.palette.text.secondary,
+                })}
+              >
                 💡 Prouvez vos compétences et partagez votre score sur LinkedIn
               </Typography>
             </Paper>
@@ -1142,24 +1169,36 @@ const ExpertiseQuiz = () => {
                 {score}/{total}
               </Typography>
 
-              <Typography
-                variant="body2"
-                color="text.secondary"
-                sx={{ mt: 1, mb: 2 }}
-              >
-                Source du quiz :{' '}
-                {session.source === 'ia'
-                  ? `IA (questions générées en temps réel, ${
-                      Array.isArray(session.items) ? session.items.length : 0
-                    } questions)`
-                  : `Banque de questions perso (${
-                      Array.isArray(session.items) ? session.items.length : 0
-                    } questions)`}
-              </Typography>
+              <Box sx={{ mt: 1.5, mb: 3 }}>
+                <Typography
+                  variant="body2"
+                  sx={{
+                    fontWeight: 600,
+                    letterSpacing: 0.1,
+                    color: '#111111',
+                  }}
+                >
+                  Source du quiz :{' '}
+                  {session.source === 'ia'
+                    ? `IA (questions générées en temps réel, ${
+                        Array.isArray(session.items) ? session.items.length : 0
+                      } questions)`
+                    : `Banque de questions perso (${
+                        Array.isArray(session.items) ? session.items.length : 0
+                      } questions)`}
+                </Typography>
 
-              <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                🔁 En relançant, le quiz change de questions et passe dans un autre mode (Quiz / Drag &amp; Drop / Reorder / Swipe).
-              </Typography>
+                <Typography
+                  variant="body2"
+                  sx={{
+                    mt: 0.75,
+                    color: '#4b5563',
+                  }}
+                >
+                  🔁 En relançant, le quiz change de questions et passe dans un autre mode
+                  (Quiz / Drag &amp; Drop / Reorder / Swipe).
+                </Typography>
+              </Box>
 
               <Chip
                 label={`Niveau: ${scoreData.badge}`}
@@ -1217,7 +1256,15 @@ const ExpertiseQuiz = () => {
                           </Typography>
                         </Stack>
                         {q.explanation && (
-                          <Typography variant="body2" color="text.secondary" sx={{ pl: 4 }}>
+                          <Typography
+                            variant="body2"
+                            sx={{
+                              pl: 4,
+                              mt: 0.5,
+                              lineHeight: 1.55,
+                              color: '#4b5563',
+                            }}
+                          >
                             {q.explanation}
                           </Typography>
                         )}
@@ -1249,7 +1296,15 @@ const ExpertiseQuiz = () => {
                         {reorderItems.title}
                       </Typography>
                     </Stack>
-                    <Typography variant="body2" color="text.secondary" sx={{ pl: 4 }}>
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        pl: 4,
+                        mt: 0.5,
+                        lineHeight: 1.55,
+                        color: '#4b5563',
+                      }}
+                    >
                       {(() => {
                         const order = Array.isArray(reorderItems.correctOrder)
                           ? reorderItems.correctOrder
@@ -1290,8 +1345,17 @@ const ExpertiseQuiz = () => {
                             Assertion {idx + 1}
                           </Typography>
                         </Stack>
-                        <Typography variant="body2" color="text.secondary" sx={{ pl: 4 }}>
-                          {st.questionText}: « {st.optionText} » — attendu: {st.truthy ? 'Vrai' : 'Faux'}
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            pl: 4,
+                            mt: 0.5,
+                            lineHeight: 1.55,
+                            color: '#4b5563',
+                          }}
+                        >
+                          {st.questionText}: « {st.optionText} » — attendu:{' '}
+                          {st.truthy ? 'Vrai' : 'Faux'}
                         </Typography>
                       </Paper>
                     );
@@ -1374,7 +1438,13 @@ const ExpertiseQuiz = () => {
                 <Typography variant="body1" fontWeight={700} gutterBottom color="#111111">
                   💼 Intéressé par mon profil ?
                 </Typography>
-                <Typography variant="body2" color="text.secondary" paragraph>
+                <Typography
+                  variant="body2"
+                  paragraph
+                  sx={{
+                    color: '#4b5563',
+                  }}
+                >
                   Je suis disponible pour échanger sur vos projets IA et Product Management
                 </Typography>
                 <Button variant="contained" href="#contact" sx={{ fontWeight: 700 }}>
@@ -1460,7 +1530,17 @@ const ExpertiseQuiz = () => {
                         ? 'Reorder'
                         : 'Swipe'
                     }
-                    sx={{ fontWeight: 700 }}
+                    sx={(theme) => ({
+                      fontWeight: 700,
+                      bgcolor:
+                        theme.palette.mode === 'dark'
+                          ? alpha('#c7d2fe', 0.25)
+                          : 'rgba(102,126,234,0.16)',
+                      color: '#111111',
+                      '& .MuiChip-label': {
+                        fontWeight: 700,
+                      },
+                    })}
                   />
                 </Stack>
               )}
@@ -1513,16 +1593,18 @@ const ExpertiseQuiz = () => {
                             bgcolor: 'transparent',
                             transformOrigin: 'center center',
                             transition: reduceMotion
-                              ? 'border-color 0.25s ease'
-                              : 'transform 0.35s cubic-bezier(0.4,0,0.2,1), box-shadow 0.35s ease, border-color 0.35s ease',
+                              ? 'border-color .25s ease'
+                              : 'transform .45s cubic-bezier(0.4,0,0.2,1), box-shadow .45s ease, border-color .35s ease',
                             willChange: reduceMotion
                               ? 'auto'
                               : 'transform, box-shadow, border-color',
-                            '&:hover': {
-                              transform: reduceMotion ? 'none' : 'translateY(-12px) scale(1.02)',
-                              boxShadow: reduceMotion ? 'none' : '0 20px 60px rgba(15,23,42,0.18)',
-                              borderColor: 'primary.main',
-                            },
+                            '&:hover': reduceMotion
+                              ? {}
+                              : {
+                                  transform: 'translateY(-8px) scale(1.01)',
+                                  boxShadow: '0 18px 45px rgba(15,23,42,0.18)',
+                                  borderColor: 'primary.main',
+                                },
                           }}
                           onClick={() => setSelectedAnswer(index)}
                         >
@@ -1654,7 +1736,14 @@ const ExpertiseQuiz = () => {
                 >
                   Swipe droite = Vrai • Swipe gauche = Faux (ou utilisez les boutons)
                 </Typography>
-                <Typography variant="subtitle2" sx={{ mb: 1, color: 'text.secondary' }}>
+                <Typography
+                  variant="subtitle2"
+                  sx={{
+                    mb: 1,
+                    color: '#111111',
+                    fontWeight: 600,
+                  }}
+                >
                   Vrai ou Faux ?
                 </Typography>
                 <Paper
@@ -1664,9 +1753,22 @@ const ExpertiseQuiz = () => {
                     borderRadius: 3,
                     border: '2px solid',
                     borderColor: swipeFeedbackVisible ? (swipeCorrect ? '#10b981' : '#ef4444') : 'divider',
-                    bgcolor: swipeFeedbackVisible ? (swipeCorrect ? 'rgba(16,185,129,0.06)' : 'rgba(239,68,68,0.06)') : 'transparent',
+                    bgcolor: swipeFeedbackVisible
+                      ? swipeCorrect
+                        ? 'rgba(16,185,129,0.06)'
+                        : 'rgba(239,68,68,0.06)'
+                      : 'transparent',
                     textAlign: 'center',
-                    transition: 'border-color .2s ease, background-color .2s ease',
+                    transformOrigin: 'center center',
+                    transition: reduceMotion
+                      ? 'border-color .2s ease, background-color .2s ease'
+                      : 'transform 0.35s cubic-bezier(0.4,0,0.2,1), box-shadow 0.35s ease, border-color 0.25s ease, background-color 0.25s ease',
+                    '&:hover': reduceMotion
+                      ? {}
+                      : {
+                          transform: 'translateY(-8px) scale(1.01)',
+                          boxShadow: '0 18px 45px rgba(15,23,42,0.18)',
+                        },
                   }}
                 >
                   {(() => {
@@ -1680,7 +1782,13 @@ const ExpertiseQuiz = () => {
                     return (
                       <Stack spacing={1.5} alignItems="center">
                         <Stack spacing={0.5} sx={{ width: '100%' }}>
-                          <Typography variant="overline" sx={{ color: 'text.secondary', letterSpacing: 1 }}>
+                          <Typography
+                            variant="overline"
+                            sx={{
+                              color: '#111111',
+                              letterSpacing: 1,
+                            }}
+                          >
                             Question
                           </Typography>
                           <Typography
@@ -1693,7 +1801,13 @@ const ExpertiseQuiz = () => {
                           </Typography>
                         </Stack>
                         <Stack spacing={0.5} sx={{ width: '100%' }}>
-                          <Typography variant="overline" sx={{ color: 'text.secondary', letterSpacing: 1 }}>
+                          <Typography
+                            variant="overline"
+                            sx={{
+                              color: '#111111',
+                              letterSpacing: 1,
+                            }}
+                          >
                             Proposition
                           </Typography>
                           <Paper
@@ -1710,7 +1824,10 @@ const ExpertiseQuiz = () => {
                               variant="h6"
                               component="p"
                               fontWeight={700}
-                              sx={{ fontStyle: 'italic' }}
+                              sx={{
+                                fontStyle: 'italic',
+                                color: '#111111',
+                              }}
                             >
                               « {optionTxt} »
                             </Typography>
@@ -1752,7 +1869,13 @@ const ExpertiseQuiz = () => {
 
             {/* Actions */}
             <Stack direction="row" spacing={2} justifyContent="space-between" sx={{ mt: 4 }}>
-              <Typography variant="body2" color="text.secondary">
+              <Typography
+                variant="body2"
+                sx={{
+                  color: '#111111',
+                  fontWeight: 600,
+                }}
+              >
                 🎯 Score actuel: <strong>{score}</strong>
               </Typography>
               {mode === 'swipe' ? null : (

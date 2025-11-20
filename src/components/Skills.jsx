@@ -79,7 +79,9 @@ const Skills = () => {
       sx={{
         py: { xs: 6, md: 10 },
         px: 2,
-        background: 'linear-gradient(180deg, #f7f8fc 0%, #eef1f8 100%)',
+        background: theme.palette.mode === 'dark'
+          ? theme.palette.background.default
+          : 'linear-gradient(180deg, #f7f8fc 0%, #eef1f8 100%)',
         position: 'relative',
         overflow: 'hidden',
         '&::before': {
@@ -106,8 +108,9 @@ const Skills = () => {
                 fontWeight: 800,
                 mb: 2,
                 letterSpacing: '-0.02em',
-                background:
-                  'linear-gradient(135deg, #111827 0%, #667eea 40%, #764ba2 100%)',
+                background: theme.palette.mode === 'dark'
+                  ? `linear-gradient(135deg, #f9fafb 0%, #e5e7eb 35%, ${theme.palette.primary.main} 100%)`
+                  : 'linear-gradient(135deg, #111827 0%, #667eea 40%, #764ba2 100%)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent'
               }}
@@ -152,15 +155,27 @@ const Skills = () => {
                       height: '100%',
                       borderRadius: 3,
                       border: '1px solid',
-                      borderColor: 'divider',
-                      bgcolor: '#ffffff',
-                      boxShadow: '0 10px 30px rgba(15,23,42,0.06)',
+                      borderColor:
+                        theme.palette.mode === 'dark'
+                          ? alpha(theme.palette.common.white, 0.16)
+                          : 'divider',
+                      bgcolor:
+                        theme.palette.mode === 'dark'
+                          ? alpha(theme.palette.background.paper, 0.96)
+                          : '#ffffff',
+                      boxShadow:
+                        theme.palette.mode === 'dark'
+                          ? '0 16px 40px rgba(0,0,0,0.7)'
+                          : '0 10px 30px rgba(15,23,42,0.06)',
                       transition:
                         'box-shadow 0.35s ease, border-color 0.35s ease, background-color 0.35s ease',
                       '&:hover': {
                         boxShadow: `0 22px 52px ${alpha(category.color, 0.22)}`,
                         borderColor: alpha(category.color, 0.85),
-                        backgroundColor: '#ffffff'
+                        backgroundColor:
+                          theme.palette.mode === 'dark'
+                            ? alpha(theme.palette.background.paper, 0.98)
+                            : '#ffffff'
                       },
                       '&::before': {
                         content: '""',
@@ -219,7 +234,7 @@ const Skills = () => {
                         variant="h6"
                         component="h3"
                         fontWeight={700}
-                        sx={{ color: '#111827' }}
+                        sx={{ color: theme.palette.text.primary }}
                       >
                         {category.category}
                       </Typography>
@@ -245,13 +260,15 @@ const Skills = () => {
                               cursor: 'default',
                               border: '1px solid',
                               borderColor: isHovered
-                                ? alpha(category.color, 0.4)
+                                ? alpha(category.color, theme.palette.mode === 'dark' ? 0.6 : 0.4)
                                 : 'transparent',
                               bgcolor: isHovered
-                                ? alpha(category.color, 0.04)
+                                ? (theme.palette.mode === 'dark'
+                                    ? alpha(category.color, 0.16)
+                                    : alpha(category.color, 0.04))
                                 : 'transparent',
                               boxShadow: isHovered
-                                ? `0 10px 26px ${alpha(category.color, 0.16)}`
+                                ? `0 10px 26px ${alpha(category.color, theme.palette.mode === 'dark' ? 0.35 : 0.16)}`
                                 : 'none',
                               transition:
                                 'border-color 0.25s ease, background-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease',
@@ -274,7 +291,7 @@ const Skills = () => {
                               <Typography
                                 variant="body1"
                                 fontWeight={600}
-                                sx={{ color: '#111827' }}
+                                sx={{ color: theme.palette.text.primary }}
                               >
                                 {skill.name}
                               </Typography>
@@ -300,12 +317,19 @@ const Skills = () => {
                                     fontSize: '0.7rem',
                                     fontWeight: 600,
                                     borderRadius: 999,
-                                    bgcolor: alpha(category.color, 0.06),
-                                    color: category.color,
-                                    border: `1px solid ${alpha(
-                                      category.color,
-                                      0.28
-                                    )}`,
+                                    bgcolor:
+                                      theme.palette.mode === 'dark'
+                                        ? alpha(category.color, 0.22)
+                                        : alpha(category.color, 0.06),
+                                    color:
+                                      theme.palette.mode === 'dark'
+                                        ? theme.palette.primary.contrastText
+                                        : category.color,
+                                    border: `1px solid ${
+                                      theme.palette.mode === 'dark'
+                                        ? alpha(category.color, 0.5)
+                                        : alpha(category.color, 0.28)
+                                    }`,
                                     transition: 'all 0.25s ease',
                                     '&:hover': {
                                       bgcolor: alpha(category.color, 0.14)
@@ -349,16 +373,28 @@ const Skills = () => {
                 sx={{
                   p: isMobile ? 3 : 4,
                   borderRadius: 3,
-                  bgcolor: '#ffffff',
+                  bgcolor:
+                    theme.palette.mode === 'dark'
+                      ? alpha(theme.palette.background.paper, 0.96)
+                      : '#ffffff',
                   border: '1px solid',
-                  borderColor: alpha('#111827', 0.12),
-                  boxShadow: '0 12px 34px rgba(15,23,42,0.10)',
+                  borderColor:
+                    theme.palette.mode === 'dark'
+                      ? alpha(theme.palette.common.white, 0.16)
+                      : alpha('#111827', 0.12),
+                  boxShadow:
+                    theme.palette.mode === 'dark'
+                      ? '0 18px 44px rgba(0,0,0,0.7)'
+                      : '0 12px 34px rgba(15,23,42,0.10)',
                   transition:
                     'box-shadow 0.35s ease, border-color 0.35s ease, background-color 0.35s ease',
                   '&:hover': {
                     boxShadow: '0 24px 64px rgba(15,23,42,0.18)',
                     borderColor: alpha(theme.palette.primary.main, 0.8),
-                    backgroundColor: '#ffffff'
+                    backgroundColor:
+                      theme.palette.mode === 'dark'
+                        ? alpha(theme.palette.background.paper, 0.98)
+                        : '#ffffff'
                   },
                   '&::before': {
                     content: '""',
@@ -395,7 +431,7 @@ const Skills = () => {
                         variant="h6"
                         component="h3"
                         fontWeight={700}
-                        sx={{ color: '#111827' }}
+                        sx={{ color: theme.palette.text.primary }}
                       >
                         Outils & Stack
                       </Typography>
@@ -414,6 +450,15 @@ const Skills = () => {
                         'Weaviate',
                         'LangChain',
                         'CrewAI',
+                        'n8n',
+                        'Make',
+                        'Agent IA',
+                        'Twilio',
+                        'Perplexity AI',
+                        'Notebook LM',
+                        'Gamma.app',
+                        'Napkin',
+                        'Descript',
                         'Jira',
                         'Notion',
                         'Figma',
@@ -429,10 +474,19 @@ const Skills = () => {
                           sx={{
                             fontWeight: 600,
                             borderRadius: 999,
-                            bgcolor: '#ffffff',
+                            bgcolor:
+                              theme.palette.mode === 'dark'
+                                ? alpha(theme.palette.background.paper, 0.95)
+                                : '#ffffff',
                             border: '1px solid',
-                            borderColor: alpha('#111827', 0.14),
-                            boxShadow: '0 4px 10px rgba(15,23,42,0.06)',
+                            borderColor:
+                              theme.palette.mode === 'dark'
+                                ? alpha(theme.palette.common.white, 0.16)
+                                : alpha('#111827', 0.14),
+                            boxShadow:
+                              theme.palette.mode === 'dark'
+                                ? '0 10px 24px rgba(0,0,0,0.7)'
+                                : '0 4px 10px rgba(15,23,42,0.06)',
                             transition: 'all 0.25s ease',
                             '&:hover': {
                               borderColor: theme.palette.primary.main,
@@ -459,7 +513,7 @@ const Skills = () => {
                         variant="h6"
                         component="h3"
                         fontWeight={700}
-                        sx={{ color: '#111827' }}
+                        sx={{ color: theme.palette.text.primary }}
                       >
                         Certifications
                       </Typography>
@@ -484,9 +538,15 @@ const Skills = () => {
                           sx={{
                             p: 1.8,
                             borderRadius: 2,
-                            bgcolor: '#ffffff',
+                            bgcolor:
+                              theme.palette.mode === 'dark'
+                                ? alpha(theme.palette.background.paper, 0.96)
+                                : '#ffffff',
                             border: '1px solid',
-                            borderColor: alpha('#111827', 0.12),
+                            borderColor:
+                              theme.palette.mode === 'dark'
+                                ? alpha(theme.palette.common.white, 0.16)
+                                : alpha('#111827', 0.12),
                             display: 'flex',
                             alignItems: 'center',
                             gap: 1.4,
@@ -514,7 +574,7 @@ const Skills = () => {
                             <Typography
                               variant="body2"
                               fontWeight={600}
-                              sx={{ color: '#111827' }}
+                              sx={{ color: theme.palette.text.primary }}
                             >
                               {cert.name}
                             </Typography>

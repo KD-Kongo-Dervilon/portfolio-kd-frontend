@@ -49,6 +49,33 @@ const AdminDashboard = () => {
     topSections: [],
   });
   const [email, setEmail] = useState('');
+  const [aiInsights, setAiInsights] = useState('');
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiError, setAiError] = useState('');
+  const [analyticsPrompt, setAnalyticsPrompt] = useState(
+    `Tu es un agent d'analytics pour le portfolio de KD (https://portfolio-kd-frontend.vercel.app/).
+- Tu reçois la liste brute des événements de tracking (scroll, CTA, sections, chatbot, etc.).
+- Tu dois produire :
+  1) Un résumé en 5 bullet points max (trafic, sections les plus vues, CTAs cliqués, questions posées au chatbot).
+  2) 3 recommandations concrètes pour améliorer le portfolio (UX, contenu, CTA, FAQ, etc.).
+- Sois très concret, orienté action, évite le blabla.
+- Contexte : Chef de Projet IA / Product Owner orienté ROI, LLM, RAG, Agents IA, automatisation et n8n.`
+  );
+  const [showAnalyticsPrompt, setShowAnalyticsPrompt] = useState(false);
+  const [faqPrompt, setFaqPrompt] = useState(
+    `Tu es l'agent "Content IA" de KD (portfolio kddervilon.com).
+Tu connais son positionnement : Chef de Projet IA, Product Owner, LLM, RAG, Agents IA, automatisation et n8n.
+Objectif : proposer des Q/R de FAQ pour le portfolio de KD.
+- Tu reçois la FAQ actuelle (dynamique) et un sujet éventuel.
+- Tu renvoies UNIQUEMENT un JSON : tableau d'objets {question, answer, category}.
+- Le ton doit rester proche de la FAQ actuelle : concret, rassurant, orienté business.
+- Évite les doublons de questions.`
+  );
+  const [faqTopic, setFaqTopic] = useState('');
+  const [faqLoading, setFaqLoading] = useState(false);
+  const [faqError, setFaqError] = useState('');
+  const [faqMessage, setFaqMessage] = useState('');
+  const [showFaqPrompt, setShowFaqPrompt] = useState(false);
 
 
   useEffect(() => {
@@ -352,6 +379,84 @@ const AdminDashboard = () => {
     URL.revokeObjectURL(url);
   };
 
+  const handleGenerateAiInsights = async () => {
+    setAiError('');
+    setAiInsights('');
+    setAiLoading(true);
+
+    try {
+      const raw = localStorage.getItem('analytics_events') || '[]';
+      let analytics = [];
+
+      try {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) {
+          analytics = parsed;
+        }
+      } catch (e) {
+        console.error('Erreur parsing analytics_events:', e);
+      }
+
+      if (!analytics.length) {
+        setAiError("Pas assez de données analytics pour générer une analyse IA.");
+        setAiLoading(false);
+        return;
+      }
+
+      const res = await fetch(`${API_BASE_URL}/api/agents/analytics-insights`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ analytics, prompt: analyticsPrompt }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || 'Erreur agent analytics');
+      }
+
+      setAiInsights(data.insights || '');
+    } catch (err) {
+      console.error('Erreur analyse IA analytics:', err);
+      setAiError("Erreur lors de l'analyse IA des analytics.");
+    } finally {
+      setAiLoading(false);
+    }
+  };
+
+  const handleGenerateFaqWithIa = async () => {
+    setFaqError('');
+    setFaqMessage('');
+    setFaqLoading(true);
+
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/agents/content`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          mode: 'faq',
+          topic: faqTopic,
+          prompt: faqPrompt,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || 'Erreur agent FAQ IA');
+      }
+
+      setFaqMessage(
+        `FAQ mise à jour. Nombre de nouvelles entrées ajoutées : ${data.addedCount ?? 0}.`
+      );
+    } catch (err) {
+      console.error('Erreur génération FAQ IA:', err);
+      setFaqError("Erreur lors de la génération IA de la FAQ.");
+    } finally {
+      setFaqLoading(false);
+    }
+  };
+
   if (!authenticated) {
     return (
       <>
@@ -517,6 +622,29 @@ const AdminDashboard = () => {
           </Box>
           <Stack direction="row" spacing={1}>
             <Button
+              variant="contained"
+              onClick={handleGenerateAiInsights}
+              disabled={aiLoading}
+              aria-label="Générer une analyse IA de l'activité du portfolio"
+              sx={{
+                ...focusVisible,
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {aiLoading ? 'Analyse IA…' : 'Analyse IA'}
+            </Button>
+            <Button
+              variant="outlined"
+              onClick={() => setShowAnalyticsPrompt((v) => !v)}
+              aria-label="Voir et modifier le prompt Analytics IA"
+              sx={{
+                ...focusVisible,
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {showAnalyticsPrompt ? 'Masquer prompt Analytics' : 'Voir prompt Analytics'}
+            </Button>
+            <Button
               variant="outlined"
               onClick={exportEventsToCSV}
               aria-label="Exporter les dernières interactions au format CSV"
@@ -656,7 +784,56 @@ const AdminDashboard = () => {
           </Grid>
         </Grid>
 
+        {showAnalyticsPrompt && (
+          <Box sx={{ mb: 2 }} aria-label="Prompt Analytics IA">
+            <Typography variant="subtitle2" sx={{ mb: 1 }}>
+              Prompt utilisé pour l&apos;analyse IA des analytics
+            </Typography>
+            <TextField
+              multiline
+              minRows={4}
+              fullWidth
+              value={analyticsPrompt}
+              onChange={(e) => setAnalyticsPrompt(e.target.value)}
+              size="small"
+            />
+          </Box>
+        )}
         <Divider sx={{ my: 2 }} />
+
+        {/* Synthèse IA des analytics */}
+        {(aiError || aiInsights) && (
+          <Box sx={{ mb: 3 }} aria-label="Synthèse IA de l'activité du portfolio">
+            {aiError && (
+              <Alert severity="error" sx={{ mb: 2 }}>
+                {aiError}
+              </Alert>
+            )}
+            {aiInsights && (
+              <Paper
+                elevation={1}
+                sx={{
+                  p: 2,
+                  borderRadius: 3,
+                  border: '1px solid',
+                  borderColor: 'divider',
+                  bgcolor: 'background.paper',
+                }}
+              >
+                <Typography variant="subtitle1" fontWeight={700}>
+                  Synthèse IA de l&apos;activité
+                </Typography>
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  sx={{ mt: 1, whiteSpace: 'pre-wrap' }}
+                >
+                  {aiInsights}
+                </Typography>
+              </Paper>
+            )}
+          </Box>
+        )}
 
         {/* Tableau des derniers événements */}
         <Box aria-label="Détail des derniers événements de visite">
@@ -714,6 +891,68 @@ const AdminDashboard = () => {
               </Table>
             </Paper>
           )}
+        </Box>
+
+        <Divider sx={{ my: 3 }} />
+
+        {/* Contenu IA : FAQ dynamique */}
+        <Box aria-label="Gestion IA de la FAQ dynamique" sx={{ mb: 4 }}>
+          <Typography variant="h6" sx={{ mb: 1 }}>
+            FAQ dynamique (IA)
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+            Utilise cet agent pour enrichir la FAQ de ton portfolio avec des questions/réponses
+            orientées ROI, LLM, RAG, Agents IA, automatisation et n8n.
+          </Typography>
+
+          {faqError && (
+            <Alert severity="error" sx={{ mb: 2 }}>
+              {faqError}
+            </Alert>
+          )}
+          {faqMessage && (
+            <Alert severity="success" sx={{ mb: 2 }}>
+              {faqMessage}
+            </Alert>
+          )}
+
+          <Stack spacing={2}>
+            <TextField
+              label="Sujet à pousser dans la FAQ (facultatif)"
+              placeholder="Ex : LLM + RAG pour les équipes support"
+              fullWidth
+              size="small"
+              value={faqTopic}
+              onChange={(e) => setFaqTopic(e.target.value)}
+            />
+            <Button
+              variant="outlined"
+              onClick={() => setShowFaqPrompt((v) => !v)}
+              aria-label="Voir et modifier le prompt FAQ IA"
+              sx={{ ...focusVisible, alignSelf: 'flex-start' }}
+            >
+              {showFaqPrompt ? 'Masquer prompt FAQ' : 'Voir prompt FAQ'}
+            </Button>
+            {showFaqPrompt && (
+              <TextField
+                multiline
+                minRows={6}
+                fullWidth
+                value={faqPrompt}
+                onChange={(e) => setFaqPrompt(e.target.value)}
+                size="small"
+              />
+            )}
+            <Button
+              variant="contained"
+              onClick={handleGenerateFaqWithIa}
+              disabled={faqLoading}
+              aria-label="Générer de nouvelles entrées de FAQ via IA"
+              sx={{ ...focusVisible, alignSelf: 'flex-start' }}
+            >
+              {faqLoading ? 'Génération FAQ…' : 'Générer FAQ (IA)'}
+            </Button>
+          </Stack>
         </Box>
       </Container>
     </Box>

@@ -14,6 +14,7 @@ import {
   useTheme
 } from '@mui/material';
 import { Close as CloseIcon } from '@mui/icons-material';
+import { alpha } from '@mui/material/styles';
 
 const ProjectDialog = ({ project, open, onClose }) => {
   const theme = useTheme();
@@ -28,16 +29,25 @@ const ProjectDialog = ({ project, open, onClose }) => {
       maxWidth="md"
       fullWidth
       fullScreen={isMobile}
+      PaperProps={{
+        sx: {
+          bgcolor: '#ffffff',
+          color: '#111827',
+        },
+      }}
     >
       <Box
         sx={{
           height: 200,
-          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          background: (t) =>
+            `linear-gradient(135deg, ${t.palette.primary.main} 0%, ${t.palette.secondary.main} 100%)`,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           fontSize: 100,
-          position: 'relative'
+          position: 'relative',
+          color: (t) => t.palette.primary.contrastText,
+          borderBottom: (t) => `1px solid ${alpha(t.palette.common.black, 0.08)}`
         }}
       >
         {project.image}
@@ -48,9 +58,16 @@ const ProjectDialog = ({ project, open, onClose }) => {
             position: 'absolute',
             top: 8,
             right: 8,
-            bgcolor: 'rgba(255,255,255,0.9)',
+            bgcolor: (t) =>
+              t.palette.mode === 'dark'
+                ? alpha(t.palette.background.paper, 0.9)
+                : 'rgba(255,255,255,0.95)',
+            color: (t) => t.palette.text.primary,
             '&:hover': {
-              bgcolor: 'white'
+              bgcolor: (t) =>
+                t.palette.mode === 'dark'
+                  ? alpha(t.palette.background.paper, 1)
+                  : '#ffffff'
             }
           }}
         >
@@ -66,16 +83,45 @@ const ProjectDialog = ({ project, open, onClose }) => {
         </Box>
       </DialogTitle>
       <DialogContent>
-        <Typography paragraph color="text.secondary">
+        <Typography
+          paragraph
+          sx={{
+            color: '#111827',
+            fontSize: '1rem',
+            lineHeight: 1.7,
+          }}
+        >
           {project.details}
         </Typography>
 
-        <Box sx={{ mb: 3, p: 2, bgcolor: 'rgba(102, 126, 234, 0.05)', borderRadius: 2 }}>
+        <Box
+          sx={{
+            mb: 3,
+            p: 2.2,
+            borderRadius: 2,
+            bgcolor: (t) =>
+              t.palette.mode === 'dark'
+                ? alpha(t.palette.background.paper, 0.95)
+                : alpha(t.palette.primary.main, 0.03),
+            border: (t) =>
+              `1px solid ${
+                t.palette.mode === 'dark'
+                  ? alpha(t.palette.primary.main, 0.4)
+                  : alpha(t.palette.primary.main, 0.15)
+              }`
+          }}
+        >
           <Typography
             variant="subtitle2"
             component="h3"
             fontWeight={600}
             gutterBottom
+            sx={(t) => ({
+              color:
+                t.palette.mode === 'dark'
+                  ? t.palette.common.white
+                  : t.palette.text.primary
+            })}
           >
             📊 Résultats Business
           </Typography>
@@ -101,6 +147,12 @@ const ProjectDialog = ({ project, open, onClose }) => {
                 variant="h6"
                 component="p"
                 fontWeight={600}
+                sx={(t) => ({
+                  color:
+                    t.palette.mode === 'dark'
+                      ? t.palette.common.white
+                      : '#111827',
+                })}
               >
                 {project.metrics.time}
               </Typography>
@@ -129,20 +181,35 @@ const ProjectDialog = ({ project, open, onClose }) => {
         >
           Compétences mobilisées
         </Typography>
-        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-          {project.skills.map((skill) => (
+        <Box
+          sx={{
+            display: 'flex',
+            gap: 1,
+            flexWrap: 'wrap',
+            mt: 1.5
+          }}
+        >
+          {project.skills.map((skill, index) => (
             <Chip
-              key={skill}
+              key={index}
               label={skill}
-              color="primary"
-              variant="filled"
-              sx={{
-                bgcolor: theme.palette.primary.dark,
-                color: theme.palette.primary.contrastText,
-                fontWeight: 700,
-                '& .MuiChip-label': { px: 1 },
-                '&:hover': { filter: 'brightness(0.95)' }
-              }}
+              size="small"
+              sx={(t) => ({
+                fontWeight: 600,
+                borderRadius: 999,
+                px: 0.6,
+                height: 26,
+                bgcolor: alpha(t.palette.primary.main, 0.06),
+                color: t.palette.primary.main,
+                border: `1px solid ${alpha(t.palette.primary.main, 0.4)}`,
+                '& .MuiChip-label': {
+                  px: 1.2,
+                },
+                '&:hover': {
+                  bgcolor: alpha(t.palette.primary.main, 0.12),
+                  borderColor: t.palette.primary.main,
+                },
+              })}
             />
           ))}
         </Box>

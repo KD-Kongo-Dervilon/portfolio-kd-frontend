@@ -33,12 +33,21 @@ import {
   Stop
 } from '@mui/icons-material';
 import { alpha } from '@mui/material/styles';
+import { trackEvent } from '../utils/analytics';
+import { useNavigate } from 'react-router-dom';
 
 const audioCache = new Map();
 const MAX_CACHE_SIZE = 20;
 
 const CHATBOT_DAILY_LIMIT = 10;
 const CHATBOT_USAGE_KEY = 'chatbot_ia_usage_v1';
+
+const ROUTE_AUTOMATIONS = '/automations'; // À adapter si ta route est différente
+const ROUTE_BLOG = '/blog'; // À adapter si nécessaire
+const ROUTE_CV = '/cv'; // Route de la page CV ou section profil
+
+// URL de téléchargement du CV (peut être une page ou un PDF direct)
+const CV_DOWNLOAD_URL = process.env.REACT_APP_CV_URL || ROUTE_CV;
 
 const getTodayKey = () => {
   try {
@@ -90,6 +99,190 @@ const ChatbotIA = () => {
 
   const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
   const API_URL = `${API_BASE_URL}/api`;
+  const navigate = useNavigate();
+
+  // Détection d'intention "prendre rendez-vous"
+  const detectRdvIntent = (text = '') => {
+    const lower = text.toLowerCase();
+    const patterns = [
+      'rendez-vous',
+      'rdv',
+      'prendre rendez vous',
+      'prendre rendez-vous',
+      'prendre un rendez',
+      'prendre un créneau',
+      'fixer un créneau',
+      'prendre un appel',
+      'appel téléphonique',
+      'call',
+      'visio',
+      'discuter de vive voix',
+      'parler de vive voix'
+    ];
+    return patterns.some((p) => lower.includes(p));
+  };
+
+  // Suggestions de pages (Automations / Blog / CV) en fonction de la question
+  const detectPageSuggestions = (text = '') => {
+    const lower = text.toLowerCase();
+    const suggestions = [];
+
+    // Intent "Automatisations / n8n"
+    if (
+      lower.includes('automatisation') ||
+      lower.includes('automatiser') ||
+      lower.includes('n8n') ||
+      lower.includes('workflow') ||
+      lower.includes('processus') ||
+      lower.includes('automation')
+    ) {
+      suggestions.push('automations');
+    }
+
+    // Intent "Blog / articles / cas d'usage"
+    if (
+      lower.includes('blog') ||
+      lower.includes('article') ||
+      lower.includes("cas d'usage") ||
+      lower.includes('case study') ||
+      lower.includes('étude de cas')
+    ) {
+      suggestions.push('blog');
+    }
+
+    // Intent "CV / parcours complet"
+    if (
+      lower.includes('cv') ||
+      lower.includes('curriculum') ||
+      lower.includes('parcours complet') ||
+      lower.includes('profil détaillé') ||
+      lower.includes('télécharger ton cv') ||
+      lower.includes('télécharger votre cv')
+    ) {
+      suggestions.push('cv');
+    }
+
+    // On renvoie des suggestions uniques
+    return [...new Set(suggestions)];
+  };
+
+  const buildSuggestionMessage = (suggestions) => {
+    const lines = [];
+
+    if (suggestions.includes('automations')) {
+      lines.push(
+        "🧩 Pour voir des exemples concrets d'automatisations (notamment avec n8n), tu peux consulter la page « Automatisations & n8n » dans le menu du portfolio."
+      );
+    }
+
+    if (suggestions.includes('blog')) {
+      lines.push(
+        '📝 Dervilon partage aussi ses analyses et retours d’expérience sur la page Blog du portfolio.'
+      );
+    }
+
+    if (suggestions.includes('cv')) {
+      lines.push(
+        `📄 Tu peux consulter ou télécharger le CV complet de Dervilon ici : ${CV_DOWNLOAD_URL}`
+      );
+    }
+
+    return lines.join('\n\n');
+  };
+
+  // --- Theme intent helpers ---
+  const detectThemeChangeIntent = (text = '') => {
+    const lower = text.toLowerCase();
+
+    if (
+      lower.includes('thème par défaut') ||
+      lower.includes('theme par defaut') ||
+      lower.includes('remet le thème normal') ||
+      lower.includes('remets le thème normal') ||
+      lower.includes('thème classique')
+    ) {
+      return 'default';
+    }
+
+    if (lower.includes('noël') || lower.includes('noel')) {
+      return 'noel';
+    }
+
+    if (
+      lower.includes('nouvel an') ||
+      lower.includes('nouveau an') ||
+      lower.includes('new year')
+    ) {
+      return 'nouvel-an';
+    }
+
+    if (lower.includes('halloween')) {
+      return 'halloween';
+    }
+
+    if (
+      lower.includes('rentrée scolaire') ||
+      lower.includes('rentrée') ||
+      lower.includes('rentree') ||
+      lower.includes('back to school')
+    ) {
+      return 'rentree';
+    }
+
+    if (
+      lower.includes('pâques') ||
+      lower.includes('paques') ||
+      lower.includes('easter')
+    ) {
+      return 'paques';
+    }
+
+    return null;
+  };
+
+  const getThemeLabel = (key) => {
+    switch (key) {
+      case 'noel':
+        return 'thème de Noël 🎄';
+      case 'nouvel-an':
+        return 'thème du Nouvel An 🎆';
+      case 'halloween':
+        return 'thème Halloween 🎃';
+      case 'rentree':
+        return 'thème Rentrée scolaire 🧑‍🏫';
+      case 'paques':
+        return 'thème de Pâques 🐣';
+      case 'default':
+      default:
+        return 'thème par défaut du portfolio';
+    }
+  };
+
+  const applyThemeChangeFromChatbot = (themeKey, setMessagesFn) => {
+    if (!themeKey) return;
+
+    try {
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(
+          new CustomEvent('kd-theme-change', {
+            detail: { theme: themeKey }
+          })
+        );
+      }
+
+      const label = getThemeLabel(themeKey);
+      const confirmationMessage = {
+        type: 'bot',
+        text: `Parfait, je viens d'appliquer le ${label} sur le portfolio.`,
+        timestamp: new Date()
+      };
+
+      setMessagesFn((prev) => [...prev, confirmationMessage]);
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.error('Erreur lors du changement de thème depuis le chatbot:', e);
+    }
+  };
 
   // Contexte profil envoyé au backend à chaque requête
   const profileContext = `
@@ -117,6 +310,19 @@ const ChatbotIA = () => {
     "Quelle est son expertise en IA ?",
     "Quels résultats a-t-il obtenus ?"
   ];
+
+  // 🚀 États pour le flow RDV conversationnel
+  const [rdvMode, setRdvMode] = useState(false);
+  const [rdvStep, setRdvStep] = useState(0);
+  const [rdvData, setRdvData] = useState({
+    fullName: '',
+    email: '',
+    company: '',
+    phone: '',
+    preferredSlot: '',
+    initialIntent: ''
+  });
+  const [isCreatingRdv, setIsCreatingRdv] = useState(false);
 
   // TTS ElevenLabs avec cache
   const speakWithElevenLabs = async (text) => {
@@ -277,20 +483,14 @@ const ChatbotIA = () => {
       recognitionInstance.lang = 'fr-FR';
 
       recognitionInstance.onresult = (event) => {
-        const transcript =
-          event.results[0][0].transcript;
+        const transcript = event.results[0][0].transcript;
         setInput(transcript);
         setIsListening(false);
-        setTimeout(
-          () => handleSendVoice(transcript),
-          300
-        );
+        setTimeout(() => handleSendVoice(transcript), 300);
       };
 
-      recognitionInstance.onerror = () =>
-        setIsListening(false);
-      recognitionInstance.onend = () =>
-        setIsListening(false);
+      recognitionInstance.onerror = () => setIsListening(false);
+      recognitionInstance.onend = () => setIsListening(false);
 
       setRecognition(recognitionInstance);
     }
@@ -351,9 +551,7 @@ const ChatbotIA = () => {
 
   const toggleListening = () => {
     if (!recognition) {
-      alert(
-        "La reconnaissance vocale n'est pas supportée par votre navigateur"
-      );
+      alert("La reconnaissance vocale n'est pas supportée par votre navigateur");
       return;
     }
 
@@ -366,12 +564,178 @@ const ChatbotIA = () => {
         recognition.start();
         setIsListening(true);
       } catch (err) {
-        console.error(
-          'Erreur reconnaissance vocale:',
-          err
-        );
+        console.error('Erreur reconnaissance vocale:', err);
         setIsListening(false);
       }
+    }
+  };
+
+  // 🔁 Flow RDV : démarrage + étapes + création côté backend
+  const startRdvFlow = (initialText) => {
+    setRdvMode(true);
+    setRdvStep(1);
+    setRdvData((prev) => ({
+      ...prev,
+      initialIntent: (initialText || '').trim()
+    }));
+
+    const botMessage = {
+      type: 'bot',
+      text:
+        "Super, on peut prévoir un rendez-vous ensemble. Pour commencer, peux-tu me donner ton prénom et ton nom ?",
+      timestamp: new Date()
+    };
+    setMessages((prev) => [...prev, botMessage]);
+  };
+
+  const createMeetingRequest = async (finalPreferredSlot) => {
+    try {
+      setIsCreatingRdv(true);
+
+      const contextSnippet = messages
+        .map((m) => `${m.type === 'user' ? 'Utilisateur' : 'Assistant'}: ${m.text}`)
+        .slice(-8)
+        .join('\n');
+
+      const payload = {
+        fullName: rdvData.fullName,
+        email: rdvData.email,
+        company: rdvData.company,
+        phone: rdvData.phone,
+        preferredSlot: finalPreferredSlot || rdvData.preferredSlot,
+        message: rdvData.initialIntent,
+        source: 'chatbot',
+        context: contextSnippet
+      };
+
+      const response = await fetch(`${API_URL}/agents/meeting-request`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      console.log('📅 RDV créé:', data);
+
+      const successMessage = {
+        type: 'bot',
+        text:
+          'Merci, j’ai bien enregistré ta demande de rendez-vous. Dervilon va te recontacter rapidement pour confirmer le créneau.',
+        timestamp: new Date()
+      };
+
+      setMessages((prev) => [...prev, successMessage]);
+    } catch (err) {
+      console.error('❌ Erreur création RDV :', err);
+      const errorMessage = {
+        type: 'bot',
+        text:
+          "⚠️ Une erreur est survenue lors de la création du rendez-vous. Tu peux aussi contacter directement Dervilon :\n📧 dervilon.mbissi@gmail.com\n📞 06-36-15-88-31",
+        timestamp: new Date()
+      };
+      setMessages((prev) => [...prev, errorMessage]);
+    } finally {
+      setIsCreatingRdv(false);
+      setRdvMode(false);
+      setRdvStep(0);
+      setRdvData({
+        fullName: '',
+        email: '',
+        company: '',
+        phone: '',
+        preferredSlot: '',
+        initialIntent: ''
+      });
+    }
+  };
+
+  const handleRdvStep = async (answer) => {
+    const trimmed = (answer || '').trim();
+
+    if (!trimmed) {
+      const retryMessage = {
+        type: 'bot',
+        text: "Je n'ai pas bien compris. Peux-tu reformuler s'il te plaît ?",
+        timestamp: new Date()
+      };
+      setMessages((prev) => [...prev, retryMessage]);
+      return;
+    }
+
+    if (rdvStep === 1) {
+      setRdvData((prev) => ({ ...prev, fullName: trimmed }));
+      setRdvStep(2);
+      const botMessage = {
+        type: 'bot',
+        text: "Merci ! Quel est ton email pour que Dervilon puisse te répondre ?",
+        timestamp: new Date()
+      };
+      setMessages((prev) => [...prev, botMessage]);
+      return;
+    }
+
+    if (rdvStep === 2) {
+      const email = trimmed;
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        const botMessage = {
+          type: 'bot',
+          text:
+            "L'email ne semble pas valide. Peux-tu me donner une adresse email correcte (ex: prenom.nom@exemple.com) ?",
+          timestamp: new Date()
+        };
+        setMessages((prev) => [...prev, botMessage]);
+        return;
+      }
+      setRdvData((prev) => ({ ...prev, email }));
+      setRdvStep(3);
+      const botMessage = {
+        type: 'bot',
+        text:
+          "Parfait. Si tu as une entreprise, peux-tu me dire son nom ? (Sinon, dis juste « aucune »)",
+        timestamp: new Date()
+      };
+      setMessages((prev) => [...prev, botMessage]);
+      return;
+    }
+
+    if (rdvStep === 3) {
+      setRdvData((prev) => ({ ...prev, company: trimmed === 'aucune' ? '' : trimmed }));
+      setRdvStep(4);
+      const botMessage = {
+        type: 'bot',
+        text:
+          "As-tu un numéro de téléphone où Dervilon peut te joindre ? (Tu peux répondre « non » si tu préfères rester sur l’email)",
+        timestamp: new Date()
+      };
+      setMessages((prev) => [...prev, botMessage]);
+      return;
+    }
+
+    if (rdvStep === 4) {
+      if (trimmed.toLowerCase() !== 'non') {
+        setRdvData((prev) => ({ ...prev, phone: trimmed }));
+      }
+      setRdvStep(5);
+      const botMessage = {
+        type: 'bot',
+        text:
+          "Dernière question : quels sont les créneaux qui t’arrangent le mieux ? (par exemple : « mardi entre 14h et 16h » ou « plutôt en fin de journée »)",
+        timestamp: new Date()
+      };
+      setMessages((prev) => [...prev, botMessage]);
+      return;
+    }
+
+    if (rdvStep === 5) {
+      setRdvData((prev) => ({ ...prev, preferredSlot: trimmed }));
+      await createMeetingRequest(trimmed);
     }
   };
 
@@ -394,42 +758,64 @@ const ChatbotIA = () => {
     setIsTyping(true);
     setError(null);
 
+    // Log vocal question to analytics
+    try {
+      trackEvent('Chatbot', 'Question vocale', transcript, {
+        type: 'chatbot_question',
+        source: 'chatbot',
+        channel: 'voice'
+      });
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.warn('Erreur analytics chatbot (voice):', e);
+    }
+
+    // Si on est déjà dans le flow RDV, on continue les étapes
+    if (rdvMode) {
+      await handleRdvStep(transcript);
+      setIsTyping(false);
+      return;
+    }
+
+    // Si l'intention RDV est détectée, on démarre le flow dédié
+    if (detectRdvIntent(transcript)) {
+      startRdvFlow(transcript);
+      setIsTyping(false);
+      return;
+    }
+
+    // Détection d'intention de changement de thème
+    const themeKey = detectThemeChangeIntent(transcript);
+    if (themeKey) {
+      applyThemeChangeFromChatbot(themeKey, setMessages);
+      setIsTyping(false);
+      return;
+    }
+
     try {
       const conversationHistory = messages
         .filter((m) => m.type !== 'system')
         .map((m) => ({
-          role:
-            m.type === 'user'
-              ? 'user'
-              : 'assistant',
+          role: m.type === 'user' ? 'user' : 'assistant',
           content: m.text
         }));
 
-      console.log(
-        "📤 Envoi vocal à l'API:",
-        transcript
-      );
+      console.log("📤 Envoi vocal à l'API:", transcript);
 
-      const response = await fetch(
-        `${API_URL}/chat`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type':
-              'application/json'
-          },
-          body: JSON.stringify({
-            message: transcript,
-            conversationHistory,
-            profileContext
-          })
-        }
-      );
+      const response = await fetch(`${API_URL}/chat`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          message: transcript,
+          conversationHistory,
+          profileContext
+        })
+      });
 
       if (!response.ok) {
-        throw new Error(
-          `HTTP ${response.status}: ${response.statusText}`
-        );
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
 
       const data = await response.json();
@@ -441,37 +827,41 @@ const ChatbotIA = () => {
           text: data.response,
           timestamp: new Date()
         };
-        setMessages((prev) => [
-          ...prev,
-          botResponse
-        ]);
+
+        // Suggestions de pages en fonction de la question vocale
+        const suggestions = detectPageSuggestions(transcript);
+
+        setMessages((prev) => {
+          const next = [...prev, botResponse];
+          if (suggestions.length > 0) {
+            next.push({
+              type: 'bot',
+              text: buildSuggestionMessage(suggestions),
+              suggestions,
+              timestamp: new Date()
+            });
+          }
+          return next;
+        });
+
         setLiveAnnounce(
-          `Nouvelle réponse de l'assistant à ${new Date().toLocaleTimeString(
-            'fr-FR',
-            {
-              hour: '2-digit',
-              minute: '2-digit'
-            }
-          )}.`
+          `Nouvelle réponse de l'assistant à ${new Date().toLocaleTimeString('fr-FR', {
+            hour: '2-digit',
+            minute: '2-digit'
+          })}.`
         );
         incrementChatbotUsage();
         setTimeout(() => {
-          console.log(
-            '🔊 Lancement ElevenLabs TTS...'
-          );
+          console.log('🔊 Lancement ElevenLabs TTS...');
           speakWithElevenLabs(data.response);
         }, 800);
       } else {
-        throw new Error(
-          data.error || 'Erreur API'
-        );
+        throw new Error(data.error || 'Erreur API');
       }
     } catch (err) {
       console.error('❌ Erreur:', err);
 
-      const errorMsg = err.message.includes(
-        'fetch'
-      )
+      const errorMsg = err.message.includes('fetch')
         ? "Le serveur backend n'est pas accessible. Vérifiez qu'il tourne sur le port 3001."
         : 'Erreur lors de la communication avec l’IA.';
 
@@ -482,10 +872,7 @@ const ChatbotIA = () => {
         text: `⚠️ ${errorMsg}\n\nVous pouvez contacter Dervilon directement :\n📧 dervilon.mbissi@gmail.com\n📞 06-36-15-88-31`,
         timestamp: new Date()
       };
-      setMessages((prev) => [
-        ...prev,
-        errorMessage
-      ]);
+      setMessages((prev) => [...prev, errorMessage]);
     } finally {
       setIsTyping(false);
     }
@@ -511,42 +898,64 @@ const ChatbotIA = () => {
     setIsTyping(true);
     setError(null);
 
+    // Log text question to analytics
+    try {
+      trackEvent('Chatbot', 'Question texte', currentInput, {
+        type: 'chatbot_question',
+        source: 'chatbot',
+        channel: 'text'
+      });
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.warn('Erreur analytics chatbot (text):', e);
+    }
+
+    // Flow RDV en cours : on continue les étapes
+    if (rdvMode) {
+      await handleRdvStep(currentInput);
+      setIsTyping(false);
+      return;
+    }
+
+    // Détection d'intention RDV : on lance le flow dédié
+    if (detectRdvIntent(currentInput)) {
+      startRdvFlow(currentInput);
+      setIsTyping(false);
+      return;
+    }
+
+    // Détection d'intention de changement de thème
+    const themeKey = detectThemeChangeIntent(currentInput);
+    if (themeKey) {
+      applyThemeChangeFromChatbot(themeKey, setMessages);
+      setIsTyping(false);
+      return;
+    }
+
     try {
       const conversationHistory = messages
         .filter((m) => m.type !== 'system')
         .map((m) => ({
-          role:
-            m.type === 'user'
-              ? 'user'
-              : 'assistant',
+          role: m.type === 'user' ? 'user' : 'assistant',
           content: m.text
         }));
 
-      console.log(
-        "📤 Envoi à l'API:",
-        currentInput
-      );
+      console.log("📤 Envoi à l'API:", currentInput);
 
-      const response = await fetch(
-        `${API_URL}/chat`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type':
-              'application/json'
-          },
-          body: JSON.stringify({
-            message: currentInput,
-            conversationHistory,
-            profileContext
-          })
-        }
-      );
+      const response = await fetch(`${API_URL}/chat`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          message: currentInput,
+          conversationHistory,
+          profileContext
+        })
+      });
 
       if (!response.ok) {
-        throw new Error(
-          `HTTP ${response.status}: ${response.statusText}`
-        );
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
 
       const data = await response.json();
@@ -558,31 +967,37 @@ const ChatbotIA = () => {
           text: data.response,
           timestamp: new Date()
         };
-        setMessages((prev) => [
-          ...prev,
-          botResponse
-        ]);
+
+        // Suggestions de pages en fonction de la question texte
+        const suggestions = detectPageSuggestions(currentInput);
+
+        setMessages((prev) => {
+          const next = [...prev, botResponse];
+          if (suggestions.length > 0) {
+            next.push({
+              type: 'bot',
+              text: buildSuggestionMessage(suggestions),
+              suggestions,
+              timestamp: new Date()
+            });
+          }
+          return next;
+        });
+
         setLiveAnnounce(
-          `Nouvelle réponse de l'assistant à ${new Date().toLocaleTimeString(
-            'fr-FR',
-            {
-              hour: '2-digit',
-              minute: '2-digit'
-            }
-          )}.`
+          `Nouvelle réponse de l'assistant à ${new Date().toLocaleTimeString('fr-FR', {
+            hour: '2-digit',
+            minute: '2-digit'
+          })}.`
         );
         incrementChatbotUsage();
       } else {
-        throw new Error(
-          data.error || 'Erreur API'
-        );
+        throw new Error(data.error || 'Erreur API');
       }
     } catch (err) {
       console.error('❌ Erreur:', err);
 
-      const errorMsg = err.message.includes(
-        'fetch'
-      )
+      const errorMsg = err.message.includes('fetch')
         ? "Le serveur backend n'est pas accessible. Vérifiez qu'il tourne sur le port 3001."
         : 'Erreur lors de la communication avec l’IA.';
 
@@ -593,10 +1008,7 @@ const ChatbotIA = () => {
         text: `⚠️ ${errorMsg}\n\nVous pouvez contacter Dervilon directement :\n📧 dervilon.mbissi@gmail.com\n📞 06-36-15-88-31`,
         timestamp: new Date()
       };
-      setMessages((prev) => [
-        ...prev,
-        errorMessage
-      ]);
+      setMessages((prev) => [...prev, errorMessage]);
     } finally {
       setIsTyping(false);
     }
@@ -611,9 +1023,7 @@ const ChatbotIA = () => {
       .map(
         (m) =>
           `[${m.timestamp.toLocaleTimeString()}] ${
-            m.type === 'user'
-              ? 'Vous'
-              : 'Assistant IA'
+            m.type === 'user' ? 'Vous' : 'Assistant IA'
           }: ${m.text}`
       )
       .join('\n\n');
@@ -633,21 +1043,12 @@ const ChatbotIA = () => {
 
   return (
     <>
-      <div
-        aria-live="polite"
-        aria-atomic="true"
-        style={visuallyHidden}
-      >
+      <div aria-live="polite" aria-atomic="true" style={visuallyHidden}>
         {liveAnnounce}
       </div>
 
       {!open && (
-        <Tooltip
-          title="Ouvrir l'assistant IA"
-          arrow
-          placement="left"
-          disableInteractive
-        >
+        <Tooltip title="Ouvrir l'assistant IA" arrow placement="left" disableInteractive>
           <Fab
             aria-label="Ouvrir l'assistant IA"
             color="primary"
@@ -656,42 +1057,28 @@ const ChatbotIA = () => {
               bottom: 24,
               right: 24,
               background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.secondary.main} 100%)`,
-              color:
-                theme.palette.primary
-                  .contrastText,
+              color: theme.palette.primary.contrastText,
               width: 64,
               height: 64,
               zIndex: (theme) => theme.zIndex.modal + 25,
-              boxShadow:
-                '0 10px 28px rgba(17, 24, 39, 0.45)',
-              transition:
-                'transform 220ms ease, box-shadow 220ms ease',
-              outline: highContrast
-                ? '2px solid ButtonText'
-                : 'none',
+              boxShadow: '0 10px 28px rgba(17, 24, 39, 0.45)',
+              transition: 'transform 220ms ease, box-shadow 220ms ease',
+              outline: highContrast ? '2px solid ButtonText' : 'none',
               '&:hover': {
                 background: `linear-gradient(135deg, ${theme.palette.primary.dark} 0%, ${theme.palette.secondary.dark} 100%)`,
-                boxShadow:
-                  '0 14px 36px rgba(17,24,39,0.55)',
-                transform: reduceMotion
-                  ? 'none'
-                  : 'translateY(-2px) scale(1.04)'
+                boxShadow: '0 14px 36px rgba(17,24,39,0.55)',
+                transform: reduceMotion ? 'none' : 'translateY(-2px) scale(1.04)'
               },
               '&:active': {
                 transform: 'scale(0.98)'
               },
               '&:focus-visible': {
-                boxShadow:
-                  'var(--focus-ring)'
+                boxShadow: 'var(--focus-ring)'
               }
             }}
             onClick={() => setOpen(true)}
           >
-            <SmartToy
-              sx={{ fontSize: 32 }}
-              aria-hidden="true"
-              focusable="false"
-            />
+            <SmartToy sx={{ fontSize: 32 }} aria-hidden="true" focusable="false" />
           </Fab>
         </Tooltip>
       )}
@@ -718,7 +1105,6 @@ const ChatbotIA = () => {
               sm: 420
             },
             height: {
-              // on mobile: leave space for the top app bar so the chatbot header stays visible
               xs: 'calc(100vh - 104px)', // 32px margin + ~72px app bar
               sm: 650
             },
@@ -726,7 +1112,6 @@ const ChatbotIA = () => {
             flexDirection: 'column',
             borderRadius: 3,
             overflow: 'hidden',
-            // ensure the chatbot is always above the app bar and other content
             zIndex: (theme) => theme.zIndex.modal + 20,
             boxShadow: '0 12px 48px rgba(0,0,0,0.25)'
           }}
@@ -735,38 +1120,23 @@ const ChatbotIA = () => {
           <Box
             sx={{
               background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.secondary.main} 100%)`,
-              color:
-                theme.palette.primary
-                  .contrastText,
+              color: theme.palette.primary.contrastText,
               p: 2,
               display: 'flex',
               alignItems: 'center',
-              justifyContent:
-                'space-between',
-              outline: highContrast
-                ? '1px solid ButtonText'
-                : 'none'
+              justifyContent: 'space-between',
+              outline: highContrast ? '1px solid ButtonText' : 'none'
             }}
           >
-            <Box
-              sx={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 1.5
-              }}
-            >
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
               <Avatar
                 sx={{
-                  bgcolor:
-                    'rgba(255,255,255,0.2)',
+                  bgcolor: 'rgba(255,255,255,0.2)',
                   width: 40,
                   height: 40
                 }}
               >
-                <Psychology
-                  aria-hidden="true"
-                  focusable="false"
-                />
+                <Psychology aria-hidden="true" focusable="false" />
               </Avatar>
               <Box>
                 <Typography
@@ -779,40 +1149,25 @@ const ChatbotIA = () => {
                 </Typography>
                 <Chip
                   size="small"
-                  label={`⚡ Alimenté par GPT-4${
-                    isSpeaking
-                      ? ' 🔊'
-                      : ''
-                  }`}
+                  label={`⚡ Alimenté par GPT-4${isSpeaking ? ' 🔊' : ''}`}
                   sx={{
                     height: 24,
-                    bgcolor:
-                      'rgba(255,255,255,0.98)',
-                    color:
-                      theme.palette
-                        .primary.dark,
+                    bgcolor: 'rgba(255,255,255,0.98)',
+                    color: theme.palette.primary.dark,
                     fontWeight: 700,
                     letterSpacing: 0.2,
                     borderRadius: 1,
                     '& .MuiChip-label': {
                       px: 1,
-                      fontSize:
-                        '0.72rem'
+                      fontSize: '0.72rem'
                     },
-                    outline: highContrast
-                      ? '1px solid ButtonText'
-                      : 'none'
+                    outline: highContrast ? '1px solid ButtonText' : 'none'
                   }}
                 />
               </Box>
             </Box>
 
-            <Box
-              sx={{
-                display: 'flex',
-                gap: 0.5
-              }}
-            >
+            <Box sx={{ display: 'flex', gap: 0.5 }}>
               {/* Toggle voix */}
               <Tooltip
                 title={
@@ -823,41 +1178,27 @@ const ChatbotIA = () => {
               >
                 <IconButton
                   onClick={() => {
-                    setVoiceEnabled(
-                      !voiceEnabled
-                    );
-                    if (voiceEnabled)
-                      stopSpeaking();
+                    setVoiceEnabled(!voiceEnabled);
+                    if (voiceEnabled) stopSpeaking();
                   }}
                   aria-label={
                     voiceEnabled
                       ? 'Désactiver les réponses vocales'
                       : 'Activer les réponses vocales'
                   }
-                  aria-pressed={
-                    voiceEnabled
-                  }
+                  aria-pressed={voiceEnabled}
                   sx={{
                     color: 'white',
                     '&:focus-visible': {
-                      outline:
-                        '2px solid #ffffff'
+                      outline: '2px solid #ffffff'
                     }
                   }}
                   size="small"
                 >
                   {voiceEnabled ? (
-                    <VolumeUp
-                      fontSize="small"
-                      aria-hidden="true"
-                      focusable="false"
-                    />
+                    <VolumeUp fontSize="small" aria-hidden="true" focusable="false" />
                   ) : (
-                    <VolumeOff
-                      fontSize="small"
-                      aria-hidden="true"
-                      focusable="false"
-                    />
+                    <VolumeOff fontSize="small" aria-hidden="true" focusable="false" />
                   )}
                 </IconButton>
               </Tooltip>
@@ -865,46 +1206,33 @@ const ChatbotIA = () => {
               {/* Export */}
               <Tooltip title="Exporter la conversation">
                 <IconButton
-                  onClick={
-                    exportConversation
-                  }
+                  onClick={exportConversation}
                   aria-label="Exporter la conversation"
                   sx={{
                     color: 'white',
                     '&:focus-visible': {
-                      outline:
-                        '2px solid #ffffff'
+                      outline: '2px solid #ffffff'
                     }
                   }}
                   size="small"
                 >
-                  <Download
-                    fontSize="small"
-                    aria-hidden="true"
-                    focusable="false"
-                  />
+                  <Download fontSize="small" aria-hidden="true" focusable="false" />
                 </IconButton>
               </Tooltip>
 
               {/* Close */}
               <IconButton
-                onClick={() =>
-                  setOpen(false)
-                }
+                onClick={() => setOpen(false)}
                 aria-label="Fermer l'assistant"
                 sx={{
                   color: 'white',
                   '&:focus-visible': {
-                    outline:
-                      '2px solid #ffffff'
+                    outline: '2px solid #ffffff'
                   }
                 }}
                 size="small"
               >
-                <Close
-                  aria-hidden="true"
-                  focusable="false"
-                />
+                <Close aria-hidden="true" focusable="false" />
               </IconButton>
             </Box>
           </Box>
@@ -916,66 +1244,221 @@ const ChatbotIA = () => {
               flexGrow: 1,
               overflowY: 'auto',
               p: 2,
-              bgcolor: alpha(
-                theme.palette
-                  .primary.main,
-                0.04
-              ),
+              bgcolor: alpha(theme.palette.primary.main, 0.04),
               display: 'flex',
               flexDirection: 'column',
               gap: 2
             }}
           >
-            {messages.map(
-              (message, index) => (
-                <Box
-                  key={index}
-                  role="listitem"
-                >
-                  {reduceMotion ? (
+            {messages.map((message, index) => (
+              <Box key={index} role="listitem">
+                {reduceMotion ? (
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      justifyContent: message.type === 'user' ? 'flex-end' : 'flex-start',
+                      alignItems: 'flex-start',
+                      gap: 1
+                    }}
+                    aria-label={`${
+                      message.type === 'user' ? 'Vous' : 'Assistant'
+                    } — ${message.timestamp.toLocaleTimeString('fr-FR', {
+                      hour: '2-digit',
+                      minute: '2-digit'
+                    })}`}
+                  >
+                    {message.type === 'bot' && (
+                      <Avatar
+                        sx={{
+                          bgcolor: theme.palette.primary.dark,
+                          width: 32,
+                          height: 32
+                        }}
+                      >
+                        <SmartToy
+                          sx={{ fontSize: 18 }}
+                          aria-hidden="true"
+                          focusable="false"
+                        />
+                      </Avatar>
+                    )}
+                    <Paper
+                      sx={{
+                        p: 1.5,
+                        maxWidth: '80%',
+                        bgcolor:
+                          message.type === 'user'
+                            ? theme.palette.primary.dark
+                            : theme.palette.background.paper,
+                        color:
+                          message.type === 'user'
+                            ? theme.palette.primary.contrastText
+                            : theme.palette.text.primary,
+                        borderRadius: 2,
+                        whiteSpace: 'pre-line',
+                        position: 'relative',
+                        border:
+                          message.type === 'user'
+                            ? 'none'
+                            : `1px solid ${theme.palette.divider}`
+                      }}
+                    >
+                      <Typography variant="body2" sx={{ lineHeight: 1.6 }}>
+                        {message.text}
+                      </Typography>
+                      {message.suggestions &&
+                        Array.isArray(message.suggestions) &&
+                        message.suggestions.length > 0 && (
+                          <Box
+                            sx={{
+                              mt: 1,
+                              display: 'flex',
+                              flexWrap: 'wrap',
+                              gap: 0.5
+                            }}
+                          >
+                            {message.suggestions.includes('automations') && (
+                              <Chip
+                                label="Voir les automatisations n8n"
+                                size="small"
+                                onClick={() => navigate(ROUTE_AUTOMATIONS)}
+                                sx={{
+                                  fontSize: '0.7rem',
+                                  cursor: 'pointer'
+                                }}
+                              />
+                            )}
+                            {message.suggestions.includes('blog') && (
+                              <Chip
+                                label="Voir les articles du blog"
+                                size="small"
+                                onClick={() => navigate(ROUTE_BLOG)}
+                                sx={{
+                                  fontSize: '0.7rem',
+                                  cursor: 'pointer'
+                                }}
+                              />
+                            )}
+                            {message.suggestions.includes('cv') && (
+                              <Chip
+                                label="Ouvrir le CV de Dervilon"
+                                size="small"
+                                onClick={() =>
+                                  window.open(CV_DOWNLOAD_URL, '_blank', 'noopener,noreferrer')
+                                }
+                                sx={{
+                                  fontSize: '0.7rem',
+                                  cursor: 'pointer'
+                                }}
+                              />
+                            )}
+                          </Box>
+                        )}
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          mt: 0.5
+                        }}
+                      >
+                        <Typography
+                          variant="caption"
+                          sx={(theme) => ({
+                            fontSize: '0.7rem',
+                            fontWeight: 500,
+                            color:
+                              theme.palette.mode === 'dark'
+                                ? 'rgba(148,163,184,0.95)'
+                                : 'rgba(107,114,128,0.95)',
+                          })}
+                        >
+                          {message.timestamp.toLocaleTimeString('fr-FR', {
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          })}
+                        </Typography>
+                        {message.type === 'bot' && (
+                          <IconButton
+                            size="small"
+                            onClick={() => speakWithElevenLabs(message.text)}
+                            aria-label={
+                              isSpeaking
+                                ? 'Arrêter la lecture du message'
+                                : 'Lire ce message'
+                            }
+                            sx={{
+                              ml: 1,
+                              p: 0.5,
+                              color: theme.palette.primary.dark,
+                              '&:hover': {
+                                bgcolor: alpha(theme.palette.primary.dark, 0.08)
+                              },
+                              '&:focus-visible': {
+                                boxShadow: 'var(--focus-ring)'
+                              }
+                            }}
+                          >
+                            {isSpeaking ? (
+                              <Stop
+                                sx={{ fontSize: 14 }}
+                                aria-hidden="true"
+                                focusable="false"
+                              />
+                            ) : (
+                              <PlayArrow
+                                sx={{ fontSize: 14 }}
+                                aria-hidden="true"
+                                focusable="false"
+                              />
+                            )}
+                          </IconButton>
+                        )}
+                      </Box>
+                    </Paper>
+                    {message.type === 'user' && (
+                      <Avatar
+                        sx={{
+                          bgcolor: theme.palette.success.main,
+                          width: 32,
+                          height: 32
+                        }}
+                      >
+                        <Person
+                          sx={{ fontSize: 18 }}
+                          aria-hidden="true"
+                          focusable="false"
+                        />
+                      </Avatar>
+                    )}
+                  </Box>
+                ) : (
+                  <Fade in appear timeout={220}>
                     <Box
                       sx={{
                         display: 'flex',
                         justifyContent:
-                          message.type ===
-                          'user'
-                            ? 'flex-end'
-                            : 'flex-start',
-                        alignItems:
-                          'flex-start',
+                          message.type === 'user' ? 'flex-end' : 'flex-start',
+                        alignItems: 'flex-start',
                         gap: 1
                       }}
                       aria-label={`${
-                        message.type ===
-                        'user'
-                          ? 'Vous'
-                          : 'Assistant'
-                      } — ${message.timestamp.toLocaleTimeString(
-                        'fr-FR',
-                        {
-                          hour: '2-digit',
-                          minute:
-                            '2-digit'
-                        }
-                      )}`}
+                        message.type === 'user' ? 'Vous' : 'Assistant'
+                      } — ${message.timestamp.toLocaleTimeString('fr-FR', {
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      })}`}
                     >
-                      {message.type ===
-                        'bot' && (
+                      {message.type === 'bot' && (
                         <Avatar
                           sx={{
-                            bgcolor:
-                              theme
-                                .palette
-                                .primary
-                                .dark,
+                            bgcolor: theme.palette.primary.dark,
                             width: 32,
                             height: 32
                           }}
                         >
                           <SmartToy
-                            sx={{
-                              fontSize: 18
-                            }}
+                            sx={{ fontSize: 18 }}
                             aria-hidden="true"
                             focusable="false"
                           />
@@ -984,89 +1467,103 @@ const ChatbotIA = () => {
                       <Paper
                         sx={{
                           p: 1.5,
-                          maxWidth:
-                            '80%',
+                          maxWidth: '80%',
                           bgcolor:
-                            message.type ===
-                            'user'
-                              ? theme
-                                  .palette
-                                  .primary
-                                  .dark
-                              : theme
-                                  .palette
-                                  .background
-                                  .paper,
+                            message.type === 'user'
+                              ? theme.palette.primary.dark
+                              : theme.palette.background.paper,
                           color:
-                            message.type ===
-                            'user'
-                              ? theme
-                                  .palette
-                                  .primary
-                                  .contrastText
-                              : theme
-                                  .palette
-                                  .text
-                                  .primary,
+                            message.type === 'user'
+                              ? theme.palette.primary.contrastText
+                              : theme.palette.text.primary,
                           borderRadius: 2,
-                          whiteSpace:
-                            'pre-line',
-                          position:
-                            'relative',
+                          whiteSpace: 'pre-line',
+                          position: 'relative',
                           border:
-                            message.type ===
-                            'user'
+                            message.type === 'user'
                               ? 'none'
                               : `1px solid ${theme.palette.divider}`
                         }}
                       >
-                        <Typography
-                          variant="body2"
-                          sx={{
-                            lineHeight: 1.6
-                          }}
-                        >
-                          {
-                            message.text
-                          }
+                        <Typography variant="body2" sx={{ lineHeight: 1.6 }}>
+                          {message.text}
                         </Typography>
+                        {message.suggestions &&
+                          Array.isArray(message.suggestions) &&
+                          message.suggestions.length > 0 && (
+                            <Box
+                              sx={{
+                                mt: 1,
+                                display: 'flex',
+                                flexWrap: 'wrap',
+                                gap: 0.5
+                              }}
+                            >
+                              {message.suggestions.includes('automations') && (
+                                <Chip
+                                  label="Voir les automatisations n8n"
+                                  size="small"
+                                  onClick={() => navigate(ROUTE_AUTOMATIONS)}
+                                  sx={{
+                                    fontSize: '0.7rem',
+                                    cursor: 'pointer'
+                                  }}
+                                />
+                              )}
+                              {message.suggestions.includes('blog') && (
+                                <Chip
+                                  label="Voir les articles du blog"
+                                  size="small"
+                                  onClick={() => navigate(ROUTE_BLOG)}
+                                  sx={{
+                                    fontSize: '0.7rem',
+                                    cursor: 'pointer'
+                                  }}
+                                />
+                              )}
+                              {message.suggestions.includes('cv') && (
+                                <Chip
+                                  label="Ouvrir le CV de Dervilon"
+                                  size="small"
+                                  onClick={() =>
+                                    window.open(CV_DOWNLOAD_URL, '_blank', 'noopener,noreferrer')
+                                  }
+                                  sx={{
+                                    fontSize: '0.7rem',
+                                    cursor: 'pointer'
+                                  }}
+                                />
+                              )}
+                            </Box>
+                          )}
                         <Box
                           sx={{
-                            display:
-                              'flex',
-                            alignItems:
-                              'center',
-                            justifyContent:
-                              'space-between',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
                             mt: 0.5
                           }}
                         >
                           <Typography
                             variant="caption"
-                            sx={{
-                              opacity: 0.75,
-                              fontSize:
-                                '0.7rem'
-                            }}
+                            sx={(theme) => ({
+                              fontSize: '0.7rem',
+                              fontWeight: 500,
+                              color:
+                                theme.palette.mode === 'dark'
+                                  ? 'rgba(148,163,184,0.95)'
+                                  : 'rgba(107,114,128,0.95)',
+                            })}
                           >
-                            {message.timestamp.toLocaleTimeString(
-                              'fr-FR',
-                              {
-                                hour: '2-digit',
-                                minute:
-                                  '2-digit'
-                              }
-                            )}
+                            {message.timestamp.toLocaleTimeString('fr-FR', {
+                              hour: '2-digit',
+                              minute: '2-digit'
+                            })}
                           </Typography>
-                          {message.type ===
-                            'bot' && (
+                          {message.type === 'bot' && (
                             <IconButton
                               size="small"
-                              onClick={() =>
-                                speakWithElevenLabs(
-                                  message.text
-                                )
-                              }
+                              onClick={() => speakWithElevenLabs(message.text)}
                               aria-label={
                                 isSpeaking
                                   ? 'Arrêter la lecture du message'
@@ -1075,42 +1572,24 @@ const ChatbotIA = () => {
                               sx={{
                                 ml: 1,
                                 p: 0.5,
-                                color:
-                                  theme
-                                    .palette
-                                    .primary
-                                    .dark,
-                                '&:hover':
-                                  {
-                                    bgcolor:
-                                      alpha(
-                                        theme
-                                          .palette
-                                          .primary
-                                          .dark,
-                                        0.08
-                                      )
-                                  },
-                                '&:focus-visible':
-                                  {
-                                    boxShadow:
-                                      'var(--focus-ring)'
-                                  }
+                                color: theme.palette.primary.dark,
+                                '&:hover': {
+                                  bgcolor: alpha(theme.palette.primary.dark, 0.08)
+                                },
+                                '&:focus-visible': {
+                                  boxShadow: 'var(--focus-ring)'
+                                }
                               }}
                             >
                               {isSpeaking ? (
                                 <Stop
-                                  sx={{
-                                    fontSize: 14
-                                  }}
+                                  sx={{ fontSize: 14 }}
                                   aria-hidden="true"
                                   focusable="false"
                                 />
                               ) : (
                                 <PlayArrow
-                                  sx={{
-                                    fontSize: 14
-                                  }}
+                                  sx={{ fontSize: 14 }}
                                   aria-hidden="true"
                                   focusable="false"
                                 />
@@ -1119,249 +1598,26 @@ const ChatbotIA = () => {
                           )}
                         </Box>
                       </Paper>
-                      {message.type ===
-                        'user' && (
+                      {message.type === 'user' && (
                         <Avatar
                           sx={{
-                            bgcolor:
-                              theme
-                                .palette
-                                .success
-                                .main,
+                            bgcolor: theme.palette.success.main,
                             width: 32,
                             height: 32
                           }}
                         >
                           <Person
-                            sx={{
-                              fontSize: 18
-                            }}
+                            sx={{ fontSize: 18 }}
                             aria-hidden="true"
                             focusable="false"
                           />
                         </Avatar>
                       )}
                     </Box>
-                  ) : (
-                    <Fade
-                      in
-                      appear
-                      timeout={220}
-                    >
-                      <Box
-                        sx={{
-                          display: 'flex',
-                          justifyContent:
-                            message.type ===
-                            'user'
-                              ? 'flex-end'
-                              : 'flex-start',
-                          alignItems:
-                            'flex-start',
-                          gap: 1
-                        }}
-                        aria-label={`${
-                          message.type ===
-                          'user'
-                            ? 'Vous'
-                            : 'Assistant'
-                        } — ${message.timestamp.toLocaleTimeString(
-                          'fr-FR',
-                          {
-                            hour: '2-digit',
-                            minute:
-                              '2-digit'
-                          }
-                        )}`}
-                      >
-                        {message.type ===
-                          'bot' && (
-                          <Avatar
-                            sx={{
-                              bgcolor:
-                                theme
-                                  .palette
-                                  .primary
-                                  .dark,
-                              width: 32,
-                              height: 32
-                            }}
-                          >
-                            <SmartToy
-                              sx={{
-                                fontSize: 18
-                              }}
-                              aria-hidden="true"
-                              focusable="false"
-                            />
-                          </Avatar>
-                        )}
-                        <Paper
-                          sx={{
-                            p: 1.5,
-                            maxWidth:
-                              '80%',
-                            bgcolor:
-                              message.type ===
-                              'user'
-                                ? theme
-                                    .palette
-                                    .primary
-                                    .dark
-                                : theme
-                                    .palette
-                                    .background
-                                    .paper,
-                            color:
-                              message.type ===
-                              'user'
-                                ? theme
-                                    .palette
-                                    .primary
-                                    .contrastText
-                                : theme
-                                    .palette
-                                    .text
-                                    .primary,
-                            borderRadius: 2,
-                            whiteSpace:
-                              'pre-line',
-                            position:
-                              'relative',
-                            border:
-                              message.type ===
-                              'user'
-                                ? 'none'
-                                : `1px solid ${theme.palette.divider}`
-                          }}
-                        >
-                          <Typography
-                            variant="body2"
-                            sx={{
-                              lineHeight: 1.6
-                            }}
-                          >
-                            {
-                              message.text
-                            }
-                          </Typography>
-                          <Box
-                            sx={{
-                              display:
-                                'flex',
-                              alignItems:
-                                'center',
-                              justifyContent:
-                                'space-between',
-                              mt: 0.5
-                            }}
-                          >
-                            <Typography
-                              variant="caption"
-                              sx={{
-                                opacity: 0.75,
-                                fontSize:
-                                  '0.7rem'
-                              }}
-                            >
-                              {message.timestamp.toLocaleTimeString(
-                                'fr-FR',
-                                {
-                                  hour: '2-digit',
-                                  minute:
-                                    '2-digit'
-                                }
-                              )}
-                            </Typography>
-                            {message.type ===
-                              'bot' && (
-                              <IconButton
-                                size="small"
-                                onClick={() =>
-                                  speakWithElevenLabs(
-                                    message.text
-                                  )
-                                }
-                                aria-label={
-                                  isSpeaking
-                                    ? 'Arrêter la lecture du message'
-                                    : 'Lire ce message'
-                                }
-                                sx={{
-                                  ml: 1,
-                                  p: 0.5,
-                                  color:
-                                    theme
-                                      .palette
-                                      .primary
-                                      .dark,
-                                  '&:hover':
-                                    {
-                                      bgcolor:
-                                        alpha(
-                                          theme
-                                            .palette
-                                            .primary
-                                            .dark,
-                                          0.08
-                                        )
-                                    },
-                                  '&:focus-visible':
-                                    {
-                                      boxShadow:
-                                        'var(--focus-ring)'
-                                    }
-                                }}
-                              >
-                                {isSpeaking ? (
-                                  <Stop
-                                    sx={{
-                                      fontSize: 14
-                                    }}
-                                    aria-hidden="true"
-                                    focusable="false"
-                                  />
-                                ) : (
-                                  <PlayArrow
-                                    sx={{
-                                      fontSize: 14
-                                    }}
-                                    aria-hidden="true"
-                                    focusable="false"
-                                  />
-                                )}
-                              </IconButton>
-                            )}
-                          </Box>
-                        </Paper>
-                        {message.type ===
-                          'user' && (
-                          <Avatar
-                            sx={{
-                              bgcolor:
-                                theme
-                                  .palette
-                                  .success
-                                  .main,
-                              width: 32,
-                              height: 32
-                            }}
-                          >
-                            <Person
-                              sx={{
-                                fontSize: 18
-                              }}
-                              aria-hidden="true"
-                              focusable="false"
-                            />
-                          </Avatar>
-                        )}
-                      </Box>
-                    </Fade>
-                  )}
-                </Box>
-              )
-            )}
+                  </Fade>
+                )}
+              </Box>
+            ))}
 
             {isTyping && (
               <Box
@@ -1373,16 +1629,12 @@ const ChatbotIA = () => {
               >
                 <Avatar
                   sx={{
-                    bgcolor:
-                      theme.palette
-                        .primary.dark,
+                    bgcolor: theme.palette.primary.dark,
                     width: 32,
                     height: 32
                   }}
                 >
-                  <SmartToy
-                    sx={{ fontSize: 18 }}
-                  />
+                  <SmartToy sx={{ fontSize: 18 }} />
                 </Avatar>
                 <Paper
                   sx={{
@@ -1398,17 +1650,15 @@ const ChatbotIA = () => {
                       alignItems: 'center'
                     }}
                   >
-                    <CircularProgress
-                      size={8}
-                    />
+                    <CircularProgress size={8} />
                     <Typography
                       variant="caption"
                       sx={{ ml: 1 }}
                       aria-live="polite"
                       aria-atomic="true"
                     >
-                      L&apos;IA
-                      réfléchit…
+                      L&apos;IA réfléchit…
+                      {isCreatingRdv ? ' (création du rendez-vous en cours)' : ''}
                     </Typography>
                   </Box>
                 </Paper>
@@ -1416,12 +1666,7 @@ const ChatbotIA = () => {
             )}
 
             {error && (
-              <Alert
-                severity="error"
-                onClose={() =>
-                  setError(null)
-                }
-              >
+              <Alert severity="error" onClose={() => setError(null)}>
                 {error}
               </Alert>
             )}
@@ -1435,8 +1680,7 @@ const ChatbotIA = () => {
               sx={{
                 p: 2,
                 bgcolor: 'white',
-                borderTop:
-                  '1px solid #e0e0e0'
+                borderTop: '1px solid #e0e0e0'
               }}
             >
               <Box
@@ -1450,16 +1694,18 @@ const ChatbotIA = () => {
                 <TipsAndUpdates
                   sx={{
                     fontSize: 18,
-                    color:
-                      'primary.main'
+                    color: 'primary.main'
                   }}
                   aria-hidden="true"
                   focusable="false"
                 />
                 <Typography
                   variant="caption"
-                  fontWeight={600}
-                  color="text.secondary"
+                  sx={{
+                    fontWeight: 700,
+                    letterSpacing: 0.3,
+                    color: '#0f172a',
+                  }}
                 >
                   Questions suggérées :
                 </Typography>
@@ -1471,39 +1717,33 @@ const ChatbotIA = () => {
                   gap: 0.5
                 }}
               >
-                {suggestedQuestions.map(
-                  (question, index) => (
-                    <Chip
-                      key={index}
-                      label={question}
-                      size="small"
-                      onClick={() =>
-                        handleSuggestedQuestion(
-                          question
-                        )
+                {suggestedQuestions.map((question, index) => (
+                  <Chip
+                    key={index}
+                    label={question}
+                    size="small"
+                    onClick={() => handleSuggestedQuestion(question)}
+                    aria-label={`Question suggérée: ${question}`}
+                    sx={(theme) => ({
+                      cursor: 'pointer',
+                      fontSize: '0.72rem',
+                      borderRadius: 999,
+                      px: 1.4,
+                      bgcolor:
+                        theme.palette.mode === 'dark'
+                          ? alpha(theme.palette.primary.main, 0.18)
+                          : alpha(theme.palette.primary.main, 0.08),
+                      color: '#0f172a',
+                      '& .MuiChip-label': {
+                        py: 0.4,
+                      },
+                      '&:hover': {
+                        bgcolor: theme.palette.primary.main,
+                        color: theme.palette.primary.contrastText
                       }
-                      aria-label={`Question suggérée: ${question}`}
-                      sx={{
-                        cursor:
-                          'pointer',
-                        fontSize:
-                          '0.7rem',
-                        '&:hover': {
-                          bgcolor:
-                            theme
-                              .palette
-                              .primary
-                              .main,
-                          color:
-                            theme
-                              .palette
-                              .primary
-                              .contrastText
-                        }
-                      }}
-                    />
-                  )
-                )}
+                    })}
+                  />
+                ))}
               </Box>
             </Box>
           )}
@@ -1513,8 +1753,7 @@ const ChatbotIA = () => {
             sx={{
               p: 2,
               bgcolor: 'white',
-              borderTop:
-                '1px solid #e0e0e0'
+              borderTop: '1px solid #e0e0e0'
             }}
           >
             {chatbotLimitReached && (
@@ -1530,8 +1769,12 @@ const ChatbotIA = () => {
 
             <Typography
               variant="caption"
-              color="text.secondary"
-              sx={{ mb: 1, display: 'block' }}
+              sx={{
+                mb: 1,
+                display: 'block',
+                fontWeight: 500,
+                color: '#0f172a',
+              }}
             >
               Messages IA aujourd&apos;hui :{' '}
               {Math.min(chatbotUsageCount, CHATBOT_DAILY_LIMIT)}/{CHATBOT_DAILY_LIMIT}
@@ -1555,9 +1798,7 @@ const ChatbotIA = () => {
               >
                 <span>
                   <IconButton
-                    onClick={
-                      toggleListening
-                    }
+                    onClick={toggleListening}
                     disabled={!recognition}
                     aria-label={
                       recognition
@@ -1567,39 +1808,22 @@ const ChatbotIA = () => {
                         : 'Reconnaissance vocale non disponible'
                     }
                     sx={{
-                      color: isListening
-                        ? 'error.main'
-                        : 'primary.main',
+                      color: isListening ? 'error.main' : 'primary.main',
                       '&:disabled': {
-                        color:
-                          'grey.400'
+                        color: 'grey.400'
                       },
                       '&:focus-visible': {
-                        outline:
-                          '2px solid',
-                        outlineColor:
-                          isListening
-                            ? theme
-                                .palette
-                                .error
-                                .main
-                            : theme
-                                .palette
-                                .primary
-                                .dark
+                        outline: '2px solid',
+                        outlineColor: isListening
+                          ? theme.palette.error.main
+                          : theme.palette.primary.dark
                       }
                     }}
                   >
                     {isListening ? (
-                      <MicOff
-                        aria-hidden="true"
-                        focusable="false"
-                      />
+                      <MicOff aria-hidden="true" focusable="false" />
                     ) : (
-                      <Mic
-                        aria-hidden="true"
-                        focusable="false"
-                      />
+                      <Mic aria-hidden="true" focusable="false" />
                     )}
                   </IconButton>
                 </span>
@@ -1608,41 +1832,44 @@ const ChatbotIA = () => {
               <TextField
                 fullWidth
                 size="small"
-                placeholder={
-                  isListening
-                    ? '🎤 En écoute...'
-                    : 'Posez votre question...'
-                }
+                placeholder={isListening ? '🎤 En écoute...' : 'Posez votre question...'}
                 aria-label="Champ de saisie du message"
                 value={input}
-                onChange={(e) =>
-                  setInput(e.target.value)
-                }
+                onChange={(e) => setInput(e.target.value)}
                 onKeyDown={(e) => {
-                  if (
-                    e.key ===
-                      'Enter' &&
-                    !e.shiftKey
-                  ) {
+                  if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
                     handleSend();
                   }
                 }}
                 disabled={isListening || chatbotLimitReached}
                 sx={{
-                  '& .MuiOutlinedInput-root':
-                    {
-                      borderRadius: 50,
-                      '&.Mui-focused .MuiOutlinedInput-notchedOutline':
-                        {
-                          borderColor:
-                            theme
-                              .palette
-                              .primary
-                              .main,
-                          borderWidth: 2
-                        }
-                    }
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: 50,
+                    color: '#0f172a',
+                    backgroundColor: 'rgba(15,23,42,0.02)',
+                    '& .MuiOutlinedInput-notchedOutline': {
+                      borderColor: (theme) =>
+                        theme.palette.mode === 'dark'
+                          ? 'rgba(148,163,184,0.6)'
+                          : 'rgba(148,163,184,0.55)',
+                      borderWidth: 1,
+                    },
+                    '&:hover .MuiOutlinedInput-notchedOutline': {
+                      borderColor: (theme) =>
+                        theme.palette.mode === 'dark'
+                          ? 'rgba(209,213,219,0.95)'
+                          : theme.palette.primary.main,
+                    },
+                    '& .MuiInputBase-input::placeholder': {
+                      color: 'rgba(15,23,42,0.6)',
+                      opacity: 1,
+                    },
+                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                      borderColor: (theme) => theme.palette.primary.main,
+                      borderWidth: 2,
+                    },
+                  },
                 }}
               />
 
@@ -1651,40 +1878,23 @@ const ChatbotIA = () => {
                 onClick={handleSend}
                 aria-label="Envoyer le message"
                 disabled={
-                  !input.trim() ||
-                  isListening ||
-                  isTyping ||
-                  chatbotLimitReached
+                  !input.trim() || isListening || isTyping || chatbotLimitReached
                 }
                 sx={{
-                  bgcolor:
-                    theme.palette
-                      .primary.main,
-                  color:
-                    theme.palette
-                      .primary
-                      .contrastText,
+                  bgcolor: theme.palette.primary.main,
+                  color: theme.palette.primary.contrastText,
                   '&:hover': {
-                    bgcolor:
-                      theme
-                        .palette
-                        .primary
-                        .dark
+                    bgcolor: theme.palette.primary.dark
                   },
                   '&:disabled': {
-                    bgcolor:
-                      'grey.300'
+                    bgcolor: 'grey.300'
                   },
                   '&:focus-visible': {
-                    boxShadow:
-                      'var(--focus-ring)'
+                    boxShadow: 'var(--focus-ring)'
                   }
                 }}
               >
-                <Send
-                  aria-hidden="true"
-                  focusable="false"
-                />
+                <Send aria-hidden="true" focusable="false" />
               </IconButton>
             </Box>
           </Box>

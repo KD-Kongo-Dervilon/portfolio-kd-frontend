@@ -1,10 +1,18 @@
-// src/App.jsx - VERSION OPTIMISÉE avec gestion du scroll + HomePage mémoïsée + Analytics
-import React, { lazy, Suspense, useEffect, memo, useState } from 'react';
+// src/App.jsx - VERSION OPTIMISÉE avec gestion du scroll + HomePage mémoïsée + Analytics + thèmes persistants
+import React, {
+  lazy,
+  Suspense,
+  useEffect,
+  memo,
+  useState,
+  useMemo
+} from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
+import { Box, Link as MuiLink } from '@mui/material';
 import { HelmetProvider } from 'react-helmet-async';
-import theme from './theme';
+import baseTheme, { getThemeByKey } from './theme';
 
 // Core components (non-lazy)
 import Loader from './components/Loader';
@@ -40,12 +48,15 @@ const ServicesAutomationN8n = lazy(() =>
 // 🔐 Clé de stockage partagée avec CookieConsent.jsx et Privacy.jsx
 const STORAGE_KEY = 'kd-cookie-consent-v1';
 
+// 🆕 Clé de stockage pour le thème choisi
+const THEME_STORAGE_KEY = 'kd-theme-key-v1';
+
 const getInitialConsent = () => {
   if (typeof window === 'undefined') {
     return {
       necessary: true,
       analytics: false,
-      marketing: true, // ✅ performance / marketing activé par défaut
+      marketing: true
     };
   }
   try {
@@ -55,14 +66,25 @@ const getInitialConsent = () => {
       : {
           necessary: true,
           analytics: false,
-          marketing: true, // ✅ par défaut si rien en storage
+          marketing: true
         };
   } catch {
     return {
       necessary: true,
       analytics: false,
-      marketing: true,
+      marketing: true
     };
+  }
+};
+
+// 🆕 Lecture du thème initial depuis localStorage
+const getInitialThemeKey = () => {
+  if (typeof window === 'undefined') return 'default';
+  try {
+    const stored = window.localStorage.getItem(THEME_STORAGE_KEY);
+    return stored || 'default';
+  } catch {
+    return 'default';
   }
 };
 
@@ -93,6 +115,9 @@ function App() {
   // 🔐 Consentement cookies global (partagé avec AnalyticsTracker)
   const [cookieConsent, setCookieConsent] = useState(() => getInitialConsent());
 
+  // 🆕 Thème global choisi (persisté)
+  const [themeKey, setThemeKey] = useState(() => getInitialThemeKey());
+
   // 🎧 Écouter les mises à jour du consentement (depuis Privacy / CookieConsent)
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -110,14 +135,51 @@ function App() {
     };
   }, []);
 
+  // 🆕 Écouter les changements de thème (Navigation, agent IA, etc.)
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const handleThemeChange = (event) => {
+      const next = event.detail?.theme;
+      if (typeof next === 'string') {
+        setThemeKey((current) => (current === next ? current : next));
+      }
+    };
+
+    window.addEventListener('kd-theme-change', handleThemeChange);
+    return () => {
+      window.removeEventListener('kd-theme-change', handleThemeChange);
+    };
+  }, []);
+
+  // 🆕 Persister le thème et notifier le reste de l’app
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try {
+      window.localStorage.setItem(THEME_STORAGE_KEY, themeKey);
+    } catch {
+      // ignore
+    }
+
+    // On rebroadcaste l’info pour les composants qui écoutent kd-theme-change
+    window.dispatchEvent(
+      new CustomEvent('kd-theme-change', {
+        detail: { theme: themeKey }
+      })
+    );
+  }, [themeKey]);
+
+  // 🆕 Thème MUI actif dérivé de la clé (default, noel, nouvel-an, halloween, rentree, paques…)
+  const activeTheme = useMemo(
+    () => getThemeByKey(themeKey) || baseTheme,
+    [themeKey]
+  );
+
   // ✅ Gestion intelligente du scroll
   useEffect(() => {
-    // Si changement de pathname (pas juste le hash)
     if (location.pathname !== '/') {
       window.scrollTo({ top: 0, behavior: 'auto' });
-    }
-    // Si on est sur home avec un hash (#section)
-    else if (location.hash) {
+    } else if (location.hash) {
       const timeoutId = setTimeout(() => {
         const element = document.querySelector(location.hash);
         if (element) {
@@ -126,14 +188,12 @@ function App() {
           ).matches;
           element.scrollIntoView({
             behavior: prefersReducedMotion ? 'auto' : 'smooth',
-            block: 'start',
+            block: 'start'
           });
         }
       }, 300);
       return () => clearTimeout(timeoutId);
-    }
-    // Page home sans hash: rester en haut SANS forcer si déjà en haut
-    else if (window.scrollY > 100) {
+    } else if (window.scrollY > 100) {
       window.scrollTo({ top: 0, behavior: 'auto' });
     }
   }, [location]);
@@ -142,45 +202,89 @@ function App() {
   const analyticsEnabled = cookieConsent?.marketing === true;
 
   return (
-    <HelmetProvider>
-      <ThemeProvider theme={theme}>
-        <CssBaseline />
-        <SEO />
+    <>
+      {/* 🔗 Skip link global le plus haut possible dans le DOM */}
+      <Box
+        component="nav"
+        sx={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          zIndex: 2000
+        }}
+      >
+        <MuiLink
+          href="#main-content"
+          underline="none"
+          sx={{
+            position: 'absolute',
+            left: '-999px',
+            top: 8,
+            px: 2,
+            py: 1,
+            bgcolor: 'background.paper',
+            color: 'primary.main',
+            borderRadius: 1,
+            border: '2px solid',
+            borderColor: 'primary.main',
+            fontWeight: 600,
+            textDecoration: 'none',
+            transform: 'translateY(-150%)',
+            transition: 'transform 0.2s ease, left 0.2s ease',
+            '&:focus-visible': {
+              left: 8,
+              transform: 'translateY(0)'
+            }
+          }}
+        >
+          Aller directement au contenu principal
+        </MuiLink>
+      </Box>
 
-        {/* 🧠 Tracking global des interactions (respecte le consentement) */}
-        <AnalyticsTracker analyticsEnabled={analyticsEnabled} />
+      <HelmetProvider>
+        {/* 🆕 ThemeProvider utilise maintenant le thème actif (persistant) */}
+        <ThemeProvider theme={activeTheme}>
+          <CssBaseline />
+          <SEO />
 
-        <Navigation />
+          {/* 🧠 Tracking global des interactions (respecte le consentement) */}
+          <AnalyticsTracker analyticsEnabled={analyticsEnabled} />
 
-        <Suspense fallback={<Loader />}>
-          <Routes>
-            {/* Home */}
-            <Route path="/" element={<HomePage />} />
+          <Navigation />
 
-            {/* Blog */}
-            <Route path="/blog" element={<Blog />} />
-            <Route path="/blog/:slug" element={<BlogArticle />} />
+          {/* 🧱 Main unique pour toute l’app */}
+          <Box component="main" id="main-content">
+            <Suspense fallback={<Loader />}>
+              <Routes>
+                {/* Home */}
+                <Route path="/" element={<HomePage />} />
 
-            {/* 🆕 Service : automatisation IA & n8n */}
-            <Route
-              path="/services/automatisation-ia-n8n"
-              element={<ServicesAutomationN8n />}
-            />
+                {/* Blog */}
+                <Route path="/blog" element={<Blog />} />
+                <Route path="/blog/:slug" element={<BlogArticle />} />
 
-            {/* Privacy */}
-            <Route path="/privacy" element={<Privacy />} />
+                {/* 🆕 Service : automatisation IA & n8n */}
+                <Route
+                  path="/services/automatisation-ia-n8n"
+                  element={<ServicesAutomationN8n />}
+                />
 
-            {/* Admin */}
-            <Route path="/admin" element={<AnalyticsDashboard />} />
+                {/* Privacy */}
+                <Route path="/privacy" element={<Privacy />} />
 
-            {/* 404 - Fallback */}
-            <Route path="*" element={<HomePage />} />
-          </Routes>
-        </Suspense>
+                {/* Admin */}
+                <Route path="/admin" element={<AnalyticsDashboard />} />
 
-        <Footer />
-      </ThemeProvider>
-    </HelmetProvider>
+                {/* 404 - Fallback */}
+                <Route path="*" element={<HomePage />} />
+              </Routes>
+            </Suspense>
+          </Box>
+
+          <Footer />
+        </ThemeProvider>
+      </HelmetProvider>
+    </>
   );
 }
 

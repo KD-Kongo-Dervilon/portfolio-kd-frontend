@@ -12,7 +12,8 @@ import {
   Grow,
   useMediaQuery,
   alpha,
-  Tooltip
+  Tooltip,
+  useTheme
 } from '@mui/material';
 import {
   EmojiEvents,
@@ -141,6 +142,7 @@ const useCountUp = (end, duration = 2000, shouldStart = false) => {
 };
 
 const AchievementCard = ({ achievement, index, visible }) => {
+  const theme = useTheme();
   const [isInView, setIsInView] = useState(false);
   const cardRef = useRef(null);
   const count = useCountUp(achievement.value, 2000, isInView);
@@ -191,8 +193,12 @@ const AchievementCard = ({ achievement, index, visible }) => {
             height: '100%',
             borderRadius: 4,
             border: '2px solid',
-            borderColor: 'divider',
-            bgcolor: '#ffffff',
+            borderColor: theme.palette.mode === 'dark'
+              ? alpha(theme.palette.common.white, 0.15)
+              : 'divider',
+            bgcolor: theme.palette.mode === 'dark'
+              ? alpha(theme.palette.background.paper, 0.9)
+              : '#ffffff',
             position: 'relative',
             overflow: 'hidden',
             transition: 'all 0.35s cubic-bezier(0.4, 0, 0.2, 1)',
@@ -244,9 +250,17 @@ const AchievementCard = ({ achievement, index, visible }) => {
                 fontWeight: 700,
                 fontSize: '0.7rem',
                 height: 24,
-                bgcolor: alpha(achievement.color, 0.12),
-                color: achievement.color,
-                border: `1px solid ${alpha(achievement.color, 0.3)}`
+                bgcolor: theme.palette.mode === 'dark'
+                  ? alpha(achievement.color, 0.25)
+                  : alpha(achievement.color, 0.12),
+                color: theme.palette.mode === 'dark'
+                  ? theme.palette.primary.contrastText
+                  : achievement.color,
+                border: `1px solid ${
+                  theme.palette.mode === 'dark'
+                    ? alpha(achievement.color, 0.5)
+                    : alpha(achievement.color, 0.3)
+                }`
               }}
             />
           </Stack>
@@ -275,7 +289,7 @@ const AchievementCard = ({ achievement, index, visible }) => {
             variant="h6"
             component="p"
             fontWeight={700}
-            color="#111111"
+            color={theme.palette.text.primary}
             gutterBottom
             sx={{ lineHeight: 1.3, mb: 1.5 }}
           >
@@ -293,7 +307,7 @@ const AchievementCard = ({ achievement, index, visible }) => {
 };
 
 const Achievements = () => {
-
+  const theme = useTheme();
   const [visible, setVisible] = useState(false);
   const reduceMotion = useMediaQuery('(prefers-reduced-motion: reduce)');
 
@@ -310,7 +324,9 @@ const Achievements = () => {
       sx={{
         py: { xs: 6, md: 10 },
         px: 2,
-        bgcolor: '#f8f9fa',
+        bgcolor: theme.palette.mode === 'dark'
+          ? theme.palette.background.default
+          : '#f8f9fa',
         position: 'relative',
         overflow: 'hidden',
         '&::before': {
@@ -338,7 +354,7 @@ const Achievements = () => {
                   component="h2"
                   variant="h3"
                   fontWeight={700}
-                  color="#111111"
+                  color={theme.palette.text.primary}
                 >
                   Réalisations & Impact
                 </Typography>
@@ -378,8 +394,12 @@ const Achievements = () => {
                         py: 1.5,
                         borderRadius: 3,
                         border: '2px solid',
-                        borderColor: alpha(badge.color, 0.3),
-                        bgcolor: alpha(badge.color, 0.08),
+                        borderColor: theme.palette.mode === 'dark'
+                          ? alpha(badge.color, 0.5)
+                          : alpha(badge.color, 0.3),
+                        bgcolor: theme.palette.mode === 'dark'
+                          ? alpha(badge.color, 0.25)
+                          : alpha(badge.color, 0.08),
                         cursor: 'pointer',
                         transition: 'all 0.3s ease',
                         '&:hover': {
@@ -391,7 +411,7 @@ const Achievements = () => {
                     >
                       <Stack direction="row" spacing={1} alignItems="center">
                         <BadgeIcon sx={{ fontSize: 24, color: badge.color }} />
-                        <Typography variant="body2" fontWeight={700} color="#111111">
+                        <Typography variant="body2" fontWeight={700} color={theme.palette.text.primary}>
                           {badge.label}
                         </Typography>
                       </Stack>
@@ -425,7 +445,9 @@ const Achievements = () => {
               textAlign: 'center',
               borderRadius: 4,
               background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-              color: '#ffffff',
+              color: theme.palette.mode === 'dark'
+                ? theme.palette.primary.contrastText
+                : '#ffffff',
               boxShadow: '0 20px 48px rgba(102, 126, 234, 0.3)'
             }}
           >

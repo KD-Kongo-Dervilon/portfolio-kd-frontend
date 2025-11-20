@@ -147,7 +147,7 @@ const About = () => {
         px: 2,
         position: 'relative',
         overflow: 'hidden',
-        bgcolor: '#f5f7fb',
+        bgcolor: theme.palette.mode === 'dark' ? theme.palette.background.default : '#f5f7fb',
         '&::before': {
           content: '""',
           position: 'absolute',
@@ -184,9 +184,18 @@ const About = () => {
                 px: 1.8,
                 fontWeight: 700,
                 borderRadius: 999,
-                bgcolor: alpha(theme.palette.primary.main, 0.06),
-                color: theme.palette.primary.main,
-                border: `1px solid ${alpha(theme.palette.primary.main, 0.25)}`
+                bgcolor:
+                  theme.palette.mode === 'dark'
+                    ? alpha(theme.palette.primary.main, 0.22)
+                    : alpha(theme.palette.primary.main, 0.06),
+                color:
+                  theme.palette.mode === 'dark'
+                    ? theme.palette.primary.contrastText
+                    : theme.palette.primary.main,
+                border:
+                  theme.palette.mode === 'dark'
+                    ? `1px solid ${alpha(theme.palette.primary.light, 0.8)}`
+                    : `1px solid ${alpha(theme.palette.primary.main, 0.25)}`
               }}
             />
             <Typography
@@ -198,8 +207,9 @@ const About = () => {
                 mb: 1.5,
                 letterSpacing: '-0.02em',
                 fontSize: { xs: '2rem', md: '2.6rem' },
-                background:
-                  'linear-gradient(135deg, #111827 0%, #1f2937 40%, #4f46e5 100%)',
+                background: theme.palette.mode === 'dark'
+                  ? `linear-gradient(135deg, #f9fafb 0%, #e5e7eb 35%, ${theme.palette.primary.main} 100%)`
+                  : 'linear-gradient(135deg, #111827 0%, #1f2937 40%, #4f46e5 100%)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent'
               }}
@@ -278,10 +288,19 @@ const About = () => {
                         height: '100%',
                         p: 3,
                         borderRadius: 3,
-                        bgcolor: '#ffffff',
+                        bgcolor:
+                          theme.palette.mode === 'dark'
+                            ? alpha(theme.palette.background.paper, 0.96)
+                            : '#ffffff',
                         border: '1px solid',
-                        borderColor: alpha('#111827', 0.12),
-                        boxShadow: '0 10px 30px rgba(15,23,42,0.06)',
+                        borderColor:
+                          theme.palette.mode === 'dark'
+                            ? alpha(theme.palette.common.white, 0.16)
+                            : alpha('#111827', 0.12),
+                        boxShadow:
+                          theme.palette.mode === 'dark'
+                            ? '0 16px 40px rgba(0,0,0,0.65)'
+                            : '0 10px 30px rgba(15,23,42,0.06)',
                         display: 'flex',
                         flexDirection: 'column',
                         gap: 1.5,
@@ -325,7 +344,7 @@ const About = () => {
                         variant="subtitle1"
                         component="h3"
                         fontWeight={700}
-                        sx={{ color: '#111827' }}
+                        sx={{ color: theme.palette.text.primary }}
                       >
                         {reason.title}
                       </Typography>
@@ -377,10 +396,19 @@ const About = () => {
                         height: '100%',
                         p: 3,
                         borderRadius: 3,
-                        bgcolor: '#ffffff',
+                        bgcolor:
+                          theme.palette.mode === 'dark'
+                            ? alpha(theme.palette.background.paper, 0.96)
+                            : '#ffffff',
                         border: '1px solid',
-                        borderColor: alpha('#111827', 0.12),
-                        boxShadow: '0 10px 30px rgba(15,23,42,0.06)',
+                        borderColor:
+                          theme.palette.mode === 'dark'
+                            ? alpha(theme.palette.common.white, 0.16)
+                            : alpha('#111827', 0.12),
+                        boxShadow:
+                          theme.palette.mode === 'dark'
+                            ? '0 16px 40px rgba(0,0,0,0.65)'
+                            : '0 10px 30px rgba(15,23,42,0.06)',
                         display: 'flex',
                         flexDirection: 'column',
                         gap: 1.4,
@@ -422,7 +450,7 @@ const About = () => {
                       <Typography
                         variant="subtitle1"
                         fontWeight={700}
-                        sx={{ color: '#111827' }}
+                        sx={{ color: theme.palette.text.primary }}
                       >
                         {step.title}
                       </Typography>
@@ -504,10 +532,19 @@ const About = () => {
               sx={{
                 p: { xs: 3, md: 4 },
                 borderRadius: 3,
-                bgcolor: '#ffffff',
+                bgcolor:
+                  theme.palette.mode === 'dark'
+                    ? alpha(theme.palette.background.paper, 0.96)
+                    : '#ffffff',
                 border: '1px solid',
-                borderColor: alpha('#111827', 0.12),
-                boxShadow: '0 12px 34px rgba(15,23,42,0.08)',
+                borderColor:
+                  theme.palette.mode === 'dark'
+                    ? alpha(theme.palette.common.white, 0.16)
+                    : alpha('#111827', 0.12),
+                boxShadow:
+                  theme.palette.mode === 'dark'
+                    ? '0 18px 44px rgba(0,0,0,0.7)'
+                    : '0 12px 34px rgba(15,23,42,0.08)',
                 transition:
                   'box-shadow 0.35s ease, border-color 0.35s ease',
                 '&:hover': {
@@ -519,7 +556,7 @@ const About = () => {
               <Typography
                 variant="h6"
                 fontWeight={700}
-                sx={{ mb: 2.5, color: '#111827' }}
+                sx={{ mb: 2.5, color: theme.palette.text.primary }}
               >
                 Quelques missions représentatives
               </Typography>
@@ -530,10 +567,24 @@ const About = () => {
                 sx={{
                   bgcolor: 'transparent',
                   boxShadow: 'none',
-                  borderBottom: `1px solid ${alpha('#111827', 0.06)}`
+                  borderBottom: `1px solid ${
+                    theme.palette.mode === 'dark'
+                      ? alpha(theme.palette.common.white, 0.12)
+                      : alpha('#111827', 0.06)
+                  }`
                 }}
               >
-                <AccordionSummary expandIcon={<ExpandMore />}>
+                <AccordionSummary
+                  expandIcon={<ExpandMore />}
+                  sx={{
+                    '& .MuiAccordionSummary-expandIconWrapper': {
+                      color: theme.palette.text.primary
+                    },
+                    '& .MuiSvgIcon-root': {
+                      color: theme.palette.text.primary
+                    }
+                  }}
+                >
                   <Typography fontWeight={600}>
                     Automatisation Chatbot IA – SaaS B2B
                   </Typography>
@@ -560,10 +611,24 @@ const About = () => {
                 sx={{
                   bgcolor: 'transparent',
                   boxShadow: 'none',
-                  borderBottom: `1px solid ${alpha('#111827', 0.06)}`
+                  borderBottom: `1px solid ${
+                    theme.palette.mode === 'dark'
+                      ? alpha(theme.palette.common.white, 0.12)
+                      : alpha('#111827', 0.06)
+                  }`
                 }}
               >
-                <AccordionSummary expandIcon={<ExpandMore />}>
+                <AccordionSummary
+                  expandIcon={<ExpandMore />}
+                  sx={{
+                    '& .MuiAccordionSummary-expandIconWrapper': {
+                      color: theme.palette.text.primary
+                    },
+                    '& .MuiSvgIcon-root': {
+                      color: theme.palette.text.primary
+                    }
+                  }}
+                >
                   <Typography fontWeight={600}>
                     Système de recommandation IA – E-commerce
                   </Typography>
@@ -590,10 +655,24 @@ const About = () => {
                 sx={{
                   bgcolor: 'transparent',
                   boxShadow: 'none',
-                  borderBottom: `1px solid ${alpha('#111827', 0.06)}`
+                  borderBottom: `1px solid ${
+                    theme.palette.mode === 'dark'
+                      ? alpha(theme.palette.common.white, 0.12)
+                      : alpha('#111827', 0.06)
+                  }`
                 }}
               >
-                <AccordionSummary expandIcon={<ExpandMore />}>
+                <AccordionSummary
+                  expandIcon={<ExpandMore />}
+                  sx={{
+                    '& .MuiAccordionSummary-expandIconWrapper': {
+                      color: theme.palette.text.primary
+                    },
+                    '& .MuiSvgIcon-root': {
+                      color: theme.palette.text.primary
+                    }
+                  }}
+                >
                   <Typography fontWeight={600}>
                     Prédiction de churn avancée – Fintech B2C
                   </Typography>
@@ -621,7 +700,17 @@ const About = () => {
                   boxShadow: 'none'
                 }}
               >
-                <AccordionSummary expandIcon={<ExpandMore />}>
+                <AccordionSummary
+                  expandIcon={<ExpandMore />}
+                  sx={{
+                    '& .MuiAccordionSummary-expandIconWrapper': {
+                      color: theme.palette.text.primary
+                    },
+                    '& .MuiSvgIcon-root': {
+                      color: theme.palette.text.primary
+                    }
+                  }}
+                >
                   <Typography fontWeight={600}>
                     Éditeur d’activité pédagogique – Ludicius
                   </Typography>
@@ -659,12 +748,19 @@ const About = () => {
                           borderRadius: 999,
                           fontSize: '0.7rem',
                           fontWeight: 600,
-                          bgcolor: alpha(theme.palette.primary.main, 0.04),
-                          border: `1px solid ${alpha(
-                            theme.palette.primary.main,
-                            0.16
-                          )}`,
-                          color: theme.palette.primary.main
+                          bgcolor:
+                            theme.palette.mode === 'dark'
+                              ? alpha(theme.palette.primary.light, 0.2)
+                              : alpha(theme.palette.primary.main, 0.04),
+                          border: `1px solid ${
+                            theme.palette.mode === 'dark'
+                              ? alpha(theme.palette.primary.light, 0.8)
+                              : alpha(theme.palette.primary.main, 0.16)
+                          }`,
+                          color:
+                            theme.palette.mode === 'dark'
+                              ? theme.palette.primary.contrastText
+                              : theme.palette.primary.main
                         }}
                       >
                         {tag}

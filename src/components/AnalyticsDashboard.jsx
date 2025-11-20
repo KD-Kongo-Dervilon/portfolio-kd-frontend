@@ -1,7 +1,6 @@
-// src/components/AnalyticsDashboard.jsx - 
 import React, { useEffect, useState, useCallback } from 'react';
 import { Box, Paper, Typography, Grid, Chip, Button, Card, CardContent, List, ListItem, ListItemText,  } from '@mui/material';
-import { Download, Delete, Visibility, Timer, TrendingUp } from '@mui/icons-material';
+import { Download, Delete, Visibility, Timer, TrendingUp, SmartToy } from '@mui/icons-material';
 import { getAnalytics, exportAnalytics, clearAnalytics } from '../utils/analytics';
 
 const AnalyticsDashboard = () => {
@@ -14,6 +13,10 @@ const AnalyticsDashboard = () => {
     topSections: [],
     categories: {},
   });
+  const [chatbotQuestions, setChatbotQuestions] = useState([]);
+  const [showOnlyChatbot, setShowOnlyChatbot] = useState(false);
+
+  const interactionsSource = showOnlyChatbot ? chatbotQuestions : analytics;
 
   const safeDate = (value) => {
     const d = new Date(value);
@@ -25,6 +28,8 @@ const AnalyticsDashboard = () => {
     const data = getAnalytics() || [];
     setAnalytics(data);
 
+    const chatbotEvents = [];
+
     if (!Array.isArray(data) || data.length === 0) {
       setSummary({
         totalEvents: 0,
@@ -34,6 +39,7 @@ const AnalyticsDashboard = () => {
         topSections: [],
         categories: {},
       });
+      setChatbotQuestions([]);
       return;
     }
 
@@ -73,6 +79,14 @@ const AnalyticsDashboard = () => {
         sessionsMap.set(sessionId, []);
       }
       sessionsMap.get(sessionId).push({ ...event, ts });
+
+      const isChatbotQuestion =
+        (metadata && metadata.type === 'chatbot_question') ||
+        category === 'Chatbot';
+
+      if (isChatbotQuestion) {
+        chatbotEvents.push({ ...event, ts });
+      }
 
       const type = metadata.type || '';
       const isClick =
@@ -136,6 +150,9 @@ const AnalyticsDashboard = () => {
       .slice(0, 5)
       .map(([label, count]) => ({ label, count }));
 
+    chatbotEvents.sort((a, b) => b.ts - a.ts);
+    setChatbotQuestions(chatbotEvents);
+
     setSummary({
       totalEvents: data.length,
       totalSessions,
@@ -173,6 +190,13 @@ const AnalyticsDashboard = () => {
           </Typography>
         </Box>
         <Box sx={{ display: 'flex', gap: 1 }}>
+          <Button
+            variant={showOnlyChatbot ? 'contained' : 'outlined'}
+            startIcon={<SmartToy />}
+            onClick={() => setShowOnlyChatbot((prev) => !prev)}
+          >
+            Conversations IA
+          </Button>
           <Button
             variant="outlined"
             startIcon={<Download />}
@@ -315,11 +339,43 @@ const AnalyticsDashboard = () => {
         <Grid item xs={12}>
           <Paper sx={{ p: 3 }}>
             <Typography component="h2" variant="h6" fontWeight={700} gutterBottom>
+              💬 Questions posées à l&apos;assistant IA
+            </Typography>
+            {chatbotQuestions && chatbotQuestions.length > 0 ? (
+              <List dense>
+                {chatbotQuestions.slice(0, 20).map((event, index) => (
+                  <ListItem key={index} divider>
+                    <ListItemText
+                      primary={
+                        <Typography variant="body2">
+                          {event.label || 'Question sans libellé'}
+                        </Typography>
+                      }
+                      secondary={
+                        <Typography variant="caption" color="text.secondary">
+                          {event.timestamp || event.time || ''}
+                        </Typography>
+                      }
+                    />
+                  </ListItem>
+                ))}
+              </List>
+            ) : (
+              <Typography variant="body2" color="text.secondary">
+                Les questions posées au chatbot apparaîtront ici dès que des visiteurs auront utilisé l’assistant IA.
+              </Typography>
+            )}
+          </Paper>
+        </Grid>
+
+        <Grid item xs={12}>
+          <Paper sx={{ p: 3 }}>
+            <Typography component="h2" variant="h6" fontWeight={700} gutterBottom>
               🕵️ 20 dernières interactions des visiteurs
             </Typography>
-            {analytics && analytics.length > 0 ? (
+            {interactionsSource && interactionsSource.length > 0 ? (
               <List dense>
-                {analytics
+                {interactionsSource
                   .slice()
                   .reverse()
                   .slice(0, 20)
@@ -342,7 +398,9 @@ const AnalyticsDashboard = () => {
               </List>
             ) : (
               <Typography variant="body2" color="text.secondary">
-                Les interactions des visiteurs s&apos;afficheront ici dès que le portfolio commencera à être consulté.
+                {showOnlyChatbot
+                  ? 'Les interactions IA s&apos;afficheront ici dès que le chatbot aura été utilisé.'
+                  : 'Les interactions des visiteurs s&apos;afficheront ici dès que le portfolio commencera à être consulté.'}
               </Typography>
             )}
           </Paper>

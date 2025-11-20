@@ -2,6 +2,7 @@ import React from 'react';
 import { Box, Container, Typography, Grid, IconButton, Link as MuiLink, Divider } from '@mui/material';
 import { GitHub, LinkedIn, Twitter, Email, ArrowUpward } from '@mui/icons-material';
 import { CookiePrefsButton } from './CookieConsent';
+import { alpha } from '@mui/material/styles';
 
 /**
  * Footer moderne et accessible aligné sur le style du portfolio KD
@@ -53,8 +54,10 @@ const Footer = () => {
       sx={{
         position: 'relative',
         mt: 'auto',
-        background: 'linear-gradient(180deg, #f8f9fa 0%, #ffffff 100%)',
-        borderTop: '1px solid rgba(102, 126, 234, 0.1)',
+        // Fond qui s'adapte au thème (clair / sombre)
+        background: (t) =>
+          `linear-gradient(180deg, ${alpha(t.palette.primary.main, 0.03)} 0%, ${t.palette.background.default} 40%, ${t.palette.background.paper} 100%)`,
+        borderTop: (t) => `1px solid ${alpha(t.palette.divider, 0.9)}`,
         overflow: 'hidden',
       }}
     >
