@@ -76,6 +76,51 @@ Objectif : proposer des Q/R de FAQ pour le portfolio de KD.
   const [faqError, setFaqError] = useState('');
   const [faqMessage, setFaqMessage] = useState('');
   const [showFaqPrompt, setShowFaqPrompt] = useState(false);
+  const [rdvRequests, setRdvRequests] = useState([]);
+  const [rdvLoading, setRdvLoading] = useState(false);
+  const [rdvError, setRdvError] = useState('');
+  const [rdvFilter, setRdvFilter] = useState('pending'); // 'all' | 'pending' | 'accepted' | 'declined'
+
+  const loadRdvRequests = useCallback(async () => {
+    setRdvError('');
+    setRdvLoading(true);
+    try {
+      const token = sessionStorage.getItem('adminToken');
+      if (!token) {
+        setRdvError("Non authentifié : aucun jeton admin trouvé.");
+        setRdvRequests([]);
+        setRdvLoading(false);
+        return;
+      }
+
+      const res = await fetch(`${API_BASE_URL}/api/admin/rdv-requests`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || 'Erreur lors du chargement des demandes de rendez-vous.');
+      }
+
+      const items = Array.isArray(data.items) ? data.items : [];
+      const sorted = [...items].sort((a, b) => {
+        const da = new Date(a.createdAt || a.date || 0);
+        const db = new Date(b.createdAt || b.date || 0);
+        return db - da;
+      });
+
+      setRdvRequests(sorted);
+    } catch (err) {
+      console.error('Erreur chargement RDV:', err);
+      setRdvError("Impossible de charger les demandes de rendez-vous pour le moment.");
+      setRdvRequests([]);
+    } finally {
+      setRdvLoading(false);
+    }
+  }, []);
 
 
   useEffect(() => {
@@ -262,8 +307,9 @@ Objectif : proposer des Q/R de FAQ pour le portfolio de KD.
   useEffect(() => {
     if (authenticated) {
       loadAnalytics();
+      loadRdvRequests();
     }
-  }, [authenticated, loadAnalytics]);
+  }, [authenticated, loadAnalytics, loadRdvRequests]);
 
   const handleLogin = async (e) => {
     if (e) e.preventDefault();
@@ -457,6 +503,91 @@ Objectif : proposer des Q/R de FAQ pour le portfolio de KD.
     }
   };
 
+  // Mettre à jour le statut d’un RDV via l’API admin
+  const handleUpdateRdvStatus = async (id, newStatus) => {
+    setRdvError('');
+    setRdvLoading(true);
+    try {
+      const token = sessionStorage.getItem('adminToken');
+      if (!token) {
+        setRdvError("Non authentifié : aucun jeton admin trouvé.");
+        setRdvLoading(false);
+        return;
+      }
+
+      const res = await fetch(`${API_BASE_URL}/api/admin/rdv-requests/${id}/status`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ status: newStatus }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || !data.success) {
+        throw new Error(data.message || data.error || 'Erreur lors de la mise à jour du statut.');
+      }
+
+      const updated = data.item;
+      setRdvRequests((prev) =>
+        Array.isArray(prev)
+          ? prev.map((r) => (String(r.id) === String(id) ? updated : r))
+          : []
+      );
+    } catch (err) {
+      console.error('Erreur mise à jour RDV:', err);
+      setRdvError("Impossible de mettre à jour la demande de rendez-vous pour le moment.");
+    } finally {
+      setRdvLoading(false);
+    }
+  };
+
+  // Suppression d’un RDV (backend + mise à jour locale)
+  const handleDeleteRdv = async (id) => {
+    setRdvError('');
+    setRdvLoading(true);
+    try {
+      const token = sessionStorage.getItem('adminToken');
+      if (!token) {
+        setRdvError("Non authentifié : aucun jeton admin trouvé.");
+        setRdvLoading(false);
+        return;
+      }
+
+      const res = await fetch(`${API_BASE_URL}/api/admin/rdv-requests/${id}`, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || !data.success) {
+        throw new Error(data.message || data.error || 'Erreur lors de la suppression du RDV.');
+      }
+
+      setRdvRequests((prev) =>
+        Array.isArray(prev)
+          ? prev.filter((r) => String(r.id) !== String(id))
+          : []
+      );
+    } catch (err) {
+      console.error('Erreur suppression RDV:', err);
+      setRdvError("Impossible de supprimer cette demande de rendez-vous pour le moment.");
+    } finally {
+      setRdvLoading(false);
+    }
+  };
+
+  const filteredRdvRequests = rdvRequests.filter((rdv) => {
+    if (!rdvFilter || rdvFilter === 'all') return true;
+    const status = rdv.status || 'pending';
+    return status === rdvFilter;
+  });
+
   if (!authenticated) {
     return (
       <>
@@ -495,7 +626,7 @@ Objectif : proposer des Q/R de FAQ pour le portfolio de KD.
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            // Fond pro : dégradé radial subtil bleu nuit
+            // Fond pro : dégradé radial subtil bleu nuit
             background: 'radial-gradient(circle at top, #1b325f 0%, #050816 50%, #02030a 100%)',
             color: '#FFFFFF',
             px: 2
@@ -894,6 +1025,166 @@ Objectif : proposer des Q/R de FAQ pour le portfolio de KD.
         </Box>
 
         <Divider sx={{ my: 3 }} />
+
+        {/* Demandes de rendez-vous */}
+        <Box aria-label="Demandes de rendez-vous" sx={{ mb: 4 }}>
+          <Typography variant="h6" sx={{ mb: 1 }}>
+            Demandes de rendez-vous
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+            Liste des demandes envoyées via le chatbot et les formulaires du portfolio.
+          </Typography>
+
+          <Stack direction="row" spacing={1} sx={{ mb: 2, flexWrap: 'wrap' }}>
+            <Button
+              size="small"
+              variant={rdvFilter === 'all' ? 'contained' : 'outlined'}
+              onClick={() => setRdvFilter('all')}
+            >
+              Tous
+            </Button>
+            <Button
+              size="small"
+              variant={rdvFilter === 'pending' ? 'contained' : 'outlined'}
+              onClick={() => setRdvFilter('pending')}
+            >
+              En attente
+            </Button>
+            <Button
+              size="small"
+              variant={rdvFilter === 'accepted' ? 'contained' : 'outlined'}
+              onClick={() => setRdvFilter('accepted')}
+            >
+              Acceptés
+            </Button>
+            <Button
+              size="small"
+              variant={rdvFilter === 'declined' ? 'contained' : 'outlined'}
+              onClick={() => setRdvFilter('declined')}
+            >
+              Refusés
+            </Button>
+            <Button
+              size="small"
+              variant="text"
+              onClick={() => setRdvFilter('all')}
+            >
+              Voir l’historique
+            </Button>
+          </Stack>
+
+          {rdvError && (
+            <Alert severity="error" sx={{ mb: 2 }}>
+              {rdvError}
+            </Alert>
+          )}
+
+          {rdvLoading ? (
+            <Typography variant="body2" color="text.secondary">
+              Chargement des demandes de rendez-vous…
+            </Typography>
+          ) : filteredRdvRequests.length === 0 ? (
+            <Typography variant="body2" color="text.secondary">
+              Aucune demande de rendez-vous trouvée pour le moment.
+            </Typography>
+          ) : (
+            <Paper
+              variant="outlined"
+              sx={{
+                maxHeight: 360,
+                overflow: 'auto',
+                borderRadius: 3,
+                borderColor: 'divider',
+                boxShadow: (theme) => theme.shadows[1],
+              }}
+            >
+              <Table size="small" aria-label="Tableau des demandes de rendez-vous">
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Date</TableCell>
+                    <TableCell>Nom</TableCell>
+                    <TableCell>Email</TableCell>
+                    <TableCell>Créneau souhaité</TableCell>
+                    <TableCell>Message</TableCell>
+                    <TableCell>Source</TableCell>
+                    <TableCell>Statut</TableCell>
+                    <TableCell>Actions</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {filteredRdvRequests.map((rdv) => (
+                    <TableRow key={rdv.id} hover>
+                      <TableCell>
+                        {rdv.createdAt
+                          ? new Date(rdv.createdAt).toLocaleString()
+                          : '—'}
+                      </TableCell>
+                      <TableCell>{rdv.fullName || '—'}</TableCell>
+                      <TableCell>{rdv.email || '—'}</TableCell>
+                      <TableCell>{rdv.preferredSlot || '—'}</TableCell>
+                      <TableCell>{rdv.message || '—'}</TableCell>
+                      <TableCell>{rdv.source || '—'}</TableCell>
+                      <TableCell>
+                        {(() => {
+                          const status = rdv.status || 'pending';
+                          const label =
+                            status === 'accepted'
+                              ? 'Accepté'
+                              : status === 'declined'
+                              ? 'Refusé'
+                              : 'En attente';
+                          const color =
+                            status === 'accepted'
+                              ? 'success'
+                              : status === 'declined'
+                              ? 'error'
+                              : 'warning';
+                          return (
+                            <Chip
+                              label={label}
+                              size="small"
+                              color={color}
+                              variant="outlined"
+                            />
+                          );
+                        })()}
+                      </TableCell>
+                      <TableCell>
+                        <Stack direction="row" spacing={1}>
+                          <Button
+                            size="small"
+                            variant="contained"
+                            onClick={() => handleUpdateRdvStatus(rdv.id, 'accepted')}
+                          >
+                            Valider
+                          </Button>
+                          <Button
+                            size="small"
+                            variant="outlined"
+                            color="warning"
+                            onClick={() => handleUpdateRdvStatus(rdv.id, 'declined')}
+                          >
+                            Refuser
+                          </Button>
+                          {rdv.status && rdv.status !== 'pending' && (
+                            <Button
+                              size="small"
+                              variant="outlined"
+                              color="error"
+                              onClick={() => handleDeleteRdv(rdv.id)}
+                            >
+                              Supprimer
+                            </Button>
+                          )}
+                        </Stack>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </Paper>
+          )}
+        </Box>
 
         {/* Contenu IA : FAQ dynamique */}
         <Box aria-label="Gestion IA de la FAQ dynamique" sx={{ mb: 4 }}>

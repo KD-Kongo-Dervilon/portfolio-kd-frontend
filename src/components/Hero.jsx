@@ -104,6 +104,14 @@ const Hero = () => {
             boxShadow: '0 0 40px rgba(251,191,36,0)',
           },
         },
+        '@keyframes eggFloat': {
+          '0%, 100%': {
+            transform: 'translateY(0)',
+          },
+          '50%': {
+            transform: 'translateY(-8px)',
+          },
+        },
         '@media (prefers-reduced-motion: reduce)': {
           '*': {
             animation: 'none !important',
@@ -177,6 +185,461 @@ const Hero = () => {
                 : 'none',
             animationDelay: '1.2s',
             mixBlendMode: 'screen',
+          }}
+        />
+      </Box>
+      {/* Easter eggs overlay for Pâques theme */}
+      <Box
+        aria-hidden
+        sx={{
+          position: 'absolute',
+          inset: 0,
+          pointerEvents: 'none',
+          zIndex: 0,
+        }}
+      >
+        <Box
+          sx={{
+            position: 'absolute',
+            bottom: { xs: '6%', md: '8%' },
+            left: { xs: '15%', md: '18%' },
+            width: { xs: 36, md: 46 },
+            height: { xs: 52, md: 64 },
+            borderRadius: '50% 50% 45% 45% / 65% 65% 35% 35%',
+            background:
+              'linear-gradient(135deg, #f9a8d4 0%, #fb7185 40%, #f97316 100%)',
+            boxShadow: '0 10px 24px rgba(248,113,113,0.35)',
+            opacity: (t) => (t.palette.season === 'paques' ? 1 : 0),
+            animation: (t) =>
+              t.palette.season === 'paques'
+                ? 'eggFloat 4s ease-in-out infinite'
+                : 'none',
+            animationDelay: '0s',
+          }}
+        />
+        <Box
+          sx={{
+            position: 'absolute',
+            bottom: { xs: '5%', md: '7%' },
+            left: { xs: '45%', md: '48%' },
+            width: { xs: 38, md: 50 },
+            height: { xs: 54, md: 68 },
+            borderRadius: '50% 50% 45% 45% / 65% 65% 35% 35%',
+            background:
+              'linear-gradient(145deg, #a5b4fc 0%, #6366f1 40%, #22c55e 100%)',
+            boxShadow: '0 10px 24px rgba(129,140,248,0.35)',
+            opacity: (t) => (t.palette.season === 'paques' ? 1 : 0),
+            animation: (t) =>
+              t.palette.season === 'paques'
+                ? 'eggFloat 4.4s ease-in-out infinite'
+                : 'none',
+            animationDelay: '0.4s',
+          }}
+        />
+        <Box
+          sx={{
+            position: 'absolute',
+            bottom: { xs: '7%', md: '9%' },
+            right: { xs: '14%', md: '18%' },
+            width: { xs: 34, md: 44 },
+            height: { xs: 50, md: 62 },
+            borderRadius: '50% 50% 45% 45% / 65% 65% 35% 35%',
+            background:
+              'linear-gradient(150deg, #bef264 0%, #4ade80 35%, #22d3ee 100%)',
+            boxShadow: '0 10px 24px rgba(74,222,128,0.35)',
+            opacity: (t) => (t.palette.season === 'paques' ? 1 : 0),
+            animation: (t) =>
+              t.palette.season === 'paques'
+                ? 'eggFloat 3.8s ease-in-out infinite'
+                : 'none',
+            animationDelay: '0.8s',
+          }}
+        />
+      </Box>
+
+      {/* Halloween overlay for Halloween theme */}
+      <Box
+        aria-hidden
+        sx={{
+          position: 'absolute',
+          inset: 0,
+          pointerEvents: 'none',
+          zIndex: 0,
+        }}
+      >
+        {/* Ghosts floating across the hero */}
+        <Box
+          sx={{
+            position: 'absolute',
+            top: { xs: '18%', md: '20%' },
+            left: { xs: '4%', md: '8%' },
+            width: { xs: 64, md: 80 },
+            height: { xs: 88, md: 104 },
+            borderRadius: '40% 40% 55% 55% / 45% 45% 60% 60%',
+            backgroundColor: 'rgba(248,250,252,0.96)',
+            boxShadow: '0 14px 30px rgba(15,23,42,0.5)',
+            opacity: (t) => (t.palette.season === 'halloween' ? 0.92 : 0),
+            animation: (t) =>
+              t.palette.season === 'halloween'
+                ? 'ghostFloat 7s ease-in-out infinite'
+                : 'none',
+            animationDelay: '0s',
+            '&::before': {
+              content: '""',
+              position: 'absolute',
+              top: '30%',
+              left: '26%',
+              width: 10,
+              height: 10,
+              borderRadius: '50%',
+              backgroundColor: '#0f172a',
+              boxShadow: '18px 0 0 #0f172a',
+            },
+            '&::after': {
+              content: '""',
+              position: 'absolute',
+              bottom: 0,
+              left: 0,
+              right: 0,
+              height: 18,
+              borderRadius: '0 0 40% 40%',
+              background:
+                'radial-gradient(circle at 10% 0, rgba(15,23,42,0.08) 0, transparent 60%), radial-gradient(circle at 50% 0, rgba(15,23,42,0.08) 0, transparent 60%), radial-gradient(circle at 90% 0, rgba(15,23,42,0.08) 0, transparent 60%)',
+            },
+          }}
+        />
+        <Box
+          sx={{
+            position: 'absolute',
+            top: { xs: '22%', md: '24%' },
+            right: { xs: '6%', md: '10%' },
+            width: { xs: 56, md: 72 },
+            height: { xs: 80, md: 96 },
+            borderRadius: '40% 40% 55% 55% / 45% 45% 60% 60%',
+            backgroundColor: 'rgba(248,250,252,0.94)',
+            boxShadow: '0 12px 26px rgba(15,23,42,0.45)',
+            opacity: (t) => (t.palette.season === 'halloween' ? 0.9 : 0),
+            animation: (t) =>
+              t.palette.season === 'halloween'
+                ? 'ghostFloat 6.2s ease-in-out infinite'
+                : 'none',
+            animationDelay: '1s',
+            '&::before': {
+              content: '""',
+              position: 'absolute',
+              top: '30%',
+              left: '28%',
+              width: 9,
+              height: 9,
+              borderRadius: '50%',
+              backgroundColor: '#020617',
+              boxShadow: '16px 0 0 #020617',
+            },
+            '&::after': {
+              content: '""',
+              position: 'absolute',
+              bottom: 0,
+              left: 0,
+              right: 0,
+              height: 16,
+              borderRadius: '0 0 40% 40%',
+              background:
+                'radial-gradient(circle at 15% 0, rgba(15,23,42,0.06) 0, transparent 60%), radial-gradient(circle at 55% 0, rgba(15,23,42,0.08) 0, transparent 60%), radial-gradient(circle at 90% 0, rgba(15,23,42,0.06) 0, transparent 60%)',
+            },
+          }}
+        />
+
+
+        {/* Bats flying across the top */}
+        <Box
+          sx={{
+            position: 'absolute',
+            top: { xs: '10%', md: '12%' },
+            left: '-20%',
+            width: { xs: 90, md: 130 },
+            height: { xs: 40, md: 50 },
+            opacity: (t) => (t.palette.season === 'halloween' ? 0.9 : 0),
+            background:
+              'radial-gradient(circle at 20% 40%, rgba(15,23,42,1) 0%, rgba(15,23,42,1) 40%, transparent 60%)',
+            animation: (t) =>
+              t.palette.season === 'halloween'
+                ? 'batFly 14s linear infinite'
+                : 'none',
+          }}
+        />
+        <Box
+          sx={{
+            position: 'absolute',
+            top: { xs: '16%', md: '18%' },
+            left: '-26%',
+            width: { xs: 80, md: 120 },
+            height: { xs: 36, md: 46 },
+            opacity: (t) => (t.palette.season === 'halloween' ? 0.85 : 0),
+            background:
+              'radial-gradient(circle at 70% 60%, rgba(15,23,42,1) 0%, rgba(15,23,42,1) 40%, transparent 60%)',
+            animation: (t) =>
+              t.palette.season === 'halloween'
+                ? 'batFly 18s linear infinite'
+                : 'none',
+            animationDelay: '2.3s',
+          }}
+        />
+
+        {/* Spider webs in top corners */}
+        <Box
+          sx={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: { xs: 80, md: 110 },
+            height: { xs: 80, md: 110 },
+            background:
+              'radial-gradient(circle at 0 0, rgba(124,58,237,0.7) 0, transparent 55%)',
+            opacity: (t) => (t.palette.season === 'halloween' ? 0.75 : 0),
+            borderTop: '1px solid rgba(148,163,184,0.7)',
+            borderLeft: '1px solid rgba(148,163,184,0.7)',
+          }}
+        />
+        <Box
+          sx={{
+            position: 'absolute',
+            top: 0,
+            right: 0,
+            width: { xs: 80, md: 110 },
+            height: { xs: 80, md: 110 },
+            background:
+              'radial-gradient(circle at 100% 0, rgba(124,58,237,0.6) 0, transparent 55%)',
+            opacity: (t) => (t.palette.season === 'halloween' ? 0.75 : 0),
+            borderTop: '1px solid rgba(148,163,184,0.7)',
+            borderRight: '1px solid rgba(148,163,184,0.7)',
+          }}
+        />
+      </Box>
+
+      {/* Back-to-school overlay for Rentrée theme */}
+      <Box
+        aria-hidden
+        sx={{
+          position: 'absolute',
+          inset: 0,
+          pointerEvents: 'none',
+          zIndex: 0,
+        }}
+      >
+        {/* Pencils rolling on the floor */}
+        <Box
+          sx={{
+            position: 'absolute',
+            bottom: { xs: '4%', md: '5%' },
+            left: '-20%',
+            width: { xs: 160, md: 200 },
+            height: { xs: 10, md: 12 },
+            borderRadius: 999,
+            background: 'linear-gradient(90deg, #facc15 0%, #f97316 40%, #b45309 100%)',
+            boxShadow: '0 6px 14px rgba(180,83,9,0.35)',
+            opacity: (t) => (t.palette.season === 'rentree' ? 1 : 0),
+            animation: (t) =>
+              t.palette.season === 'rentree'
+                ? 'pencilRoll 10s cubic-bezier(0.42,0,0.58,1) infinite'
+                : 'none',
+            '&::before': {
+              content: '""',
+              position: 'absolute',
+              right: { xs: -14, md: -18 },
+              top: { xs: -4, md: -5 },
+              borderLeft: { xs: '14px solid #eab308', md: '18px solid #eab308' },
+              borderTop: { xs: '7px solid transparent', md: '8px solid transparent' },
+              borderBottom: { xs: '7px solid transparent', md: '8px solid transparent' },
+            },
+            '&::after': {
+              content: '""',
+              position: 'absolute',
+              left: 0,
+              top: 0,
+              width: { xs: 14, md: 18 },
+              height: '100%',
+              background: '#fed7aa',
+              borderRadius: '999px 0 0 999px',
+              opacity: 0.9,
+            },
+          }}
+        />
+        <Box
+          sx={{
+            position: 'absolute',
+            bottom: { xs: '6%', md: '7%' },
+            left: '-24%',
+            width: { xs: 150, md: 190 },
+            height: { xs: 9, md: 11 },
+            borderRadius: 999,
+            background: 'linear-gradient(90deg, #38bdf8 0%, #0ea5e9 40%, #0369a1 100%)',
+            boxShadow: '0 6px 14px rgba(37,99,235,0.35)',
+            opacity: (t) => (t.palette.season === 'rentree' ? 0.95 : 0),
+            animation: (t) =>
+              t.palette.season === 'rentree'
+                ? 'pencilRoll 11s cubic-bezier(0.42,0,0.58,1) infinite'
+                : 'none',
+            animationDelay: '1.2s',
+            '&::before': {
+              content: '""',
+              position: 'absolute',
+              right: { xs: -14, md: -18 },
+              top: { xs: -4, md: -5 },
+              borderLeft: { xs: '14px solid #0ea5e9', md: '18px solid #0ea5e9' },
+              borderTop: { xs: '7px solid transparent', md: '8px solid transparent' },
+              borderBottom: { xs: '7px solid transparent', md: '8px solid transparent' },
+            },
+          }}
+        />
+        <Box
+          sx={{
+            position: 'absolute',
+            bottom: { xs: '5%', md: '6%' },
+            left: '-18%',
+            width: { xs: 140, md: 180 },
+            height: { xs: 9, md: 11 },
+            borderRadius: 999,
+            background: 'linear-gradient(90deg, #f97373 0%, #ef4444 40%, #b91c1c 100%)',
+            boxShadow: '0 6px 14px rgba(185,28,28,0.35)',
+            opacity: (t) => (t.palette.season === 'rentree' ? 0.9 : 0),
+            animation: (t) =>
+              t.palette.season === 'rentree'
+                ? 'pencilRoll 12s cubic-bezier(0.42,0,0.58,1) infinite'
+                : 'none',
+            animationDelay: '2s',
+            '&::before': {
+              content: '""',
+              position: 'absolute',
+              right: { xs: -14, md: -18 },
+              top: { xs: -4, md: -5 },
+              borderLeft: { xs: '14px solid #ef4444', md: '18px solid #ef4444' },
+              borderTop: { xs: '7px solid transparent', md: '8px solid transparent' },
+              borderBottom: { xs: '7px solid transparent', md: '8px solid transparent' },
+            },
+          }}
+        />
+
+        {/* Floating books */}
+        <Box
+          sx={{
+            position: 'absolute',
+            top: { xs: '12%', md: '14%' },
+            right: { xs: '10%', md: '14%' },
+            width: { xs: 64, md: 82 },
+            height: { xs: 44, md: 56 },
+            borderRadius: 8,
+            background:
+              'linear-gradient(145deg, #1d4ed8 0%, #3b82f6 50%, #93c5fd 100%)',
+            boxShadow: '0 10px 24px rgba(30,64,175,0.45)',
+            opacity: (t) => (t.palette.season === 'rentree' ? 1 : 0),
+            animation: (t) =>
+              t.palette.season === 'rentree'
+                ? 'bookFloat 6.5s ease-in-out infinite'
+                : 'none',
+            transformOrigin: 'center',
+            '&::before': {
+              content: '""',
+              position: 'absolute',
+              left: 0,
+              top: 0,
+              width: 6,
+              height: '100%',
+              borderRadius: '8px 0 0 8px',
+              background: 'rgba(15,23,42,0.25)',
+            },
+            '&::after': {
+              content: '""',
+              position: 'absolute',
+              right: 4,
+              top: 6,
+              width: '55%',
+              height: 2,
+              borderRadius: 999,
+              background: 'rgba(248,250,252,0.8)',
+              boxShadow: '0 6px 0 rgba(248,250,252,0.7)',
+            },
+          }}
+        />
+        <Box
+          sx={{
+            position: 'absolute',
+            top: { xs: '20%', md: '22%' },
+            right: { xs: '20%', md: '22%' },
+            width: { xs: 56, md: 74 },
+            height: { xs: 40, md: 50 },
+            borderRadius: 8,
+            background:
+              'linear-gradient(145deg, #fb923c 0%, #f97316 40%, #facc15 100%)',
+            boxShadow: '0 10px 24px rgba(180,83,9,0.4)',
+            opacity: (t) => (t.palette.season === 'rentree' ? 0.95 : 0),
+            animation: (t) =>
+              t.palette.season === 'rentree'
+                ? 'bookFloat 7.2s ease-in-out infinite'
+                : 'none',
+            animationDelay: '0.8s',
+            transformOrigin: 'center',
+            '&::before': {
+              content: '""',
+              position: 'absolute',
+              left: 0,
+              top: 0,
+              width: 6,
+              height: '100%',
+              borderRadius: '8px 0 0 8px',
+              background: 'rgba(15,23,42,0.25)',
+            },
+            '&::after': {
+              content: '""',
+              position: 'absolute',
+              right: 6,
+              top: 8,
+              width: '55%',
+              height: 2,
+              borderRadius: 999,
+              background: 'rgba(248,250,252,0.85)',
+              boxShadow: '0 5px 0 rgba(248,250,252,0.7)',
+            },
+          }}
+        />
+
+        {/* Flying lined papers */}
+        <Box
+          sx={{
+            position: 'absolute',
+            top: '-40px',
+            left: '12%',
+            width: { xs: 34, md: 42 },
+            height: { xs: 46, md: 56 },
+            borderRadius: 4,
+            background:
+              'repeating-linear-gradient(180deg, #ffffff 0, #ffffff 10px, #e5e7eb 11px, #e5e7eb 12px)',
+            border: '1px solid rgba(148,163,184,0.7)',
+            boxShadow: '0 8px 18px rgba(148,163,184,0.4)',
+            opacity: (t) => (t.palette.season === 'rentree' ? 1 : 0),
+            animation: (t) =>
+              t.palette.season === 'rentree'
+                ? 'paperFly 12s ease-in-out infinite'
+                : 'none',
+          }}
+        />
+        <Box
+          sx={{
+            position: 'absolute',
+            top: '-50px',
+            left: '60%',
+            width: { xs: 30, md: 40 },
+            height: { xs: 42, md: 52 },
+            borderRadius: 4,
+            background:
+              'repeating-linear-gradient(180deg, #ffffff 0, #ffffff 10px, #e5e7eb 11px, #e5e7eb 12px)',
+            border: '1px solid rgba(148,163,184,0.7)',
+            boxShadow: '0 8px 18px rgba(148,163,184,0.4)',
+            opacity: (t) => (t.palette.season === 'rentree' ? 0.95 : 0),
+            animation: (t) =>
+              t.palette.season === 'rentree'
+                ? 'paperFly 13.5s ease-in-out infinite'
+                : 'none',
+            animationDelay: '1.4s',
           }}
         />
       </Box>

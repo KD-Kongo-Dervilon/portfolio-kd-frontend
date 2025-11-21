@@ -1,10 +1,25 @@
-# 🚀 Portfolio KD Dervilon – Frontend React (IA • Product • Automation)
+# 🚀 Portfolio KD Dervilon – Produit IA • Product Management • Automatisation
 
-Bienvenue dans le **frontend React** du portfolio professionnel de  
+Bienvenue dans le **produit IA personnel** de  
 **KD Dervilon (Dervilon Mbissi)** – Chef de Projet IA & Product Owner (CSPO).
 
-Ce projet n’est pas un simple portfolio :  
-➡️ C’est un **produit IA complet**, conçu pour démontrer ton expertise en Product, IA générative, UX moderne et automatisation n8n.
+Ce n’est pas un simple portfolio.  
+C’est un **produit complet**, conçu comme le MVP d’une plateforme IA moderne :  
+👉 multi‑agents  
+👉 orientée valeur  
+👉 pensée pour démontrer immédiatement mes compétences en **IA appliquée, Product Management et automatisation n8n**.
+
+🎯 **Objectif : donner à un recruteur une preuve directe de ce que je sais livrer.**
+
+- Architecture claire et scalable  
+- UX propre et moderne (Material UI “iOS 2026”)  
+- IA générative (GPT‑4o‑mini) au cœur des fonctionnalités  
+- Agents IA spécialisés orchestrés par le backend  
+- Automatisations business (n8n)  
+- Analytics réels pour mesurer l’utilisation  
+- Déploiement cloud (Vercel + Render)
+
+En quelques secondes, vous pouvez voir comment je conçois, structure et déploie un produit IA **du cadrage → à la production**.
 
 Frontend déployé sur **Vercel** :  
 👉 https://portfolio-kd-frontend.vercel.app  

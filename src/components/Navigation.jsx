@@ -26,7 +26,7 @@ const Navigation = () => {
   const [activeItem, setActiveItem] = useState('#accueil');
   const [scrolled, setScrolled] = useState(false);
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const isMobile = useMediaQuery(theme.breakpoints.down('lg'));
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -43,11 +43,8 @@ const Navigation = () => {
 
   const handleSelectTheme = (key) => {
     setThemeMenuAnchor(null);
-
-    // Met à jour localement le chip
     setThemeKey(key);
 
-    // Notifie l'app (et donc le ThemeProvider) via l'événement global
     if (typeof window !== 'undefined') {
       window.dispatchEvent(
         new CustomEvent('kd-theme-change', {
@@ -79,14 +76,11 @@ const Navigation = () => {
       { label: 'À propos', hash: '#about', type: 'hash' },
       { label: 'Compétences', hash: '#skills', type: 'hash' },
       { label: 'Portfolio', hash: '#portfolio', type: 'hash' },
-
-      // 🆕 Service automatisation IA & n8n
       {
         label: 'Automatisation IA & n8n',
         path: '/services/automatisation-ia-n8n',
         type: 'route'
       },
-
       { label: 'Blog', path: '/blog', type: 'route' },
       { label: 'Contact', hash: '#contact', type: 'hash' },
       { label: 'Admin', path: '/admin', type: 'route' }
@@ -94,7 +88,6 @@ const Navigation = () => {
     []
   );
 
-  // Détection du scroll pour effet glassmorphism
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 50);
@@ -103,7 +96,6 @@ const Navigation = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Mise à jour activeItem selon location
   useEffect(() => {
     if (location.pathname === '/blog' || location.pathname.startsWith('/blog/')) {
       setActiveItem('/blog');
@@ -134,22 +126,17 @@ const Navigation = () => {
 
   const handleNavClick = useCallback(
     (e, item) => {
-      // Pour les liens de route, on laisse le <Link> ou l'ancre gérer la navigation native
       if (item.type === 'route') {
         setMobileMenuOpen(false);
         setActiveItem(item.path);
         return;
       }
 
-      // Liens de section (hash) : on intercepte pour faire un scroll fluide
       e.preventDefault();
       setMobileMenuOpen(false);
 
-      // Scroll vers un hash
-      // Si on n'est pas sur la home, y retourner d'abord
       if (location.pathname !== '/') {
         navigate('/');
-        // Attendre que le DOM soit prêt
         setTimeout(() => {
           scrollToHash(item.hash);
           setActiveItem(item.hash);
@@ -170,7 +157,6 @@ const Navigation = () => {
     [navigate, location.pathname, scrollToHash]
   );
 
-  // Observer pour les sections (seulement sur la page home)
   useEffect(() => {
     if (location.pathname !== '/') return;
 
@@ -284,6 +270,7 @@ const Navigation = () => {
             KD Dervilon
           </Typography>
 
+          {/* ✅ Chip de thème désormais visible aussi sur mobile */}
           <Chip
             label={themeChip.label}
             size="small"
@@ -294,12 +281,13 @@ const Navigation = () => {
               ml: 2,
               mr: isMobile ? 1 : 2,
               fontWeight: 600,
-              display: { xs: 'none', sm: 'inline-flex' },
+              display: 'inline-flex', // <- au lieu de display: { xs: 'none', sm: 'inline-flex' }
               cursor: 'pointer',
               bgcolor: themeChip.color === 'default' ? 'transparent' : undefined
             }}
             aria-label={`Thème actuel : ${themeChip.label}. Cliquer pour changer de thème.`}
           />
+
           <Menu
             anchorEl={themeMenuAnchor}
             open={Boolean(themeMenuAnchor)}
@@ -400,8 +388,6 @@ const Navigation = () => {
                   }
                 };
 
-                // Liens de route : on utilise Link pour une navigation SPA,
-                // tout en gardant un vrai <a href="..."> pour le SEO.
                 if (item.type === 'route') {
                   return (
                     <Button
@@ -416,7 +402,6 @@ const Navigation = () => {
                   );
                 }
 
-                // Liens de section (hash) : ancre + scroll fluide
                 return (
                   <Button
                     key={item.label}
@@ -432,7 +417,7 @@ const Navigation = () => {
             </Box>
           )}
 
-          {/* Bouton menu mobile */}
+          {/* Bouton menu mobile avec animation burger ↔ croix */}
           {isMobile && (
             <IconButton
               aria-label={mobileMenuOpen ? 'Fermer le menu' : 'Ouvrir le menu'}
@@ -447,6 +432,7 @@ const Navigation = () => {
                 display: 'inline-flex',
                 alignItems: 'center',
                 justifyContent: 'center',
+                color: (t) => t.palette.common.white,
                 '&:focus-visible': {
                   outline: '3px solid #0b57d0',
                   outlineOffset: 2,
@@ -484,9 +470,7 @@ const Navigation = () => {
                   '& .bar:nth-of-type(2)': {
                     top: 7.5,
                     opacity: mobileMenuOpen ? 0 : 1,
-                    transform: mobileMenuOpen
-                      ? 'translateX(-12px)'
-                      : 'none'
+                    transform: mobileMenuOpen ? 'translateX(-12px)' : 'none'
                   },
                   '& .bar:nth-of-type(3)': {
                     top: 15,
@@ -537,16 +521,44 @@ const Navigation = () => {
           sx={{
             width: 280,
             pt: 1,
+            animation: mobileMenuOpen
+              ? 'menuSlideIn 420ms cubic-bezier(0.22, 0.61, 0.36, 1) both'
+              : 'menuSlideOut 260ms cubic-bezier(0.4, 0, 1, 1) both',
+            '@media (prefers-reduced-motion: reduce)': {
+              animation: 'none'
+            },
+            '@keyframes menuSlideIn': {
+              '0%': {
+                opacity: 0,
+                transform: 'translateX(-28px)'
+              },
+              '60%': {
+                opacity: 1,
+                transform: 'translateX(3px)'
+              },
+              '100%': {
+                opacity: 1,
+                transform: 'translateX(0)'
+              }
+            },
+            '@keyframes menuSlideOut': {
+              '0%': {
+                opacity: 1,
+                transform: 'translateX(0)'
+              },
+              '100%': {
+                opacity: 0,
+                transform: 'translateX(-20px)'
+              }
+            },
             '@keyframes menuItemIn': {
-              '0%': { opacity: 0, transform: 'translateX(-12px)' },
+              '0%': { opacity: 0, transform: 'translateX(-20px)' },
               '100%': { opacity: 1, transform: 'translateX(0)' }
             }
           }}
           aria-label="Menu principal mobile"
         >
-          <Box
-            sx={{ display: 'flex', alignItems: 'center', px: 2, pb: 1 }}
-          >
+          <Box sx={{ display: 'flex', alignItems: 'center', px: 2, pb: 1 }}>
             <Typography
               sx={{ flexGrow: 1, fontWeight: 800, fontSize: '1.1rem' }}
             >

@@ -774,8 +774,6 @@ const About = () => {
                   >
                     • Création d’un éditeur d’activités IA (QCM, drag &amp; drop, scénarios interactifs)
                     <br />• Passage du POC au MVP intégré à la plateforme de vente
-                    <br />• Automatisation et intégration IA pour accélérer la conception
-                    et la personnalisation de contenus pédagogiques
                   </Typography>
                 </AccordionDetails>
               </Accordion>
