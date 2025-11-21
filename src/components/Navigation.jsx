@@ -432,7 +432,13 @@ const Navigation = () => {
                 display: 'inline-flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                color: (t) => t.palette.common.white,
+                color: (t) =>
+                  t.palette.mode === 'dark'
+                    ? t.palette.common.white
+                    : t.palette.text.primary,
+                '&:hover': {
+                  backgroundColor: (t) => alpha(t.palette.primary.main, 0.06)
+                },
                 '&:focus-visible': {
                   outline: '3px solid #0b57d0',
                   outlineOffset: 2,
