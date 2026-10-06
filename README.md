@@ -1,7 +1,7 @@
 # 🚀 Portfolio KD Dervilon – Produit IA • Product Management • Automatisation
 
-Bienvenue dans le **produit IA personnel** de  
-**KD Dervilon (Dervilon Mbissi)** – Chef de Projet IA & Product Owner (CSPO).
+Bienvenue mon  **produit IA personnel** 
+**KD Dervilon  – Chef de Projet IA & Product Owner (CSPO).
 
 Ce n’est pas un simple portfolio.  
 C’est un **produit complet**, conçu comme le MVP d’une plateforme IA moderne :  
@@ -32,7 +32,7 @@ Backend connecté (Render) :
 
 ## 🤖 Chatbot IA contextuel  
 Assistant virtuel connecté au backend :
-- Connaît ton parcours, CV, KPIs et projets
+- Connaît mon parcours, CV, KPIs et projets
 - Réponses naturelles & contextualisées
 - Basé sur OpenAI GPT‑4o‑mini
 
