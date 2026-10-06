@@ -157,7 +157,7 @@ frontend/
 
 # 🌐 Déploiement sur Vercel
 
-Ton frontend est déployé via **Vercel** pour bénéficier de :
+Mon frontend est déployé via **Vercel** pour bénéficier de :
 
 - Build ultra‑rapide  
 - CDN global  
