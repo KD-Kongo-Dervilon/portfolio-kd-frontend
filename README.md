@@ -1,230 +1,104 @@
-# 🚀 Portfolio KD Dervilon – Produit IA • Product Management • Automatisation
+# D. Mk — Portfolio produit, automatisation et IA
 
-Bienvenue mon  **produit IA personnel** 
-**KD Dervilon  – Chef de Projet IA & Product Owner (CSPO).
+**Chef de projet digital · Product Owner · Automatisation & IA appliquée**
 
-Ce n’est pas un simple portfolio.  
-C’est un **produit complet**, conçu comme le MVP d’une plateforme IA moderne :  
-👉 multi‑agents  
-👉 orientée valeur  
-👉 pensée pour démontrer immédiatement mes compétences en **IA appliquée, Product Management et automatisation n8n**.
+> Une démonstration vaut mieux qu'une promesse : produits accessibles, décisions expliquées, code client inspectable et limites de validation affichées.
 
-🎯 **Objectif : donner à un recruteur une preuve directe de ce que je sais livrer.**
+[![Portfolio](https://img.shields.io/badge/Portfolio-voir%20les%20projets-126b55?style=flat-square)](https://portfolio-d-mk.vercel.app/portfolio/#/projects)
+[![Workflow Architect](https://img.shields.io/badge/Workflow%20Architect-d%C3%A9mo-127b76?style=flat-square)](https://workflow-architect-flax.vercel.app/)
+[![OPS COMMAND](https://img.shields.io/badge/OPS%20COMMAND-d%C3%A9mo-254852?style=flat-square)](https://ops-command-studio-kdkongodervilons-projects.vercel.app/)
+[![Vérification des preuves](https://github.com/KD-Kongo-Dervilon/portfolio-kd-frontend/actions/workflows/showcase-quality.yml/badge.svg)](https://github.com/KD-Kongo-Dervilon/portfolio-kd-frontend/actions/workflows/showcase-quality.yml)
 
-- Architecture claire et scalable  
-- UX propre et moderne (Material UI “iOS 2026”)  
-- IA générative (GPT‑4o‑mini) au cœur des fonctionnalités  
-- Agents IA spécialisés orchestrés par le backend  
-- Automatisations business (n8n)  
-- Analytics réels pour mesurer l’utilisation  
-- Déploiement cloud (Vercel + Render)
+**Dernière revue du dossier : 30 octobre 2026.** Ce dépôt présente le portfolio actuel, conserve son historique React et réunit des instantanés vérifiables des interfaces publiques. Il n'est **pas** le dépôt de déploiement du site D. Mk : les applications Vercel actuelles sont déployées séparément.
 
-En quelques secondes, vous pouvez voir comment je conçois, structure et déploie un produit IA **du cadrage → à la production**.
+## En deux minutes : mes réalisations
 
-Frontend déployé sur **Vercel** :  
-👉 https://portfolio-kd-frontend.vercel.app  
-Backend connecté (Render) :  
-👉 https://portfolio-kd-backend.onrender.com
+| Réalisation | Besoin métier | Ce que je démontre | Démo / preuves |
+| --- | --- | --- | --- |
+| **Workflow Architect** | Transformer une demande métier en projet d'automatisation | Cadrage, découpage IA, génération JSON n8n, transparence sur les limites Make | [Démo](https://workflow-architect-flax.vercel.app/) · [Dossier](docs/projets/WORKFLOW-ARCHITECT.md) |
+| **OPS COMMAND Studio** | Suivre des processus, responsabilités et exécutions d'entreprise | Modélisation de workflows, rôles, validations, traçabilité, interface produit | [Démo](https://ops-command-studio-kdkongodervilons-projects.vercel.app/) · [Dossier](docs/projets/OPS-COMMAND-STUDIO.md) |
+| **D. Mk — Portfolio** | Donner à un recruteur des preuves navigables | Architecture de l'information, présentation de projets, responsive, recette | [Portfolio](https://portfolio-d-mk.vercel.app/portfolio/#/projects) · [Dossier](docs/projets/PORTFOLIO-DMK.md) |
+| **Portfolio React historique** | Mon précédent travail frontend et IA | Évolution du parcours technique, React, composants, interface | [Code historique](src/) · [Documentation d'origine](docs/archives/README-REACT-2026.md) |
 
----
+### Deux interfaces visibles
 
-# ✨ Fonctionnalités principales
+| Workflow Architect | OPS COMMAND Studio |
+| --- | --- |
+| ![Capture de Workflow Architect](https://portfolio-d-mk.vercel.app/portfolio/assets/screens/workflow-architect-capture-v4.jpg) | ![Capture d'OPS COMMAND Studio](https://portfolio-d-mk.vercel.app/portfolio/assets/screens/ops-command-capture-v4.jpg) |
 
-## 🤖 Chatbot IA contextuel  
-Assistant virtuel connecté au backend :
-- Connaît mon parcours, CV, KPIs et projets
-- Réponses naturelles & contextualisées
-- Basé sur OpenAI GPT‑4o‑mini
+*Captures hébergées sur le portfolio public. La disponibilité des captures et le rendu des cartes ont été contrôlés sur desktop et mobile le 30/10/2026.*
 
----
+## Méthode de travail
 
-## 🎮 Quiz IA interactif (multi‑modes)  
-Module gamifié orienté UX :
-- Modèles : **MCQ**, **Drag & Drop**, **Reorder**, **Swipe**
-- Génération dynamique via IA (QCM JSON strict)
-- Validation + fallback automatique
-- Loader animé + UX premium
-- Quota IA **3/jour**, illimité pour admin
-- Résultats partageables LinkedIn
-- **Lazy‑load dédié** → performance optimisée sur Vercel
+1. **Comprendre le besoin** : déclencheur, données, acteurs, règles et résultat attendu.
+2. **Modéliser** : étapes, dépendances, permissions et cas d'erreur.
+3. **Construire** : interface utilisable, intégrations authentifiées et code organisé.
+4. **Recetter** : cas nominaux, cas bloquants, contrôle d'accès, mobile et fichiers livrés.
+5. **Rendre vérifiable** : expliquer ce qui marche, ce qui reste à configurer et fournir des preuves.
 
----
+## Ce qui est réellement vérifié
 
-## 🧷 Services IA & Automatisation (n8n)  
-Section orientée Product & business :
-- Scénarios : CRM, onboarding, contenus IA, agents autonomes
-- Explication pédagogique accessible
-- Zone Q/R via API backend
+- **Cloudflare Workers AI** : un appel réel a généré un plan structuré via le service du portfolio.
+- **n8n** : génération dans le navigateur et téléchargement du fichier JSON et de son guide ; liens internes validés ; workflow exporté **inactif**.
+- **Make** : blueprint de base disponible pour certains scénarios simples ; **refus explicite** de produire un export lorsque des contrôles métier, filtres ou approbations seraient perdus.
+- **Portfolio** : cartes OPS COMMAND et Workflow Architect uniques, images chargées, aucun débordement horizontal sur les résolutions 1440 px et 390 px.
+- **Limite importante** : aucun import réel dans un compte n8n ou Make tiers n'a été certifié ; il ne serait pas correct de le prétendre.
 
----
+[Lire la recette détaillée](docs/QUALITE-ET-TESTS.md) · [Lire l'architecture](docs/ARCHITECTURE.md)
 
-## 📝 Blog IA & Product  
-- Page Blog + pages Article
-- Contenus orientés IA, ROI, Product Management & pédagogie
+## Repères pour naviguer dans ce dépôt
 
----
-
-## 📈 Analytics maison  
-Tracking interne :
-- Clics, interactions, scroll, pages visitées
-- Sessions utilisateur
-- Compatible RGPD (CookieConsent)
-
----
-
-## 🛡️ Espace Admin  
-- Page `/admin` (protégée par JWT)
-- Accès :
-  - Stats IA (Quiz + Chatbot)
-  - Q/R communautaires
-  - Analytics agrégés
-
----
-
-## 🍪 Consentement RGPD  
-- Bannière CookieConsent
-- Analytics activé seulement après accord
-- Compatible déploiement Vercel/Browser
-
----
-
-## 📱 UX moderne + PWA  
-- UI **Material UI** style “iOS 2026”
-- Animations fluides
-- `manifest.json` + `service-worker.js`
-- Optimisé pour le SEO
-
----
-
-# 🧱 Stack technique
-
-- **React 18**
-- **React Router**
-- **Material UI v5**
-- **React Helmet Async**
-- **Lazy loading** (Quiz IA, pages lourdes)
-- **PWA** (Service Worker + Manifest)
-- **Analytics custom**
-- Déployé via **Vercel**
-
----
-
-# 🗂️ Architecture du frontend
-
-```
-frontend/
-│
-├── public/                      # Fichiers statiques & manifest
-│
-└── src/
-    ├── api/                     # Appels API (vers backend Render)
-    │
-    ├── components/              # Composants UI réutilisables
-    │   ├── ChatbotIA.jsx
-    │   ├── ExpertiseQuiz.jsx         # Lazy-loaded
-    │   ├── CookieConsent.jsx
-    │   ├── SmartCTA.jsx
-    │   ├── SEO.jsx
-    │   └── ...
-    │
-    ├── config/                  # Constantes globales / URLs API
-    │
-    ├── data/                    # Données statiques
-    │
-    ├── hooks/                   # Custom hooks (API, UX, analytics)
-    │
-    ├── pages/                   # Pages principales
-    │   ├── AdminDashboard.jsx
-    │   ├── Blog.jsx
-    │   ├── BlogArticle.jsx
-    │   ├── Portfolio.jsx
-    │   ├── About.jsx
-    │   └── Contact.jsx
-    │
-    ├── services/                # Analytics, session
-    │   ├── analytics.js
-    │   └── session.js
-    │
-    ├── utils/                   # Helpers génériques
-    │
-    ├── App.jsx                  # Root React
-    ├── theme.js                 # Thème MUI
-    ├── index.js                 # Entrée principale
-    └── index.css                # Styles globaux
+```text
+README.md                               ← présentation orientée recrutement
+docs/
+  DOSSIER-RECRUTEUR.md                 ← synthèse en 2 minutes
+  ARCHITECTURE.md                      ← frontières frontend/backend
+  QUALITE-ET-TESTS.md                  ← preuves et limites de validation
+  SECURITE-ET-CONFIDENTIALITE.md       ← ce qui peut / ne peut pas être publié
+  MAINTENANCE.md                       ← procédure de mise à jour
+  projets/                             ← étude de chaque produit
+  archives/                            ← présentation de l'ancien portfolio
+showcase/
+  workflow-architect/                  ← instantané du frontend public
+  ops-command-studio/                  ← instantané du frontend public
+  portfolio/                           ← code des cartes projets
+  manifest.json                        ← URL source de chaque fichier
+scripts/verify-showcase.mjs            ← tests reproductibles
+.github/workflows/showcase-quality.yml ← tests et détection de dérive
+src/, public/                           ← application React historique conservée
 ```
 
----
+### Vérifier les preuves
 
-# 🌐 Déploiement sur Vercel
-
-Mon frontend est déployé via **Vercel** pour bénéficier de :
-
-- Build ultra‑rapide  
-- CDN global  
-- HTTPS automatique  
-- CI/CD GitHub automatique  
-- Optimisations React et bundling intelligents
-
-### ⚙️ Build command  
-```
-npm run build
-```
-
-### 📦 Output directory  
-```
-build/
-```
-
-### 🔗 API backend déclarée dans `src/config` :
-```
-https://portfolio-kd-backend.onrender.com
-```
-
----
-
-# 🔧 Prérequis
-
-- **Node.js ≥ 18**
-- **npm**
-- Backend API disponible sur Render :
-  - https://portfolio-kd-backend.onrender.com
-
----
-
-# 🚀 Installation & lancement local
+Prérequis : **Node.js 22+**. Aucun token, base privée ou installation npm n'est nécessaire.
 
 ```bash
-git clone https://github.com/KD-Kongo-Dervilon/portfolio-kd-frontend.git
-cd portfolio-kd-frontend
+node scripts/verify-showcase.mjs
+node scripts/verify-showcase.mjs --live
+```
 
-npm install
+La première commande teste localement les sources et les exports. La seconde compare les fichiers clients publics aux versions actuellement servies par Vercel ; elle **signale** les écarts mais ne modifie ni GitHub ni Vercel. Une vérification GitHub Actions est programmée chaque jour.
+
+### Démarrer l'ancien portfolio React
+
+```bash
+npm ci
 npm start
 ```
 
-Frontend local :  
-➡️ http://localhost:3000
+Cette commande lance la version **historique** conservée dans ce dépôt, **pas** le portfolio D. Mk publié aujourd'hui. Éviter cette confusion fait partie de la traçabilité recherchée.
+
+## Transparence et confidentialité
+
+- Les sources dans `showcase/` sont des **copies du frontend public** au 30/10/2026, pas des dépôts backend complets ni une liaison automatique de déploiement.
+- L'API Cloudflare et les services métiers authentifiés sont hébergés séparément. Leurs clés secrètes ne figurent pas ici.
+- Une clé Supabase **publishable**, présente dans le JavaScript livré publiquement aux navigateurs, n'est pas une clé `service_role` : les protections doivent être assurées côté serveur, par les permissions et les règles de base de données.
+- Les exports doivent être configurés et essayés sur les plateformes cibles avant activation.
+
+[Consulter la politique de publication](docs/SECURITE-ET-CONFIDENTIALITE.md)
 
 ---
 
-# 🌍 Production
+**Consulter les applications :** [D. Mk](https://portfolio-d-mk.vercel.app/portfolio/) · [Workflow Architect](https://workflow-architect-flax.vercel.app/) · [OPS COMMAND](https://ops-command-studio-kdkongodervilons-projects.vercel.app/)
 
-Build optimisé :
-
-```bash
-npm run build
-```
-
-Déploiement recommandé : **Vercel**
-
----
-
-# 🎯 Objectif du projet
-
-Ce portfolio illustre :
-- Expertise IA & LLM (Chatbot, Quiz IA)
-- Vision Product (UX, flows, KPI, ROI)
-- Architecture frontend/back moderne
-- Automatisation n8n
-- Maîtrise de React avancé & design MUI
-
-➡️ **Un produit IA complet, idéal pour recruteurs, entreprises et investisseurs.**
+*Dossier technique maintenu pour permettre la lecture rapide, la vérification et la discussion des choix produit avec un recruteur ou une équipe technique.*

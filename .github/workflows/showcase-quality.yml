@@ -1,0 +1,33 @@
+name: Portfolio evidence — QA and drift
+on:
+  push:
+    paths:
+      - 'README.md'
+      - 'docs/**'
+      - 'showcase/**'
+      - 'scripts/verify-showcase.mjs'
+      - '.github/workflows/showcase-quality.yml'
+  pull_request:
+    paths:
+      - 'docs/**'
+      - 'showcase/**'
+      - 'scripts/verify-showcase.mjs'
+  workflow_dispatch:
+  schedule:
+    - cron: '17 7 * * *'
+permissions:
+  contents: read
+jobs:
+  source-evidence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Static evidence and compiler safety checks
+        run: node scripts/verify-showcase.mjs
+      - name: Compare public live asset snapshots (scheduled/manual)
+        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+        run: node scripts/verify-showcase.mjs --live
