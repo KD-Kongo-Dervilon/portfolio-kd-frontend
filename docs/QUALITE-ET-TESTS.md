@@ -48,3 +48,19 @@ Cette commande effectue uniquement des requêtes GET publiques. Une divergence s
 Un fichier généré n'est **pas** une automatisation validée. Avant de déclarer une intégration fonctionnelle : importer sur la plateforme, relier un compte test, inspecter chaque module, vérifier conditions, droits, doublons et reprises, puis activer seulement avec une procédure de retour arrière.
 
 [Workflow Architect](projets/WORKFLOW-ARCHITECT.md) · [OPS COMMAND](projets/OPS-COMMAND-STUDIO.md)
+
+
+## Recette complémentaire — 31 octobre 2026
+
+Revue réalisée à partir du dernier déploiement **READY** du projet Vercel \`dmk-portfolio\`, sans remplacement du backend ou des autres applications.
+
+- **Accueil** : trois cartes précisément, dans l'ordre HelpDesk Flow, BudgetFlow, PRISME.
+- **Catalogue** : trois projets principaux et quatre projets complémentaires, dont HitDNA et D.k Academy dans la même section que les deux nouvelles applications.
+- **PRISME et autres cartes** : cadres de captures unifiés, informations métier et liens préservés.
+- **Documentation du site** : huit dossiers récents ajoutés au centre documentaire ; ancien guide GitHub corrigé, anciens documents d'architecture explicitement datés.
+- **Écrans contrôlés** : 1440 × 900, 820 × 1080, 390 × 844.
+- **Résultat** : pas de débordement horizontal ni d'erreur JavaScript détectés dans les parcours de contrôle.
+- **Capture Workflow Architect** : remplacée par une capture de l'interface publique qui nomme réellement **Cloudflare Workers AI**.
+- **Méthode de publication** : correction ciblée via une route Vercel pour \`/portfolio/project-ops.js\`, permettant de conserver le déploiement applicatif principal.
+
+Ces vérifications ne couvrent pas toutes les routes du portfolio, les comptes Supabase, l'import réel Make/n8n ni l'ensemble des interactions clavier/lecteur d'écran.

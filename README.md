@@ -9,7 +9,7 @@
 [![OPS COMMAND](https://img.shields.io/badge/OPS%20COMMAND-d%C3%A9mo-254852?style=flat-square)](https://ops-command-studio-kdkongodervilons-projects.vercel.app/)
 [![Vérification des preuves](https://github.com/KD-Kongo-Dervilon/portfolio-kd-frontend/actions/workflows/showcase-quality.yml/badge.svg)](https://github.com/KD-Kongo-Dervilon/portfolio-kd-frontend/actions/workflows/showcase-quality.yml)
 
-**Dernière revue du dossier : 30 octobre 2026.** Ce dépôt présente le portfolio actuel, conserve son historique React et réunit des instantanés vérifiables des interfaces publiques. Il n'est **pas** le dépôt de déploiement du site D. Mk : les applications Vercel actuelles sont déployées séparément.
+**Dernière revue du dossier : 31 octobre 2026.** Ce dépôt présente le portfolio actuel, conserve son historique React et réunit des instantanés vérifiables des interfaces publiques. Il n'est **pas** le dépôt de déploiement du site D. Mk : les applications Vercel actuelles sont déployées séparément.
 
 ## En deux minutes : mes réalisations
 
@@ -22,11 +22,14 @@
 
 ### Deux interfaces visibles
 
+**Parcours de découverte :** seulement **HelpDesk Flow, BudgetFlow et PRISME** sont présentés en accueil. La page Projets regroupe ces trois projets et les quatre autres réalisations (OPS COMMAND Studio, Workflow Architect, HitDNA, D.k Academy), avec des cartes uniformisées. [Voir la recette du 31 octobre](docs/projets/PORTFOLIO-DMK.md).
+
+
 | Workflow Architect | OPS COMMAND Studio |
 | --- | --- |
-| ![Capture de Workflow Architect](https://portfolio-d-mk.vercel.app/portfolio/assets/screens/workflow-architect-capture-v4.jpg) | ![Capture d'OPS COMMAND Studio](https://portfolio-d-mk.vercel.app/portfolio/assets/screens/ops-command-capture-v4.jpg) |
+| ![Capture de Workflow Architect](https://dmk-portfolio-ui-20261031-26c08dst2-kdkongodervilons-projects.vercel.app/workflow-current-20261031.jpg) | ![Capture d'OPS COMMAND Studio](https://portfolio-d-mk.vercel.app/portfolio/assets/screens/ops-command-capture-v4.jpg) |
 
-*Captures hébergées sur le portfolio public. La disponibilité des captures et le rendu des cartes ont été contrôlés sur desktop et mobile le 30/10/2026.*
+*Captures réelles des applications publiques, dont Workflow Architect avec Cloudflare Workers AI. Contrôle des cartes le 31/10/2026 sur ordinateur, tablette et mobile.*
 
 ## Méthode de travail
 

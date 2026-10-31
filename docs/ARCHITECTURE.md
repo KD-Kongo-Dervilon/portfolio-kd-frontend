@@ -41,3 +41,18 @@ Le script `node scripts/verify-showcase.mjs --live` détecte une divergence sur 
 - Les limitations sont écrites à côté des preuves positives.
 
 [Maintenance](MAINTENANCE.md) · [Sécurité](SECURITE-ET-CONFIDENTIALITE.md)
+
+
+## Mise à jour de la vitrine — 31 octobre 2026
+
+La couche de présentation des projets est servie par une **réécriture de route Vercel**, appliquée au projet existant \`dmk-portfolio\` :
+
+\`\`\`text
+portfolio-d-mk.vercel.app/portfolio/              → déploiement existant dmk-portfolio
+portfolio-d-mk.vercel.app/portfolio/project-ops.js → dmk-portfolio-ui-20261031.vercel.app/project-ops.js
+portfolio-d-mk.vercel.app/api/*                    → API d'origine, inchangées
+\`\`\`
+
+La couche assure l'affichage de trois cartes sélectionnées à l'accueil, la répartition des sept projets, l'uniformisation visuelle et l'intégration de huit documents récents. Son code est publié en instantané dans GitHub, et sa dérive par rapport au script en ligne est contrôlée par GitHub Actions.
+
+**Attention :** une réécriture de route dédiée est une solution de correction ciblée, pas une synchronisation automatisée entre Vercel et GitHub ni une refonte complète du projet source. Réviser ce routage lors d'une future consolidation du code principal.

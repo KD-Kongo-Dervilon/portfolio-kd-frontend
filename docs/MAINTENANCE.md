@@ -34,3 +34,14 @@ Créer un dépôt Git de référence par produit ou connecter les projets Vercel
 Une mise à jour de preuve est terminée lorsque le frontend public correspond aux sources suivies, la documentation dit ce qui a été testé, la CI est verte, les données privées sont protégées et les liens sont opérationnels.
 
 [Qualité](QUALITE-ET-TESTS.md) · [Sécurité](SECURITE-ET-CONFIDENTIALITE.md)
+
+
+## Publication ciblée de la présentation — 31 octobre 2026
+
+Le site conserve son déploiement principal sur Vercel (\`dmk-portfolio\`). Un correctif frontend public distinct (\`dmk-portfolio-ui-20261031\`) est appliqué exclusivement à \`/portfolio/project-ops.js\` au moyen d'une route Vercel. Il corrige les cartes Projets et enrichit le centre documentaire, sans recompiler les fonctions backend.
+
+Pour une future modification de cette couche : vérifier le dernier déploiement READY, modifier et contrôler d'abord la version de remplacement, valider mobile/tablette/desktop, publier puis contrôler l'URL publique et **synchroniser** \`showcase/portfolio/project-ops.js\`. Toute modification documentaire embarquée dans ce script nécessite également une mise à jour du document Markdown sur GitHub.
+
+Pour revenir à la présentation antérieure, restaurer la version précédente des règles de routage Vercel du projet \`dmk-portfolio\`. **Ne pas supprimer les fichiers du déploiement principal.**
+
+[Étude de projet et recette](projets/PORTFOLIO-DMK.md)

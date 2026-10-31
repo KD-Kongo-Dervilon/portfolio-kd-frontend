@@ -1,12 +1,16 @@
 # Dossier recruteur — D. Mk
 
-**Lecture : environ 2 minutes · Revue du 30 octobre 2026**
+**Lecture : environ 2 minutes · Revue du 31 octobre 2026**
 
 ## Profil et proposition de valeur
 
 Je m'intéresse aux rôles de **chef de projet digital, Product Owner et chef de projet IA**, à la croisée de l'analyse du besoin, de l'organisation métier et de la mise en œuvre technique.
 
 Ma démarche consiste à transformer une situation métier ambiguë en parcours structuré : comprendre qui fait quoi, avec quelles données, identifier les validations indispensables et rendre le résultat testable.
+
+## Une vitrine organisée en deux niveaux
+
+L’accueil présente **trois projets sélectionnés** : HelpDesk Flow, BudgetFlow et PRISME. La page **Projets** conserve les sept réalisations dans une présentation uniforme, dont quatre projets complémentaires : OPS COMMAND Studio, Workflow Architect, HitDNA et D.k Academy. Un recruteur peut explorer la preuve, consulter les choix produit ou lancer une démonstration.
 
 ## Trois démonstrations complémentaires
 

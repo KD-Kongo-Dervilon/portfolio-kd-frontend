@@ -1,6 +1,6 @@
 # Workflow Architect — Étude de projet
 
-![Capture de Workflow Architect](https://portfolio-d-mk.vercel.app/portfolio/assets/screens/workflow-architect-capture-v4.jpg)
+![Capture de Workflow Architect](https://dmk-portfolio-ui-20261031-26c08dst2-kdkongodervilons-projects.vercel.app/workflow-current-20261031.jpg)
 
 **Démo :** https://workflow-architect-flax.vercel.app/  
 **Source client :** [index.html](../../showcase/workflow-architect/index.html) · [workflow-architect-ai.js](../../showcase/workflow-architect/workflow-architect-ai.js)  

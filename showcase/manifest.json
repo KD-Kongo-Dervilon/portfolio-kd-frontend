@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "verifiedAt": "2026-10-30",
+  "verifiedAt": "2026-10-31",
   "scope": "Public frontend snapshots only; not a source-of-truth deployment repo",
   "sync": "manual; scheduled drift detection only",
   "sourceFiles": [
@@ -44,5 +44,17 @@
     "Private Cloudflare Workers AI token",
     "OPS COMMAND Supabase Edge Function and database secrets",
     "Current full D. Mk server deployment source"
-  ]
+  ],
+  "uiRelease": {
+    "project": "dmk-portfolio-ui-20261031",
+    "route": "/portfolio/project-ops.js",
+    "sourceProject": "dmk-portfolio",
+    "scope": "frontend cards + current docs; no backend modification",
+    "screenSizes": [
+      "1440px",
+      "820px",
+      "390px"
+    ],
+    "newScreenshot": "https://dmk-portfolio-ui-20261031-26c08dst2-kdkongodervilons-projects.vercel.app/workflow-current-20261031.jpg"
+  }
 }

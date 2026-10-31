@@ -1,5 +1,15 @@
 # Changelog documentaire
 
+## 2026-10-31 — Synchronisation du portfolio publié sur Vercel
+
+- Accueil limité à trois projets sélectionnés, sans changer le titre.
+- Page Projets : **trois principaux et quatre autres réalisations**, dont HitDNA et D.k Academy réunis avec OPS COMMAND et Workflow Architect.
+- Cadres des captures et contenu des cartes harmonisés, dont PRISME.
+- Huit dossiers récents intégrés au centre de Documentation, avec l'ancien guide GitHub corrigé.
+- Nouvelle capture réelle de Workflow Architect affichant Cloudflare Workers AI.
+- Correctif isolé sur Vercel, via une réécriture de la route de présentation `/portfolio/project-ops.js` ; déploiement principal et API inchangés.
+- Tests d'interface réalisés sur ordinateur 1440 px, tablette 820 px et mobile 390 px.
+
 ## 2026-10-30 — Refonte des preuves GitHub
 
 - Présentation GitHub recentrée sur le **portfolio D. Mk actuel** et les réalisations Workflow Architect / OPS COMMAND Studio.
