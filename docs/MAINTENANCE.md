@@ -50,3 +50,15 @@ Pour revenir à la présentation antérieure, restaurer la version précédente 
 ## Cohérence des preuves
 
 Maintenir les sept fiches de la page Preuves alignées avec les projets, les documents réellement accessibles et les limites testées.
+
+## Garder le centre documentaire cohérent
+
+Chaque projet visible dans le catalogue doit disposer d'une **fiche documentaire au même format** que les autres. Ne jamais injecter une grande section « Mise à jour » hors des fiches projets pour corriger rapidement le manque de documents : cela casse la cohérence du parcours recruteur.
+
+Lorsqu'un des 33 documents de PRISME, OPS COMMAND ou Workflow Architect change :
+
+1. mettre à jour son fichier Markdown dans `docs/catalogue/projects/`,
+2. répercuter son texte dans le code de présentation Vercel,
+3. recetter le lien direct, la recherche, les vues mobile et desktop,
+4. vérifier la comparaison de sources en ligne et GitHub,
+5. consigner les limites réelles, sans annoncer de tests non effectués.

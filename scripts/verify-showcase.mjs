@@ -83,6 +83,19 @@ function verifyLocal() {
   ok(portfolioScript.includes("const ordered=names.map("),'Project reorder is idempotent, avoiding DOM mutation loops');
   ok(portfolioScript.includes("updateDocumentation(root)"),'Current documentation is integrated into the rendered portfolio');
 
+  ok(portfolioScript.includes("function nativeDocGroup("),'Documentation uses native case-study cards');
+  ok(portfolioScript.includes("titleMatches=!!query&&title.includes(query)"),'Document search supports project names');
+  ok(!portfolioScript.includes("section.className='doc-category dmk-current-docs'"),'Separate 2026 update box removed');
+  const docMarker='const projectDocumentation=';
+  const docStart=portfolioScript.indexOf(docMarker)+docMarker.length;
+  const docEnd=portfolioScript.indexOf(';\\nconst projectDocGroups=',docStart);
+  ok(docStart>docMarker.length&&docEnd>docStart,'Embedded project documents can be inspected');
+  const liveDocuments=JSON.parse(portfolioScript.slice(docStart,docEnd));
+  ok(Object.keys(liveDocuments).length===33,'Three project documentation sets, 11 files each');
+  for(const [path,content] of Object.entries(liveDocuments)){
+    ok(load('docs/catalogue/'+path).trimEnd()===content.trimEnd(),'GitHub document matches Vercel source: '+path);
+  }
+
   for(const textPath of ['README.md','docs/ARCHITECTURE.md','docs/QUALITE-ET-TESTS.md','docs/SECURITE-ET-CONFIDENTIALITE.md']){
     const content=load(textPath);
     ok(content.length>500,'documented: '+textPath);

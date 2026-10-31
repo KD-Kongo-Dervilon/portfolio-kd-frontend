@@ -69,3 +69,18 @@ Ces vérifications ne couvrent pas toutes les routes du portfolio, les comptes S
 ## Recette de l'organisation unifiée
 
 Vérifier un seul groupe de sept cartes sur la page Projets, sans doublons, les trois projets de l'accueil, les sept liens vérifiables de la page Preuves et l'absence de débordement sur mobile. Ces contrôles ne certifient pas les intégrations tierces ni les fonctions backend.
+
+## Validation documentaire — 31 octobre 2026
+
+À la suite du retour sur le manque d'homogénéité de la documentation, le centre documentaire a été réorganisé pour utiliser exactement les catégories visuelles existantes des dossiers HelpDesk Flow et BudgetFlow.
+
+- Trois dossiers supplémentaires intégrés de manière native : PRISME, OPS COMMAND Studio et Workflow Architect.
+- Chaque nouveau dossier : 11 pièces explicites et accessibles (7 principales, 4 complémentaires) ; total 33 pièces de cadrage et vérification.
+- Le bloc séparé « Mise à jour · 31 octobre 2026 » est supprimé.
+- Les anciennes sources et les documents transversaux restent accessibles.
+- La recherche retrouve les nouveaux dossiers par nom de projet.
+- Des routes de documents directs ont été ouvertes sur desktop et mobile, sans écran bloqué sur « Chargement de la documentation… » dans la version validée.
+- Le catalogue conserve sept projets dans la même grille ; la rubrique Preuves conserve sept fiches.
+- L'API Cloudflare répond toujours, aucune fonctionnalité backend n'a été remplacée.
+
+**Portée :** vérifications d'interface et de contenu ; aucune certification supplémentaire des imports Make/n8n, des rôles Supabase ou des connecteurs externes.

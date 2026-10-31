@@ -61,3 +61,11 @@ La couche assure l'affichage de trois cartes sélectionnées à l'accueil, la r�
 ## Navigation des projets et des preuves
 
 Les sept réalisations sont présentées dans une seule grille sur la page Projets et reliées à la page Preuves. Le portefeuille conserve trois projets sélectionnés sur l'accueil.
+
+## Documentation native des projets — 31 octobre 2026
+
+L'interface Vercel conserve son système de navigation `#/docs/projects/<ID>/<DOCUMENT>.md`. Le composant de présentation complémentaire insère trois dossiers au **format natif** dans la même grille `.docs-grid` que les documents historiques. Les nouveaux textes sont chargés dans le même dictionnaire documentaire que les anciens (sans interrompre le chargement asynchrone de `content/docs.json`).
+
+Les 33 nouveaux fichiers Markdown sont versionnés sous `docs/catalogue/projects/PRM/`, `docs/catalogue/projects/OPS/` et `docs/catalogue/projects/WA/`. Les pages transversales 2026 sont associées aux catégories historiques au lieu d'être affichées dans une rubrique isolée. La recherche par projet et par nom de document fonctionne sur les dossiers ajoutés.
+
+L'API du portfolio, Cloudflare Workers AI et les autres applications restent hébergés indépendamment.

@@ -54,3 +54,13 @@ Les contrôles ne constituent pas un audit d'accessibilité exhaustif ni une cer
 ## Organisation corrigée — 31 octobre 2026
 
 L'accueil conserve trois projets. Sur la page Projets, les sept réalisations sont désormais **dans une seule grille**, sans sous-section « Autres réalisations ». Les sept cartes utilisent les mêmes structures d'informations, cadres d'image et blocs de compétences. La page **Preuves** comporte un accès documenté pour chaque projet.
+
+## Centre documentaire harmonisé — 31 octobre 2026
+
+Les dossiers de **PRISME, OPS COMMAND Studio et Workflow Architect** ont été intégrés directement à la grille documentaire native du portfolio, au même niveau que HelpDesk Flow, BudgetFlow, HitDNA et D.k Academy.
+
+Le grand encadré de mise à jour séparé a été supprimé : chaque nouvelle fiche de projet utilise maintenant le modèle existant « Étude de cas » avec **sept documents principaux** (vision, besoins, MVP, attentes, priorités, roadmap et test) et **quatre documents complémentaires** (architecture, décisions, sécurité et étude de cas). Cela représente **11 fiches structurées par projet**, soit 33 nouveaux documents, sans inventer de performances ou de résultats d'intégration non testés.
+
+Les documents intégrés sont archivés individuellement dans [docs/catalogue/projects](../catalogue/projects) afin de faciliter leur consultation et leur comparaison avec le site public. Les documents transversaux récents ont été rangés dans les catégories existantes « Démarche produit », « Tests et accessibilité », « Architecture et exploitation » et « Vie privée et transparence ».
+
+**Contrôles effectués :** chargement des pages, absence de bloc daté à part, liens directs aux nouveaux documents, recherche documentaire par nom de projet, sept cartes Projets et sept entrées Preuves, sur écrans 1440 px et 390 px. Les anciennes pages et les API restent intactes.

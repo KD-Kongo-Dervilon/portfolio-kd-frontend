@@ -49,6 +49,10 @@
 
 [Lire la recette détaillée](docs/QUALITE-ET-TESTS.md) · [Lire l'architecture](docs/ARCHITECTURE.md)
 
+## Documentation au même niveau pour tous les projets
+
+Le [centre documentaire du portfolio](https://portfolio-d-mk.vercel.app/portfolio/#/docs) présente désormais PRISME, OPS COMMAND Studio et Workflow Architect selon le **même modèle de fiche** que HelpDesk Flow et BudgetFlow. Chaque nouveau projet comprend 11 documents de cadrage et de vérification. Leurs [33 sources Markdown](docs/catalogue/projects) sont consultables dans GitHub ; elles distinguent soigneusement ce qui est testé de ce qui reste à certifier.
+
 ## Repères pour naviguer dans ce dépôt
 
 ```text

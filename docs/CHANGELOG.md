@@ -1,5 +1,14 @@
 # Changelog documentaire
 
+## 2026-10-31 — Documentation native harmonisée
+
+- Suppression du bloc documentaire séparé qui n'utilisait pas le même style que HelpDesk Flow et BudgetFlow.
+- Dossiers natifs PRISME, OPS COMMAND Studio et Workflow Architect, 11 documents chacun.
+- 33 documents Markdown répertoriés dans GitHub, avec statut de validation honnête.
+- Documents transversaux classés dans les sections existantes.
+- Recherche réparée pour reconnaître les noms de projets, tests sur mobile et ordinateur.
+- Aucune modification des services IA ou du backend.
+
 ## 2026-10-31 — Sept réalisations réunies et preuves actualisées
 
 - Un seul catalogue de **sept projets** sur la page Projets, sans séparation « Autres réalisations ».

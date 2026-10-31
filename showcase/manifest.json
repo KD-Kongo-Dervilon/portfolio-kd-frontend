@@ -65,5 +65,17 @@
       "820px",
       "390px"
     ]
+  },
+  "documentationRelease": {
+    "layout": "same native case study cards as HelpDesk Flow / BudgetFlow",
+    "currentProjectDocs": [
+      "PRM",
+      "OPS",
+      "WA"
+    ],
+    "newDocuments": 33,
+    "sourceFolder": "docs/catalogue/projects",
+    "searchByProjectName": true,
+    "legacyDocsPreserved": true
   }
 }
