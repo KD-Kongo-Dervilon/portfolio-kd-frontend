@@ -88,7 +88,7 @@ function verifyLocal() {
   ok(!portfolioScript.includes("section.className='doc-category dmk-current-docs'"),'Separate 2026 update box removed');
   const docMarker='const projectDocumentation=';
   const docStart=portfolioScript.indexOf(docMarker)+docMarker.length;
-  const docEnd=portfolioScript.indexOf(';\\nconst projectDocGroups=',docStart);
+  const docEnd=portfolioScript.indexOf(';\nconst projectDocGroups=',docStart);
   ok(docStart>docMarker.length&&docEnd>docStart,'Embedded project documents can be inspected');
   const liveDocuments=JSON.parse(portfolioScript.slice(docStart,docEnd));
   ok(Object.keys(liveDocuments).length===33,'Three project documentation sets, 11 files each');
