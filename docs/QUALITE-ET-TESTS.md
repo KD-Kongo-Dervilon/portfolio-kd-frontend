@@ -55,7 +55,7 @@ Un fichier généré n'est **pas** une automatisation validée. Avant de déclar
 Revue réalisée à partir du dernier déploiement **READY** du projet Vercel \`dmk-portfolio\`, sans remplacement du backend ou des autres applications.
 
 - **Accueil** : trois cartes précisément, dans l'ordre HelpDesk Flow, BudgetFlow, PRISME.
-- **Catalogue** : trois projets principaux et quatre projets complémentaires, dont HitDNA et D.k Academy dans la même section que les deux nouvelles applications.
+- **Catalogue** : sept projets dans une grille unique, sans rubrique secondaire, avec le même niveau de présentation pour HitDNA, D.k Academy, Workflow Architect et OPS COMMAND Studio.
 - **PRISME et autres cartes** : cadres de captures unifiés, informations métier et liens préservés.
 - **Documentation du site** : huit dossiers récents ajoutés au centre documentaire ; ancien guide GitHub corrigé, anciens documents d'architecture explicitement datés.
 - **Écrans contrôlés** : 1440 × 900, 820 × 1080, 390 × 844.
@@ -64,3 +64,8 @@ Revue réalisée à partir du dernier déploiement **READY** du projet Vercel \`
 - **Méthode de publication** : correction ciblée via une route Vercel pour \`/portfolio/project-ops.js\`, permettant de conserver le déploiement applicatif principal.
 
 Ces vérifications ne couvrent pas toutes les routes du portfolio, les comptes Supabase, l'import réel Make/n8n ni l'ensemble des interactions clavier/lecteur d'écran.
+
+
+## Recette de l'organisation unifiée
+
+Vérifier un seul groupe de sept cartes sur la page Projets, sans doublons, les trois projets de l'accueil, les sept liens vérifiables de la page Preuves et l'absence de débordement sur mobile. Ces contrôles ne certifient pas les intégrations tierces ni les fonctions backend.

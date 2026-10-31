@@ -56,3 +56,8 @@ portfolio-d-mk.vercel.app/api/*                    → API d'origine, inchangée
 La couche assure l'affichage de trois cartes sélectionnées à l'accueil, la répartition des sept projets, l'uniformisation visuelle et l'intégration de huit documents récents. Son code est publié en instantané dans GitHub, et sa dérive par rapport au script en ligne est contrôlée par GitHub Actions.
 
 **Attention :** une réécriture de route dédiée est une solution de correction ciblée, pas une synchronisation automatisée entre Vercel et GitHub ni une refonte complète du projet source. Réviser ce routage lors d'une future consolidation du code principal.
+
+
+## Navigation des projets et des preuves
+
+Les sept réalisations sont présentées dans une seule grille sur la page Projets et reliées à la page Preuves. Le portefeuille conserve trois projets sélectionnés sur l'accueil.

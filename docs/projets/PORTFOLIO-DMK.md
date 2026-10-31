@@ -8,13 +8,12 @@
 
 Un recruteur doit pouvoir comprendre en quelques minutes la nature des projets, les décisions produit et les preuves, sans parcourir un catalogue désordonné.
 
-La vitrine possède deux niveaux clairement séparés :
+La vitrine distingue uniquement trois aperçus à l’accueil et un catalogue complet de sept projets dans une grille unique :
 
 | Emplacement | Projets | Rôle |
 | --- | --- | --- |
 | **Accueil — 3 projets sélectionnés** | HelpDesk Flow, BudgetFlow, PRISME | Offrir trois points d'entrée immédiats |
-| **Page Projets — principaux** | HelpDesk Flow, PRISME, BudgetFlow | Détailler la démarche et les applications |
-| **Page Projets — autres réalisations** | OPS COMMAND Studio, Workflow Architect, HitDNA, D.k Academy | Montrer quatre autres applications avec le même niveau de preuve |
+| **Page Projets — tous les projets** | HelpDesk Flow, PRISME, BudgetFlow, OPS COMMAND Studio, Workflow Architect, HitDNA, D.k Academy | Sept réalisations présentées dans une seule grille |
 
 Le titre « Trois projets à découvrir » de l'accueil correspond désormais aux **trois cartes réellement affichées**. Les deux réalisations récentes ne sont plus injectées dans cette section.
 
@@ -23,7 +22,7 @@ Le titre « Trois projets à découvrir » de l'accueil correspond désormais au
 - Cadres de captures à **235 px de hauteur** dans les cartes et même traitement des légendes.
 - Présentation harmonisée : **problème**, **contribution produit**, **choix de conception**, **état et limites**, **liens de preuve** et **compétences**.
 - Suppression du bandeau PRISME redondant qui rompait l'équilibre de la page Projets ; PRISME conserve sa propre carte et sa documentation.
-- Sur ordinateur : 3 cartes principales et les 4 autres en grille à deux colonnes ; adaptation en colonnes responsive sur petits écrans.
+- Sur ordinateur : une grille unique de sept réalisations à trois colonnes, puis deux colonnes sur tablette et une seule sur mobile.
 - Les nouvelles cartes renvoient vers une **étude de projet sur le portfolio**, la démonstration réelle et la documentation GitHub.
 
 **Captures actuelles :** [Workflow Architect — Cloudflare Workers AI](https://dmk-portfolio-ui-20261031-26c08dst2-kdkongodervilons-projects.vercel.app/workflow-current-20261031.jpg) · [OPS COMMAND Studio](https://portfolio-d-mk.vercel.app/portfolio/assets/screens/ops-command-capture-v4.jpg)
@@ -41,7 +40,7 @@ Cela évite de republier ou d'écraser les fonctions API, la configuration IA et
 | Contrôle navigateur | 1440 px | 820 px | 390 px |
 | --- | --- | --- | --- |
 | Accueil : exactement 3 projets | Réussi | Réussi | Réussi |
-| Projets : répartition 3 + 4 | Réussi | Réussi | Réussi |
+| Projets : 7 cartes dans une même grille | Réussi | Réussi | Réussi |
 | Les 7 captures affichées dans des cadres équivalents | Réussi | Réussi | Réussi |
 | Documentation : 8 dossiers récents visibles | Réussi | Réussi | Réussi |
 | Aucun débordement horizontal | Réussi | Réussi | Réussi |
@@ -50,3 +49,8 @@ Cela évite de republier ou d'écraser les fonctions API, la configuration IA et
 Les contrôles ne constituent pas un audit d'accessibilité exhaustif ni une certification des intégrations tierces.
 
 [Qualité et tests](../QUALITE-ET-TESTS.md) · [Architecture](../ARCHITECTURE.md) · [GitHub et maintenance](../MAINTENANCE.md)
+
+
+## Organisation corrigée — 31 octobre 2026
+
+L'accueil conserve trois projets. Sur la page Projets, les sept réalisations sont désormais **dans une seule grille**, sans sous-section « Autres réalisations ». Les sept cartes utilisent les mêmes structures d'informations, cadres d'image et blocs de compétences. La page **Preuves** comporte un accès documenté pour chaque projet.

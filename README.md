@@ -105,3 +105,8 @@ Cette commande lance la version **historique** conservée dans ce dépôt, **pas
 **Consulter les applications :** [D. Mk](https://portfolio-d-mk.vercel.app/portfolio/) · [Workflow Architect](https://workflow-architect-flax.vercel.app/) · [OPS COMMAND](https://ops-command-studio-kdkongodervilons-projects.vercel.app/)
 
 *Dossier technique maintenu pour permettre la lecture rapide, la vérification et la discussion des choix produit avec un recruteur ou une équipe technique.*
+
+
+## Catalogue unifié — 31 octobre 2026
+
+L’accueil conserve trois projets sélectionnés ; la page Projets réunit les **sept réalisations dans une seule grille**, sans séparation « Autres réalisations ». La page Preuves propose sept entrées documentées avec limites vérifiables.

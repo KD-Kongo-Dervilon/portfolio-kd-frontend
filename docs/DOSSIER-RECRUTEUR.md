@@ -8,9 +8,9 @@ Je m'intéresse aux rôles de **chef de projet digital, Product Owner et chef de
 
 Ma démarche consiste à transformer une situation métier ambiguë en parcours structuré : comprendre qui fait quoi, avec quelles données, identifier les validations indispensables et rendre le résultat testable.
 
-## Une vitrine organisée en deux niveaux
+## Une vitrine unique
 
-L’accueil présente **trois projets sélectionnés** : HelpDesk Flow, BudgetFlow et PRISME. La page **Projets** conserve les sept réalisations dans une présentation uniforme, dont quatre projets complémentaires : OPS COMMAND Studio, Workflow Architect, HitDNA et D.k Academy. Un recruteur peut explorer la preuve, consulter les choix produit ou lancer une démonstration.
+L’accueil présente **trois projets sélectionnés** : HelpDesk Flow, BudgetFlow et PRISME. La page **Projets** rassemble les sept réalisations dans **une grille unique**, sans sous-section « Autres réalisations ». La page **Preuves** fournit pour chacun des sept projets un document ou un résultat de vérification, en distinguant ce qui a réellement été testé.
 
 ## Trois démonstrations complémentaires
 
@@ -44,3 +44,6 @@ Ces contrôles **ne prouvent pas** l'importation sur de vrais comptes n8n/Make, 
 - [Guide de synchronisation des preuves](MAINTENANCE.md)
 
 **Une réalisation crédible doit pouvoir être expliquée, testée et remise en question.**
+
+
+**Actualisation du 31 octobre 2026 :** les sept projets sont regroupés dans une seule grille et la page Preuves contient sept accès directs aux documents ou tests pertinents.

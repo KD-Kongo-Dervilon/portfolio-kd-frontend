@@ -55,6 +55,15 @@
       "820px",
       "390px"
     ],
-    "newScreenshot": "https://dmk-portfolio-ui-20261031-26c08dst2-kdkongodervilons-projects.vercel.app/workflow-current-20261031.jpg"
+    "newScreenshot": "https://dmk-portfolio-ui-20261031-26c08dst2-kdkongodervilons-projects.vercel.app/workflow-current-20261031.jpg",
+    "layout": "one unified grid with seven projects",
+    "evidence": "seven linked proof cards",
+    "home": "three featured projects",
+    "documentation": "eight current dossiers",
+    "previewQA": [
+      "1440px",
+      "820px",
+      "390px"
+    ]
   }
 }

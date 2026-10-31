@@ -45,3 +45,8 @@ Pour une future modification de cette couche : vérifier le dernier déploiement
 Pour revenir à la présentation antérieure, restaurer la version précédente des règles de routage Vercel du projet \`dmk-portfolio\`. **Ne pas supprimer les fichiers du déploiement principal.**
 
 [Étude de projet et recette](projets/PORTFOLIO-DMK.md)
+
+
+## Cohérence des preuves
+
+Maintenir les sept fiches de la page Preuves alignées avec les projets, les documents réellement accessibles et les limites testées.

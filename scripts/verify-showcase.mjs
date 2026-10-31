@@ -76,6 +76,13 @@ function verifyLocal() {
   ok(JSON.parse(JSON.stringify(make)).flow.length === 4,'Make blueprint serializes');
   ok(script.includes("const API='/api/generate'"),'AI API uses a same-origin server endpoint');
 
+  const portfolioScript=load('showcase/portfolio/project-ops.js');
+  ok(portfolioScript.includes('Sept projets, sept preuves à consulter'),'Portfolio includes a seven-project evidence catalogue');
+  ok(portfolioScript.includes("secondary.closest('.recruiter-other-projects')?.remove()"),'No separate secondary project section remains');
+  ok(portfolioScript.includes("const names=['HelpDesk Flow','PRISME','BudgetFlow','OPS COMMAND Studio','Workflow Architect','HitDNA','D.k Academy']"),'Seven distinct projects share one planned order');
+  ok(portfolioScript.includes("const ordered=names.map("),'Project reorder is idempotent, avoiding DOM mutation loops');
+  ok(portfolioScript.includes("updateDocumentation(root)"),'Current documentation is integrated into the rendered portfolio');
+
   for(const textPath of ['README.md','docs/ARCHITECTURE.md','docs/QUALITE-ET-TESTS.md','docs/SECURITE-ET-CONFIDENTIALITE.md']){
     const content=load(textPath);
     ok(content.length>500,'documented: '+textPath);

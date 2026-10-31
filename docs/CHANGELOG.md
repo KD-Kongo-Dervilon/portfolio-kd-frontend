@@ -1,5 +1,14 @@
 # Changelog documentaire
 
+## 2026-10-31 — Sept réalisations réunies et preuves actualisées
+
+- Un seul catalogue de **sept projets** sur la page Projets, sans séparation « Autres réalisations ».
+- Les cartes HitDNA et D.k Academy ont les mêmes blocs de compétences que les cinq autres ; la présentation reste harmonisée.
+- **Sept entrées documentées dans Preuves**, une par projet, avec liens vers tests, études de cas et démos.
+- Distinction explicite entre l'ancien assistant local et Cloudflare Workers AI.
+- Accueil maintenu à trois projets ; documentation Vercel et GitHub alignée.
+- Tests navigateur de préproduction sur ordinateur, tablette et mobile, sans débordement horizontal ni erreur JavaScript observés.
+
 ## 2026-10-31 — Synchronisation du portfolio publié sur Vercel
 
 - Accueil limité à trois projets sélectionnés, sans changer le titre.
